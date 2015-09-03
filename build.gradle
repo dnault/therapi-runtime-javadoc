@@ -1,15 +1,54 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+  //      classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.+'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'maven-publish'
+
+//apply plugin: 'provided-base'
 
 repositories {
     jcenter()
 }
 
 dependencies {
+    compile files(System.properties['java.home'] + "/../lib/tools.jar")
+
     compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'org.slf4j:slf4j-simple:1.7.12'
+
+    compile 'com.google.guava:guava:18.0'
+
+    def jacksonVersion = '2.6.1'
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:${jacksonVersion}"
+
 
     testCompile 'junit:junit:4.12'
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+group = "com.github.dnault.therapi"
+version = "0.1.0-SNAPSHOT"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+task install {
+    dependsOn(publishToMavenLocal)
+}
