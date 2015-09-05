@@ -13,15 +13,19 @@ public class RuntimeSeeTag extends RuntimeTag implements Serializable {
     private final String referencedMemberName;
 
     public RuntimeSeeTag(@JsonProperty("name") String name,
-                         @JsonProperty("kind") String kind,
                          @JsonProperty("text") String text,
                          @JsonProperty("label") String label,
                          @JsonProperty("referencedClassName") String referencedClassName,
                          @JsonProperty("referencedMemberName") String referencedMemberName) {
-        super(name, kind, text, ImmutableList.<RuntimeTag>of());
+        super(name, text, ImmutableList.<RuntimeTag>of());
         this.label = label;
         this.referencedClassName = referencedClassName;
         this.referencedMemberName = referencedMemberName;
+    }
+
+    @Override
+    public String getKind() {
+        return "@see";
     }
 
     public String getLabel() {

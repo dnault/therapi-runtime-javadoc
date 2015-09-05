@@ -15,12 +15,15 @@ public class Example {
      * image exists. When this applet attempts to draw the image on
      * the screen, the data will be loaded. The graphics primitives
      * that draw the image will incrementally paint on the screen.
+     * {@param foo inline param? really?} end of comment.
      *
      * @param  url  an absolute URL giving the base location of the image
-     * @PARAM  name the location of the {@link Image#getProperty(String, ImageObserver)}, relative to the url argument
-     * @return      the image at the specified URL
-     * @SEE         Image
-     * @custom.tag
+     * @param  name the location of the {@link Image#getProperty(String, ImageObserver)}, relative to the url argument
+     * @return      the image at the specified URL {@blurgle this is a blurgle tag}
+     * @see         Image
+     * @see http://foo.com
+     * @throws IllegalStateException just because, you know?
+     * @custom.tag This is my custom tag with a {@see Image} link
      */
     public Image getImage(URL url, String name) {
         try {

@@ -12,9 +12,8 @@ import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
+import com.sun.javadoc.ThrowsTag;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -44,7 +43,7 @@ public class RuntimeJavadocWriter {
 
             List<RuntimeMethodDoc> rtMethods = new ArrayList<>();
             for (MethodDoc m : c.methods(false)) {
-                rtMethods.add(new RuntimeMethodDoc(m.qualifiedName(), m.commentText(), m.signature(), newRuntimeTags(m.tags(), true)));
+                rtMethods.add(new RuntimeMethodDoc(m.qualifiedName(), m.commentText(), m.signature(), convertTags(m.tags()), convertInlineTags(m.inlineTags())));
             }
 
             RuntimeClassDoc rtClassDoc = new RuntimeClassDoc(c.qualifiedName(), c.commentText(), rtFields, rtMethods);
@@ -93,54 +92,53 @@ public class RuntimeJavadocWriter {
         return true;
     }
 
-    private void print(String name, String comment) throws IOException {
-        System.out.println(name + ": " + comment);
-        //if (comment != null && comment.length() > 0) {
-        //  new FileWriter(new File(outputDir, name + ".txt")).append(comment).close();
-        //}
+
+    private ImmutableList<RuntimeTag> convertTags(Tag[] tags) {
+        ImmutableList.Builder<RuntimeTag> list = ImmutableList.builder();
+        for (Tag t : tags) {
+            list.add(newRuntimeTag(t, newInlineTags(t)));
+        }
+        return list.build();
     }
 
 
-    protected RuntimeTag newRuntimeTag(Tag tag) {
-       // System.out.println("newRuntimeTag : " + tag);
+    private ImmutableList<RuntimeTag> convertInlineTags(Tag[] tags) {
+        ImmutableList.Builder<RuntimeTag> list = ImmutableList.builder();
+        for (Tag t : tags) {
+            list.add(newRuntimeTag(t, ImmutableList.<RuntimeTag>of()));
+        }
+        return list.build();
+    }
 
+    private RuntimeTag newRuntimeTag(Tag tag, ImmutableList<RuntimeTag> inlineTags) {
         if (tag instanceof SeeTag) {
-            return newRuntimeSeeTag((SeeTag) tag);
+            SeeTag t = (SeeTag) tag;
+            return new RuntimeSeeTag(t.name(), t.text(), t.label(), t.referencedClassName(), t.referencedMemberName());
         }
-//        if (tag instanceof ParamTag) {
-//            return newRuntimeParamTag((ParamTag) tag);
-//        }
 
-        return new RuntimeTag(tag.name(), tag.kind(), tag.text(), newInlineRuntimeTags(tag.inlineTags()));
+        if (tag instanceof ParamTag) {
+            ParamTag t = (ParamTag) tag;
+            return new RuntimeParamTag(t.name(), t.text(), inlineTags, t.isTypeParameter(), t.parameterName(), t.parameterComment());
+        }
+
+        if (tag instanceof ThrowsTag) {
+            ThrowsTag t = (ThrowsTag) tag;
+            return new RuntimeThrowsTag(t.name(), t.text(), inlineTags, t.exceptionName(), t.exceptionComment(), t.exceptionType().qualifiedTypeName());
+        }
+
+        if ("Text".equals(tag.name())) {
+            return new RuntimeTextTag(tag.text());
+        }
+
+        return new RuntimeTag(tag.name(), tag.text(), inlineTags);
     }
 
-//    private RuntimeTag newRuntimeParamTag(ParamTag t) {
-//        return new RuntimeParamTag(t.name(), t.kind(), t.text(), t.parameterName(), t.parameterComment(), t.isTypeParameter())
-//
-//    }
-
-    protected ImmutableList<RuntimeTag> newInlineRuntimeTags(Tag[] tags) {
+    private ImmutableList<RuntimeTag> newInlineTags(Tag tag) {
         ImmutableList.Builder<RuntimeTag> list = ImmutableList.builder();
-        for (Tag t : tags) {
-            if (t instanceof SeeTag) {
-                list.add(newRuntimeSeeTag((SeeTag) t));
-            } else {
-                list.add(new RuntimeTag(t.name(), t.kind(), t.text(), ImmutableList.<RuntimeTag>of()));
-            }
+        for (Tag t : tag.inlineTags()) {
+            list.add(newRuntimeTag(t, ImmutableList.<RuntimeTag>of()));
         }
         return list.build();
     }
 
-    private RuntimeSeeTag newRuntimeSeeTag(SeeTag t) {
-        return new RuntimeSeeTag(t.name(), t.kind(), t.text(), t.label(), t.referencedClassName(), t.referencedMemberName());
-    }
-
-    protected ImmutableList<RuntimeTag> newRuntimeTags(Tag[] tags, boolean recurse) {
-        ImmutableList.Builder<RuntimeTag> list = ImmutableList.builder();
-        for (Tag t : tags) {
-           // System.out.println("processing: " + System.identityHashCode(t));
-            list.add(newRuntimeTag(t));
-        }
-        return list.build();
-    }
 }

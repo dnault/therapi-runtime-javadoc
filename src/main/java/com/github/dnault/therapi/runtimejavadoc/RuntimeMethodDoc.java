@@ -2,6 +2,7 @@ package com.github.dnault.therapi.runtimejavadoc;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,16 +14,21 @@ public class RuntimeMethodDoc extends RuntimeDoc implements Serializable {
     private final String commentText;
     private final String signature;
 
+    private final ImmutableList<RuntimeTag> inlineTags;
+
+
     @JsonCreator
     public RuntimeMethodDoc(@JsonProperty("qualifiedName") String qualifiedName,
                             @JsonProperty("commentText") String commentText,
                             @JsonProperty("signature") String signature,
-                            @JsonProperty("tags") List<RuntimeTag> tags) {
+                            @JsonProperty("tags") List<RuntimeTag> tags,
+                            @JsonProperty("inlineTags") ImmutableList<RuntimeTag> inlineTags) {
         super(tags);
 
         this.qualifiedName = qualifiedName;
         this.commentText = commentText;
         this.signature = signature;
+        this.inlineTags = inlineTags;
     }
 
     public String getQualifiedName() {
@@ -35,5 +41,9 @@ public class RuntimeMethodDoc extends RuntimeDoc implements Serializable {
 
     public String getSignature() {
         return signature;
+    }
+
+    public ImmutableList<RuntimeTag> getInlineTags() {
+        return inlineTags;
     }
 }
