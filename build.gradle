@@ -67,3 +67,10 @@ task runtimeJavadoc(type: Javadoc) {
     options.docletpath = classpath.asType(List)
     options.doclet = "com.github.dnault.therapi.runtimejavadoc.RuntimeJavadocDoclet"
 }
+
+task myJavadocs(type: Javadoc) {
+    classpath = project.configurations.compile + project.files(project.sourceSets.main.output.classesDir)
+
+    source = sourceSets.main.allJava
+    failOnError=false
+}
