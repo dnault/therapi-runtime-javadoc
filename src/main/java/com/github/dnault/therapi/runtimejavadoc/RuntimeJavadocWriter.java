@@ -123,7 +123,9 @@ public class RuntimeJavadocWriter {
 
         if (tag instanceof ThrowsTag) {
             ThrowsTag t = (ThrowsTag) tag;
-            return new RuntimeThrowsTag(t.name(), t.text(), inlineTags, t.exceptionName(), t.exceptionComment(), t.exceptionType().qualifiedTypeName());
+            com.sun.javadoc.Type type = t.exceptionType();
+            // todo if type is null, bail out?
+            return new RuntimeThrowsTag(t.name(), t.text(), inlineTags, t.exceptionName(), t.exceptionComment(), type != null ? type.qualifiedTypeName() : null);
         }
 
         if ("Text".equals(tag.name())) {
