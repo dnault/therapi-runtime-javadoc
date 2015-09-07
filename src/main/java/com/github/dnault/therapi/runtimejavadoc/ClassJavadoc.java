@@ -6,18 +6,18 @@ import java.util.List;
 
 import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
-public class ClassDocumentation {
+public class ClassJavadoc {
     private final String name;
     private final Comment comment;
-    private final List<SeeAlsoDoc> seeAlso;
-    private final List<OtherDoc> other;
-    private final List<MethodDocumentation> methods;
+    private final List<SeeAlsoJavadoc> seeAlso;
+    private final List<OtherJavadoc> other;
+    private final List<MethodJavadoc> methods;
 
-    public ClassDocumentation(@JsonProperty("name") String name,
-                              @JsonProperty("comment") Comment comment,
-                              @JsonProperty("other") List<OtherDoc> other,
-                              @JsonProperty("seeAlso") List<SeeAlsoDoc> seeAlso,
-                              @JsonProperty("methods") List<MethodDocumentation> methods) {
+    public ClassJavadoc(@JsonProperty("name") String name,
+                        @JsonProperty("comment") Comment comment,
+                        @JsonProperty("other") List<OtherJavadoc> other,
+                        @JsonProperty("seeAlso") List<SeeAlsoJavadoc> seeAlso,
+                        @JsonProperty("methods") List<MethodJavadoc> methods) {
         this.name = name;
         this.comment = comment;
         this.other = unmodifiableDefensiveCopy(other);
@@ -34,15 +34,15 @@ public class ClassDocumentation {
         return comment;
     }
 
-    public List<SeeAlsoDoc> getSeeAlso() {
+    public List<SeeAlsoJavadoc> getSeeAlso() {
         return seeAlso;
     }
 
-    public List<OtherDoc> getOther() {
+    public List<OtherJavadoc> getOther() {
         return other;
     }
 
-    public List<MethodDocumentation> getMethods() {
+    public List<MethodJavadoc> getMethods() {
         return methods;
     }
 }

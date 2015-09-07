@@ -39,12 +39,12 @@ public class RuntimeJavadocWriter {
 
             // todo fields?
 
-            List<MethodDocumentation> method = new ArrayList<>();
+            List<MethodJavadoc> method = new ArrayList<>();
             for (MethodDoc m : c.methods(false)) {
                 method.add(newRuntimeMethodDoc(m));
             }
 
-            ClassDocumentation rtClassDoc = new ClassDocumentation(
+            ClassJavadoc rtClassDoc = new ClassJavadoc(
                     c.qualifiedName(),
                     getComment(c.inlineTags()),
                     getOther(c),
@@ -78,53 +78,53 @@ public class RuntimeJavadocWriter {
         return new File(parent, className + extension);
     }
 
-    private MethodDocumentation newRuntimeMethodDoc(MethodDoc m) {
+    private MethodJavadoc newRuntimeMethodDoc(MethodDoc m) {
         String name = m.name();
         String signature = m.signature();
         Comment comment = getComment(m.inlineTags());
 
-        List<ParamDoc> params = getParams(m);
-        List<ThrowsDoc> exceptions = getThrows(m);
-        List<SeeAlsoDoc> seeAlso = getSeeAlso(m);
-        List<OtherDoc> other = getOther(m);
+        List<ParamJavadoc> params = getParams(m);
+        List<ThrowsJavadoc> exceptions = getThrows(m);
+        List<SeeAlsoJavadoc> seeAlso = getSeeAlso(m);
+        List<OtherJavadoc> other = getOther(m);
         Tag returnTag = first(m.tags("@return"));
         Comment returns = returnTag == null ? null : getComment(returnTag.inlineTags());
-        return new MethodDocumentation(name, signature, comment, params, exceptions, other, returns, seeAlso);
+        return new MethodJavadoc(name, signature, comment, params, exceptions, other, returns, seeAlso);
     }
 
-    private List<OtherDoc> getOther(Doc m) {
-        List<OtherDoc> other = new ArrayList<>();
+    private List<OtherJavadoc> getOther(Doc m) {
+        List<OtherJavadoc> other = new ArrayList<>();
         for (Tag t : m.tags()) {
             if (t instanceof SeeTag || t instanceof ThrowsTag || t instanceof ParamTag ||
                     t.kind().equals("@return")) {
                 continue;
             }
 
-            other.add(new OtherDoc(t.name(), getComment(t.inlineTags())));
+            other.add(new OtherJavadoc(t.name(), getComment(t.inlineTags())));
         }
         return other;
     }
 
-    private List<SeeAlsoDoc> getSeeAlso(Doc doc) {
-        List<SeeAlsoDoc> seeAlso = new ArrayList<>();
+    private List<SeeAlsoJavadoc> getSeeAlso(Doc doc) {
+        List<SeeAlsoJavadoc> seeAlso = new ArrayList<>();
         for (SeeTag t : doc.seeTags()) {
-            seeAlso.add(new SeeAlsoDoc(newLink(t)));
+            seeAlso.add(new SeeAlsoJavadoc(newLink(t)));
         }
         return seeAlso;
     }
 
-    private List<ThrowsDoc> getThrows(ExecutableMemberDoc m) {
-        List<ThrowsDoc> exceptions = new ArrayList<>();
+    private List<ThrowsJavadoc> getThrows(ExecutableMemberDoc m) {
+        List<ThrowsJavadoc> exceptions = new ArrayList<>();
         for (ThrowsTag t : m.throwsTags()) {
-            exceptions.add(new ThrowsDoc(t.exceptionName(), getComment(t.inlineTags())));
+            exceptions.add(new ThrowsJavadoc(t.exceptionName(), getComment(t.inlineTags())));
         }
         return exceptions;
     }
 
-    private List<ParamDoc> getParams(ExecutableMemberDoc doc) {
-        List<ParamDoc> params = new ArrayList<>();
+    private List<ParamJavadoc> getParams(ExecutableMemberDoc doc) {
+        List<ParamJavadoc> params = new ArrayList<>();
         for (ParamTag t : doc.paramTags()) {
-            params.add(new ParamDoc(t.name(), getComment(t.inlineTags())));
+            params.add(new ParamJavadoc(t.name(), getComment(t.inlineTags())));
         }
         return params;
     }

@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Represents a <tt>@see</tt> tag on a class or method.
  */
-public class SeeAlsoDoc {
+public class SeeAlsoJavadoc {
     private final Link link;
 
-    public SeeAlsoDoc(@JsonProperty("link") Link link) {
+    public SeeAlsoJavadoc(@JsonProperty("link") Link link) {
         this.link = link;
     }
 

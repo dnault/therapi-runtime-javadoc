@@ -8,7 +8,7 @@ public class RuntimeJavadocDocletTest {
 
     @Test
     public void foo() throws Exception {
-        assertEquals(0, com.sun.tools.javadoc.Main.execute(new String[]{
-                "@" + "/Users/dnault/work/therapi-runtime-javadoc/build/tmp/runtimeJavadoc/javadoc.options"}));
+//        assertEquals(0, com.sun.tools.javadoc.Main.execute(new String[]{
+//                "@" + "/Users/dnault/work/therapi-runtime-javadoc/build/tmp/runtimeJavadoc/javadoc.options"}));
     }
 }

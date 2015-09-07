@@ -6,24 +6,24 @@ import java.util.List;
 
 import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
-public class MethodDocumentation {
+public class MethodJavadoc {
     private final String name;
     private final String signature;
     private final Comment comment;
-    private final List<ParamDoc> params;
-    private final List<ThrowsDoc> exceptions;
-    private final List<OtherDoc> other;
+    private final List<ParamJavadoc> params;
+    private final List<ThrowsJavadoc> exceptions;
+    private final List<OtherJavadoc> other;
     private final Comment returns;
-    private final List<SeeAlsoDoc> seeAlso;
+    private final List<SeeAlsoJavadoc> seeAlso;
 
-    public MethodDocumentation(@JsonProperty("name") String name,
-                               @JsonProperty("signature") String signature,
-                               @JsonProperty("comment") Comment comment,
-                               @JsonProperty("params") List<ParamDoc> params,
-                               @JsonProperty("throws") List<ThrowsDoc> exceptions,
-                               @JsonProperty("other") List<OtherDoc> other,
-                               @JsonProperty("returns") Comment returns,
-                               @JsonProperty("seeAlso") List<SeeAlsoDoc> seeAlso) {
+    public MethodJavadoc(@JsonProperty("name") String name,
+                         @JsonProperty("signature") String signature,
+                         @JsonProperty("comment") Comment comment,
+                         @JsonProperty("params") List<ParamJavadoc> params,
+                         @JsonProperty("throws") List<ThrowsJavadoc> exceptions,
+                         @JsonProperty("other") List<OtherJavadoc> other,
+                         @JsonProperty("returns") Comment returns,
+                         @JsonProperty("seeAlso") List<SeeAlsoJavadoc> seeAlso) {
         this.name = name;
         this.signature = signature;
         this.comment = comment;
@@ -46,15 +46,15 @@ public class MethodDocumentation {
         return comment;
     }
 
-    public List<ParamDoc> getParams() {
+    public List<ParamJavadoc> getParams() {
         return params;
     }
 
-    public List<ThrowsDoc> getThrows() {
+    public List<ThrowsJavadoc> getThrows() {
         return exceptions;
     }
 
-    public List<OtherDoc> getOther() {
+    public List<OtherJavadoc> getOther() {
         return other;
     }
 
@@ -62,7 +62,7 @@ public class MethodDocumentation {
         return returns;
     }
 
-    public List<SeeAlsoDoc> getSeeAlso() {
+    public List<SeeAlsoJavadoc> getSeeAlso() {
         return seeAlso;
     }
 }
