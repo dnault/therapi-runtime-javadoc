@@ -25,70 +25,44 @@ import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHe
 
 public class RuntimeJavadocWriter {
     private final File outputDir;
-    private final ObjectMapper objectMapper = new ObjectMapper(new SmileFactory());
-    private final ObjectMapper objectMapperReadable = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper smileObjectMapper = new ObjectMapper(new SmileFactory());
 
     public RuntimeJavadocWriter(File outputDir) {
         this.outputDir = outputDir;
     }
 
     public boolean start(RootDoc root) throws IOException {
-        objectMapperReadable.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        smileObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
         for (ClassDoc c : root.classes()) {
 
-//            List<RuntimeFieldDoc> rtFields = new ArrayList<>();
-//            for (FieldDoc f : c.fields(false)) {
-//                rtFields.add(new RuntimeFieldDoc(f.qualifiedName(), f.commentText()));
-//            }
+            // todo fields?
 
-            List<MethodDocumentation> rtMethods = new ArrayList<>();
+            List<MethodDocumentation> method = new ArrayList<>();
             for (MethodDoc m : c.methods(false)) {
-                rtMethods.add(newRuntimeMethodDoc(m));
+                method.add(newRuntimeMethodDoc(m));
             }
 
-            ClassDocumentation rtClassDoc = new ClassDocumentation(c.qualifiedName(), getComment(c.inlineTags()), getOther(c), getSeeAlso(c), rtMethods);
+            ClassDocumentation rtClassDoc = new ClassDocumentation(
+                    c.qualifiedName(),
+                    getComment(c.inlineTags()),
+                    getOther(c),
+                    getSeeAlso(c),
+                    method);
 
             try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.sml"))) {
-                objectMapper.writeValue(os, rtClassDoc);
+                smileObjectMapper.writeValue(os, rtClassDoc);
             }
+
             try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.json"))) {
-                objectMapperReadable.writerWithDefaultPrettyPrinter().writeValue(os, rtClassDoc);
+                objectMapper
+                        .writerWithDefaultPrettyPrinter()
+                        .writeValue(os, rtClassDoc);
             }
-//            try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.ser")))) {
-//                os.writeObject(rtClassDoc);
-//            }
-//
-//            try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(new File(outputDir, c.qualifiedName() + ".javadoc.ser")))) {
-//                RuntimeClassDoc roundTrip = (RuntimeClassDoc) is.readObject();
-//                System.out.println(roundTrip);
-//            } catch (ClassNotFoundException e) {
-//                e.printStackTrace();
-//            }
-
-            String s = objectMapperReadable.writerWithDefaultPrettyPrinter().writeValueAsString(rtClassDoc);
-            // objectMapperReadable.registerModule(new GuavaModule());
-            ClassDocumentation roundTrip = objectMapperReadable.readValue(s, ClassDocumentation.class);
-            System.out.println(roundTrip);
-
-
-/*
-            print(c.qualifiedName(), c.commentText());
-            for (FieldDoc f : c.fields(false)) {
-                print(f.qualifiedName(), f.commentText());
-            }
-            for (MethodDoc m : c.methods(false)) {
-                print(m.qualifiedName(), m.commentText());
-                if (m.commentText() != null && m.commentText().length() > 0) {
-                    for (ParamTag p : m.paramTags())
-                        print(m.qualifiedName() + "@" + p.parameterName(), p.parameterComment());
-                    for (Tag t : m.tags("return")) {
-                        if (t.text() != null && t.text().length() > 0)
-                            print(m.qualifiedName() + "@return", t.text());
-                    }
-                }
-            }
- */
         }
+
         return true;
     }
 
