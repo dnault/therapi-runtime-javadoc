@@ -52,9 +52,10 @@ public class RuntimeJavadocWriter {
                     getSeeAlso(c),
                     method);
 
+            /*
             try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.sml"))) {
                 smileObjectMapper.writeValue(os, rtClassDoc);
-            }
+            }*/
 
             try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.json"))) {
                 objectMapper
