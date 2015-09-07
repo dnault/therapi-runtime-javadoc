@@ -60,10 +60,10 @@ task testDoclet {
 
 task runtimeJavadoc(type: Javadoc) {
     dependsOn(jar)
-    source = sourceSets.main.allJava
+    source = sourceSets.test.allJava
     title=""
     destinationDir = project.file("${project.buildDir}/runtime-javadoc");
-    classpath = project.configurations.compile + project.files(project.sourceSets.main.output.classesDir)
+    classpath = project.configurations.compile + project.configurations.testCompile  + project.files(project.sourceSets.main.output.classesDir) + project.files(project.sourceSets.test.output.classesDir)
     options.docletpath = classpath.asType(List)
     options.doclet = "com.github.dnault.therapi.runtimejavadoc.RuntimeJavadocDoclet"
 }

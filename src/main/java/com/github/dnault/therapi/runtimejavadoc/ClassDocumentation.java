@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc.ergonomic;
+package com.github.dnault.therapi.runtimejavadoc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -6,20 +6,20 @@ import java.util.List;
 
 import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
-public class RtClassDoc {
+public class ClassDocumentation {
     private final String name;
-    private final List<CommentElement> comment;
+    private final Comment comment;
     private final List<SeeAlsoDoc> seeAlso;
     private final List<OtherDoc> other;
-    private final List<RtMethodDoc> methods;
+    private final List<MethodDocumentation> methods;
 
-    public RtClassDoc(@JsonProperty("name") String name,
-                      @JsonProperty("comment") List<CommentElement> comment,
-                      @JsonProperty("other") List<OtherDoc> other,
-                      @JsonProperty("seeAlso") List<SeeAlsoDoc> seeAlso,
-                      @JsonProperty("methods") List<RtMethodDoc> methods) {
+    public ClassDocumentation(@JsonProperty("name") String name,
+                              @JsonProperty("comment") Comment comment,
+                              @JsonProperty("other") List<OtherDoc> other,
+                              @JsonProperty("seeAlso") List<SeeAlsoDoc> seeAlso,
+                              @JsonProperty("methods") List<MethodDocumentation> methods) {
         this.name = name;
-        this.comment = unmodifiableDefensiveCopy(comment);
+        this.comment = comment;
         this.other = unmodifiableDefensiveCopy(other);
         this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
         this.methods = unmodifiableDefensiveCopy(methods);
@@ -30,7 +30,7 @@ public class RtClassDoc {
         return name;
     }
 
-    public List<CommentElement> getComment() {
+    public Comment getComment() {
         return comment;
     }
 
@@ -42,7 +42,7 @@ public class RtClassDoc {
         return other;
     }
 
-    public List<RtMethodDoc> getMethods() {
+    public List<MethodDocumentation> getMethods() {
         return methods;
     }
 }

@@ -1,10 +1,6 @@
-package com.github.dnault.therapi.runtimejavadoc.ergonomic;
+package com.github.dnault.therapi.runtimejavadoc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
-
-import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 /**
  * Unstructured tag with a name and comment. May be a standard tag like "@author"
@@ -12,12 +8,12 @@ import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHe
  */
 public class OtherDoc {
     private final String name;
-    private final List<CommentElement> comment;
+    private final Comment comment;
 
     public OtherDoc(@JsonProperty("name") String name,
-                    @JsonProperty("comment") List<CommentElement> value) {
+                    @JsonProperty("comment") Comment comment) {
         this.name = name;
-        this.comment = unmodifiableDefensiveCopy(value);
+        this.comment = comment;
     }
 
     /**
@@ -27,7 +23,7 @@ public class OtherDoc {
         return name;
     }
 
-    public List<CommentElement> getComment() {
+    public Comment getComment() {
         return comment;
     }
 }

@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc.ergonomic;
+package com.github.dnault.therapi.runtimejavadoc;
 
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
