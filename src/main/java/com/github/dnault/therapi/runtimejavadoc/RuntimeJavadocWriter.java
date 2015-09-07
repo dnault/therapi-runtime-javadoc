@@ -3,7 +3,6 @@ package com.github.dnault.therapi.runtimejavadoc;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.ExecutableMemberDoc;
@@ -26,7 +25,7 @@ import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHe
 public class RuntimeJavadocWriter {
     private final File outputDir;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ObjectMapper smileObjectMapper = new ObjectMapper(new SmileFactory());
+    //private final ObjectMapper smileObjectMapper = new ObjectMapper(new SmileFactory());
 
     public RuntimeJavadocWriter(File outputDir) {
         this.outputDir = outputDir;
@@ -34,7 +33,7 @@ public class RuntimeJavadocWriter {
 
     public boolean start(RootDoc root) throws IOException {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        smileObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        // smileObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         for (ClassDoc c : root.classes()) {
 
