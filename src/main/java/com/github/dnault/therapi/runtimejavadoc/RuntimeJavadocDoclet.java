@@ -7,6 +7,7 @@ import com.sun.javadoc.RootDoc;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressWarnings("unused")
 public class RuntimeJavadocDoclet {
     private static File outputDir;
 
