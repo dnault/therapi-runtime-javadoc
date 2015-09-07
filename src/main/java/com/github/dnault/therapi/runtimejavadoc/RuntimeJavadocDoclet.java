@@ -33,7 +33,7 @@ public class RuntimeJavadocDoclet {
         }
 
         if (outputDir == null) {
-            reporter.printError("mission option '-d' (output directory)");
+            reporter.printError("missing option '-d' (output directory)");
             return false;
         }
 
