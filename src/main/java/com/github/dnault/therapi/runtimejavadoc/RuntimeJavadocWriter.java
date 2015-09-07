@@ -56,7 +56,7 @@ public class RuntimeJavadocWriter {
                 smileObjectMapper.writeValue(os, rtClassDoc);
             }*/
 
-            try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.json"))) {
+            try (OutputStream os = new FileOutputStream(getFile(outputDir, c.containingPackage().name(), c.name(), ".javadoc.json"))) {
                 objectMapper
                         .writerWithDefaultPrettyPrinter()
                         .writeValue(os, rtClassDoc);
@@ -64,6 +64,18 @@ public class RuntimeJavadocWriter {
         }
 
         return true;
+    }
+
+    private static File getFile(File outputDir, String packageName, String className, String extension) throws IOException {
+        File parent = outputDir;
+        for (String s : packageName.split("\\.")) {
+            parent = new File(parent, s);
+        }
+        if (!parent.exists() && !parent.mkdirs()) {
+            throw new IOException("failed to create directory: " + parent.getAbsolutePath());
+        }
+
+        return new File(parent, className + extension);
     }
 
     private MethodDocumentation newRuntimeMethodDoc(MethodDoc m) {

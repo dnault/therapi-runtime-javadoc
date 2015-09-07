@@ -9,7 +9,7 @@ public class RuntimeJavadocReader {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ClassDocumentation getDocumentation(String qualifiedClassName) throws IOException {
-        try (InputStream is = getClass().getResourceAsStream(qualifiedClassName + ".javadoc.json")) {
+        try (InputStream is = getClass().getResourceAsStream("/" + qualifiedClassName.replace(".", "/").replace("$", "/") + ".javadoc.json")) {
             return is == null ? null : objectMapper.readValue(is, ClassDocumentation.class);
         }
     }
