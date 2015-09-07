@@ -1,12 +1,25 @@
 package com.github.dnault.therapi.runtimejavadoc;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.CommentElement;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.CommentText;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.InlineLink;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.InlineTag;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.Link;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.OtherDoc;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.ParamDoc;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.RtClassDoc;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.RtMethodDoc;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.SeeAlsoDoc;
+import com.github.dnault.therapi.runtimejavadoc.ergonomic.ThrowsDoc;
 import com.google.common.collect.ImmutableList;
 import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.Doc;
+import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.RootDoc;
@@ -22,31 +35,37 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.first;
 
 public class RuntimeJavadocWriter {
     private final File outputDir;
     private final ObjectMapper objectMapper = new ObjectMapper(new SmileFactory());
     private final ObjectMapper objectMapperReadable = new ObjectMapper();
 
+
+
     public RuntimeJavadocWriter(File outputDir) {
         this.outputDir = outputDir;
     }
 
     public boolean start(RootDoc root) throws IOException {
+        objectMapperReadable.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         for (ClassDoc c : root.classes()) {
 
-            List<RuntimeFieldDoc> rtFields = new ArrayList<>();
-            for (FieldDoc f : c.fields(false)) {
-                rtFields.add(new RuntimeFieldDoc(f.qualifiedName(), f.commentText()));
-            }
+//            List<RuntimeFieldDoc> rtFields = new ArrayList<>();
+//            for (FieldDoc f : c.fields(false)) {
+//                rtFields.add(new RuntimeFieldDoc(f.qualifiedName(), f.commentText()));
+//            }
 
-            List<RuntimeMethodDoc> rtMethods = new ArrayList<>();
+            List<RtMethodDoc> rtMethods = new ArrayList<>();
             for (MethodDoc m : c.methods(false)) {
-                rtMethods.add(new RuntimeMethodDoc(m.qualifiedName(), m.commentText(), m.signature(), convertTags(m.tags()), convertInlineTags(m.inlineTags())));
+                rtMethods.add(newRuntimeMethodDoc(m));
             }
 
-            RuntimeClassDoc rtClassDoc = new RuntimeClassDoc(c.qualifiedName(), c.commentText(), rtFields, rtMethods);
+            RtClassDoc rtClassDoc = new RtClassDoc(c.qualifiedName(), getComment(c.inlineTags()), getOther(c), getSeeAlso(c), rtMethods);
 
             try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.sml"))) {
                 objectMapper.writeValue(os, rtClassDoc);
@@ -54,20 +73,20 @@ public class RuntimeJavadocWriter {
             try (OutputStream os = new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.json"))) {
                 objectMapperReadable.writerWithDefaultPrettyPrinter().writeValue(os, rtClassDoc);
             }
-            try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.ser")))) {
-                os.writeObject(rtClassDoc);
-            }
-
-            try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(new File(outputDir, c.qualifiedName() + ".javadoc.ser")))) {
-                RuntimeClassDoc roundTrip = (RuntimeClassDoc) is.readObject();
-                System.out.println(roundTrip);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+//            try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File(outputDir, c.qualifiedName() + ".javadoc.ser")))) {
+//                os.writeObject(rtClassDoc);
+//            }
+//
+//            try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(new File(outputDir, c.qualifiedName() + ".javadoc.ser")))) {
+//                RuntimeClassDoc roundTrip = (RuntimeClassDoc) is.readObject();
+//                System.out.println(roundTrip);
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
 
             String s = objectMapperReadable.writerWithDefaultPrettyPrinter().writeValueAsString(rtClassDoc);
-            objectMapperReadable.registerModule(new GuavaModule());
-            RuntimeClassDoc roundTrip = objectMapperReadable.readValue(s, RuntimeClassDoc.class);
+          // objectMapperReadable.registerModule(new GuavaModule());
+            RtClassDoc roundTrip = objectMapperReadable.readValue(s, RtClassDoc.class);
             System.out.println(roundTrip);
 
 
@@ -90,6 +109,80 @@ public class RuntimeJavadocWriter {
  */
         }
         return true;
+    }
+
+    private RtMethodDoc newRuntimeMethodDoc(MethodDoc m) {
+        String name = m.name();
+        String signature = m.signature();
+        List<CommentElement> comment = getComment(m.inlineTags());
+
+        List<ParamDoc> params = getParams(m);
+        List<ThrowsDoc> exceptions = getThrows(m);
+        List<SeeAlsoDoc> seeAlso = getSeeAlso(m);
+        List<OtherDoc> other = getOther(m);
+        Tag returnTag = first(m.tags("@return"));
+        List<CommentElement> returns = returnTag == null ? Collections.<CommentElement>emptyList() : getComment(returnTag.inlineTags());
+        return new RtMethodDoc(name, signature, comment, params, exceptions, other, returns, seeAlso);
+    }
+
+    private List<OtherDoc> getOther(Doc m) {
+        List<OtherDoc> other = new ArrayList<>();
+        for (Tag t : m.tags()) {
+            if (t instanceof SeeTag || t instanceof ThrowsTag || t instanceof ParamTag ||
+                    t.kind().equals("@return")) {
+                continue;
+            }
+
+            other.add(new OtherDoc(t.name(), getComment(t.inlineTags())));
+        }
+        return other;
+    }
+
+
+    private List<SeeAlsoDoc> getSeeAlso(Doc doc) {
+        List<SeeAlsoDoc> seeAlso = new ArrayList<>();
+        for (SeeTag t : doc.seeTags()) {
+            seeAlso.add(new SeeAlsoDoc(newLink(t)));
+        }
+        return seeAlso;
+    }
+
+    private List<ThrowsDoc> getThrows(ExecutableMemberDoc m) {
+        List<ThrowsDoc> exceptions = new ArrayList<>();
+        for (ThrowsTag t : m.throwsTags()) {
+            exceptions.add(new ThrowsDoc(t.exceptionName(), getComment(t.inlineTags())));
+        }
+        return exceptions;
+    }
+
+    private List<ParamDoc> getParams(ExecutableMemberDoc doc) {
+        List<ParamDoc> params = new ArrayList<>();
+        for (ParamTag t : doc.paramTags()) {
+            params.add(new ParamDoc(t.name(), getComment(t.inlineTags())));
+        }
+        return params;
+    }
+
+    private List<CommentElement> getComment(Tag[] inlineTags) {
+        List<CommentElement> elements = new ArrayList<>();
+        if (inlineTags == null) {
+            return elements;
+        }
+
+        for (Tag t : inlineTags) {
+            if (t.kind().equals("Text")) {
+                elements.add(new CommentText(t.text()));
+            } else if (t instanceof SeeTag) {
+                elements.add(new InlineLink(newLink((SeeTag) t)));
+            } else {
+                elements.add(new InlineTag(t.name(), t.text()));
+            }
+        }
+        return elements;
+    }
+
+    private Link newLink(SeeTag t) {
+        return new Link(t.label(), t.referencedClassName(), t.referencedMemberName());
     }
 
 

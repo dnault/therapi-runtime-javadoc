@@ -6,7 +6,7 @@ import java.util.List;
 
 import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
-public class MethodDoc {
+public class RtMethodDoc {
     private final String name;
     private final String signature;
     private final List<CommentElement> comment;
@@ -16,14 +16,14 @@ public class MethodDoc {
     private final List<CommentElement> returns;
     private final List<SeeAlsoDoc> seeAlso;
 
-    public MethodDoc(@JsonProperty("name") String name,
-                     @JsonProperty("signature") String signature,
-                     @JsonProperty("comment") List<CommentElement> comment,
-                     @JsonProperty("params") List<ParamDoc> params,
-                     @JsonProperty("throws") List<ThrowsDoc> exceptions,
-                     @JsonProperty("other") List<OtherDoc> other,
-                     @JsonProperty("returns") List<CommentElement> returns,
-                     @JsonProperty("seeAlso") List<SeeAlsoDoc> seeAlso) {
+    public RtMethodDoc(@JsonProperty("name") String name,
+                       @JsonProperty("signature") String signature,
+                       @JsonProperty("comment") List<CommentElement> comment,
+                       @JsonProperty("params") List<ParamDoc> params,
+                       @JsonProperty("throws") List<ThrowsDoc> exceptions,
+                       @JsonProperty("other") List<OtherDoc> other,
+                       @JsonProperty("returns") List<CommentElement> returns,
+                       @JsonProperty("seeAlso") List<SeeAlsoDoc> seeAlso) {
         this.name = name;
         this.signature = signature;
         this.comment = unmodifiableDefensiveCopy(comment);
