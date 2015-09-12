@@ -26,4 +26,22 @@ public class Link {
     public String getReferencedMemberName() {
         return referencedMemberName;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        if (referencedClassName != null) {
+            sb.append(referencedClassName);
+        }
+
+        if (referencedMemberName != null) {
+            sb.append('#').append(referencedMemberName);
+        }
+
+        if (label != null) {
+            sb.append(' ').append(label);
+        }
+
+        return sb.toString();
+    }
 }

@@ -14,6 +14,7 @@ public class ParamJavadoc {
 
     /**
      * Returns the name of parameter
+     * @return the name of parameter
      */
     public String getName() {
         return name;
