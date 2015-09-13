@@ -124,7 +124,7 @@ public class RuntimeJavadocWriter {
     private List<ParamJavadoc> getParams(ExecutableMemberDoc doc) {
         List<ParamJavadoc> params = new ArrayList<>();
         for (ParamTag t : doc.paramTags()) {
-            params.add(new ParamJavadoc(t.name(), getComment(t.inlineTags())));
+            params.add(new ParamJavadoc(t.parameterName(), getComment(t.inlineTags())));
         }
         return params;
     }
