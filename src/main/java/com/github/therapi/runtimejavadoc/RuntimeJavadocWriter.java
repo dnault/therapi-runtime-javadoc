@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,7 +20,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.first;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.first;
 
 public class RuntimeJavadocWriter {
     private final File outputDir;

@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc;
 
 import com.sun.javadoc.DocErrorReporter;
 import com.sun.javadoc.LanguageVersion;

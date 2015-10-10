@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc;
 
 /**
  * The {@code Javadoc} from this class is used for testing {@link RuntimeJavadocDoclet}.

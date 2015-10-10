@@ -1,10 +1,10 @@
-package com.github.dnault.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-import static com.github.dnault.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 public class MethodJavadoc {
     private final String name;

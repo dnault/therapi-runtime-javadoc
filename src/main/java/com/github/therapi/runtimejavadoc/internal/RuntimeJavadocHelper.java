@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc.internal;
+package com.github.therapi.runtimejavadoc.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;

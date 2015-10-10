@@ -40,7 +40,7 @@ dependencies {
 }
 
 
-group = "com.github.dnault.therapi"
+group = "com.github.therapi"
 version = "0.1.0-SNAPSHOT"
 
 sourceCompatibility = 1.7
@@ -85,7 +85,7 @@ task runtimeJavadoc(type: Javadoc) {
     destinationDir = project.file("${project.buildDir}/runtime-javadoc");
     classpath = project.configurations.compile + project.configurations.testCompile  + project.files(project.sourceSets.main.output.classesDir) + project.files(project.sourceSets.test.output.classesDir)
     options.docletpath = classpath.asType(List)
-    options.doclet = "com.github.dnault.therapi.runtimejavadoc.RuntimeJavadocDoclet"
+    options.doclet = "com.github.therapi.runtimejavadoc.RuntimeJavadocDoclet"
 }
 
 task myJavadocs(type: Javadoc) {

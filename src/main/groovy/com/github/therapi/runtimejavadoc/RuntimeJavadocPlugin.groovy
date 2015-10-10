@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc
+package com.github.therapi.runtimejavadoc
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,7 +18,7 @@ class RuntimeJavadocPlugin implements Plugin<Project> {
                 classpath = project.configurations.compile + project.files(project.sourceSets.main.output.classesDir)
                 destinationDir = project.file("${project.buildDir}/runtimeJavadoc")
 
-                options.doclet = "com.github.dnault.therapi.runtimejavadoc.RuntimeJavadocDoclet"
+                options.doclet = "com.github.therapi.runtimejavadoc.RuntimeJavadocDoclet"
                 options.docletpath = project.buildscript.configurations.classpath.files.asType(List)
 
                 doFirst {

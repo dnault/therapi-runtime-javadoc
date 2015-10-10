@@ -1,4 +1,4 @@
-package com.github.dnault.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
