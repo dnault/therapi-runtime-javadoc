@@ -1,11 +1,5 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-  //      classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.+'
-    }
+plugins {
+    id "com.jfrog.bintray" version "1.3.1"
 }
 
 apply plugin: 'java'
@@ -13,38 +7,27 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
-//apply plugin: 'provided-base'
-
 repositories {
     jcenter()
 }
-
-dependencies {
-    compile files(System.properties['java.home'] + "/../lib/tools.jar")
-
-    compile gradleApi()
-    compile localGroovy()
-/*
-    compile 'org.slf4j:slf4j-api:1.7.12'
-    compile 'org.slf4j:slf4j-simple:1.7.12'
-
-    compile 'com.google.guava:guava:18.0'
-*/
-    def jacksonVersion = '2.6.1'
-    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-//    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:${jacksonVersion}"
-  //  compile "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jacksonVersion}"
-  //  compile "com.fasterxml.jackson.datatype:jackson-datatype-guava:${jacksonVersion}"
-
-    testCompile 'junit:junit:4.12'
-}
-
 
 group = "com.github.therapi"
 version = "0.1.0-SNAPSHOT"
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
+
+dependencies {
+    compile files(System.properties['java.home'] + "/../lib/tools.jar")
+
+    compile gradleApi()
+    compile localGroovy()
+
+    def jacksonVersion = '2.6.1'
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+
+    testCompile 'junit:junit:4.12'
+}
 
 task sourceJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
@@ -74,23 +57,55 @@ task install {
     dependsOn(publishToMavenLocal)
 }
 
-task testDoclet {
-    dependsOn test
+bintrayUpload.doFirst {
+    if (version.contains("SNAPSHOT")) {
+        throw new RuntimeException("Must not upload snapshots to bintray (current version is ${version}) -- create and tag a release version first!")
+    }
 }
 
-task runtimeJavadoc(type: Javadoc) {
-    dependsOn(jar)
-    source = sourceSets.test.allJava
-    title=""
-    destinationDir = project.file("${project.buildDir}/runtime-javadoc");
-    classpath = project.configurations.compile + project.configurations.testCompile  + project.files(project.sourceSets.main.output.classesDir) + project.files(project.sourceSets.test.output.classesDir)
-    options.docletpath = classpath.asType(List)
-    options.doclet = "com.github.therapi.runtimejavadoc.RuntimeJavadocDoclet"
-}
+bintray {
+    if (project.hasProperty('bintrayUsername')) {
+        user = project.bintrayUsername
+    }
 
-task myJavadocs(type: Javadoc) {
-    classpath = project.configurations.compile + project.files(project.sourceSets.main.output.classesDir)
+    if (project.hasProperty('bintrayApiKey')) {
+        key = project.bintrayApiKey
+    }
 
-    source = sourceSets.main.allJava
-    failOnError=false
+    publications = ['mavenJava'] // When uploading Maven-based publication files
+
+    dryRun = true  //false //Whether to run this as dry-run, without deploying
+    publish = false //true //If version should be auto published after an upload
+
+    pkg {
+        repo = 'maven'
+        //  userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
+        name = 'therapi-runtime-javadoc'
+        desc = 'Bakes Javadoc comments into your JAR at build time for use at runtime'
+        websiteUrl = 'https://github.com/dnault/therapi-runtime-javadoc'
+        issueTrackerUrl = 'https://github.com/dnault/therapi-runtime-javadoc/issues'
+        vcsUrl = 'https://github.com/dnault/therapi-runtime-javadoc.git'
+        licenses = ['Apache-2.0']
+        labels = ['runtime', 'javadoc']
+        publicDownloadNumbers = false//true
+        //attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
+        //Optional version descriptor
+        version {
+            name = project.version //'1.3-Final' //Bintray logical version name
+            //desc = 'optional, version-specific description'
+            released = new Date() //'optional, date of the version release' //2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
+            vcsTag = "v" + project.version //'1.3.0'
+//            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
+            gpg {
+                //              sign = true //Determines whether to GPG sign the files. The default is false
+                //            passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
+            }
+            mavenCentralSync {
+                sync = false //true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                user = 'userToken' //OSS user token
+                password = 'paasword' //OSS user password
+                close = '0'//'1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+            }
+        }
+    }
 }
