@@ -1,7 +1,7 @@
 # therapi-runtime-javadoc
 
 [![Build Status](https://travis-ci.org/dnault/therapi-runtime-javadoc.svg?branch=master)](https://travis-ci.org/dnault/therapi-runtime-javadoc)
-[![Apache 2.0](https://img.shields.io/github/license/dnault/therapi-runtime-javadoc.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 
 Bakes Javadoc comments into your JAR at build time so they can be accessed at runtime.
@@ -37,7 +37,11 @@ Include the `therapi-runtime-javadoc` library in your class path. With Gradle, t
         compile "com.github.therapi:therapi-runtime-javadoc:0.1.1"
     }
 
-Read the Javadoc like this:
+Read the Javadoc by creating a `RuntimeJavadocReader` and calling the `getDocumentation` method.
+Because Javadoc comments may contain inline tags, you'll want to use a `CommentFormatter` to convert
+comments to strings.
+
+Here's an example that prints all available documentation for a class:
 
     import com.github.therapi.runtimejavadoc.*;
     import java.io.IOException;
