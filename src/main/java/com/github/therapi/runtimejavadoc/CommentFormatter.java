@@ -3,7 +3,7 @@ package com.github.therapi.runtimejavadoc;
 /**
  * Performs basic conversion of a Comment into a String. Subclasses are encouraged
  * to override the {@link #renderLink} method to convert {@link InlineLink}s to hyperlinks.
- * <p/>
+ * <p>
  * Reusable and thread-safe.
  */
 public class CommentFormatter {
