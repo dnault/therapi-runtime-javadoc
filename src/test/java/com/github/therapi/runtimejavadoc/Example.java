@@ -2,6 +2,9 @@ package com.github.therapi.runtimejavadoc;
 
 import java.io.IOException;
 
+/**
+ * Whenever this class changes, please update README.md also.
+ */
 public class Example {
     private static final RuntimeJavadocReader reader = new RuntimeJavadocReader();
     private static final CommentFormatter formatter = new CommentFormatter();
@@ -21,7 +24,7 @@ public class Example {
 
         System.out.println("METHODS");
         for (MethodJavadoc methodDoc : classDoc.getMethods()) {
-            System.out.println(methodDoc.getName() + ": " + format(methodDoc.getComment());
+            System.out.println(methodDoc.getName() + ": " + format(methodDoc.getComment()));
             System.out.println("signature " + methodDoc.getSignature());
             System.out.println("returns " + format(methodDoc.getReturns()));
 
