@@ -15,7 +15,7 @@ Apply the Gradle plugin to the project whose Javadoc you wish to retain:
 
     buildscript {
         repositories {    
-            maven { url "https://dl.bintray.com/dnault/maven/" }
+            jcenter()
         }
 
         dependencies {
@@ -31,7 +31,7 @@ Apply the Gradle plugin to the project whose Javadoc you wish to retain:
 Include the `therapi-runtime-javadoc` library in your class path. With Gradle, that looks like this:
 
     repositories {    
-        maven { url "https://dl.bintray.com/dnault/maven/" }
+        jcenter()
     }
 
     dependencies {
