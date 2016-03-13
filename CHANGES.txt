@@ -1,0 +1,14 @@
+
+v0.1.2 - March 13, 2016
+
+* [BUGFIX] Fix reading Javadoc for inner classes.
+
+
+v0.1.1 - October 11, 2015
+
+* [FEATURE] Adds CommentFormatter to help convert comments to strings.
+
+
+v0.1.0 - October 10, 2015
+
+* Initial release
