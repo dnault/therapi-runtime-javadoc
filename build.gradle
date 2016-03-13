@@ -37,9 +37,40 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+def gitProjectName = project.name
+def gitUrl = "git@github.com:dnault/${gitProjectName}.git"
+def pomConfig = {
+    name "${group}:${project.name}"
+    url "https://github.com/dnault/${gitProjectName}"
+    scm {
+        url "${gitUrl}"
+        connection "scm:git:${gitUrl}"
+        developerConnection "scm:git:${gitUrl}"
+    }
+    licenses {
+        license {
+            name 'Apache License 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
+    }
+    developers {
+        developer {
+            name 'David Nault'
+            email 'dnault@mac.com'
+            organization 'dnault'
+            organizationUrl 'https://github.com/dnault'
+        }
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            pom.withXml {
+                asNode().appendNode('description', 'Access Javadoc comments at runtime')
+                asNode().children().last() + pomConfig
+            }
+
             from components.java
 
             artifact sourceJar {
