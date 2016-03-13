@@ -19,7 +19,7 @@ Apply the Gradle plugin to the project whose Javadoc you wish to retain:
         }
 
         dependencies {
-            classpath "com.github.therapi:therapi-runtime-javadoc:0.1.1"
+            classpath "com.github.therapi:therapi-runtime-javadoc:0.1.2"
         }
     }
 
@@ -35,7 +35,7 @@ Include the `therapi-runtime-javadoc` library in your class path. With Gradle, t
     }
 
     dependencies {
-        compile "com.github.therapi:therapi-runtime-javadoc:0.1.1"
+        compile "com.github.therapi:therapi-runtime-javadoc:0.1.2"
     }
 
 Read the Javadoc by creating a `RuntimeJavadocReader` and calling the `getDocumentation` method.
