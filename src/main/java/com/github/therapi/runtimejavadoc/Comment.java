@@ -29,4 +29,9 @@ public class Comment implements Iterable<CommentElement> {
     public Iterator<CommentElement> iterator() {
         return elements.iterator();
     }
+
+    @Override
+    public String toString() {
+        return new CommentFormatter().format(this);
+    }
 }

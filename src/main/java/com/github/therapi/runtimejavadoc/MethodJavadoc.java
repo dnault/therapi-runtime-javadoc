@@ -65,4 +65,18 @@ public class MethodJavadoc {
     public List<SeeAlsoJavadoc> getSeeAlso() {
         return seeAlso;
     }
+
+    @Override
+    public String toString() {
+        return "MethodJavadoc{" +
+                "name='" + name + '\'' +
+                ", signature='" + signature + '\'' +
+                ", comment=" + comment +
+                ", params=" + params +
+                ", exceptions=" + exceptions +
+                ", other=" + other +
+                ", returns=" + returns +
+                ", seeAlso=" + seeAlso +
+                '}';
+    }
 }

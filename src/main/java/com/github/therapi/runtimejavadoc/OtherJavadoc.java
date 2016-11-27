@@ -27,4 +27,9 @@ public class OtherJavadoc {
     public Comment getComment() {
         return comment;
     }
+
+    @Override
+    public String toString() {
+        return "@" + name + " " + comment;
+    }
 }

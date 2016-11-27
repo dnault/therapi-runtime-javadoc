@@ -23,4 +23,9 @@ public class ParamJavadoc {
     public Comment getComment() {
         return comment;
     }
+
+    @Override
+    public String toString() {
+        return "@" + name + " " + comment;
+    }
 }

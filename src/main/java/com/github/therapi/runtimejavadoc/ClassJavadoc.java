@@ -23,7 +23,6 @@ public class ClassJavadoc {
         this.other = unmodifiableDefensiveCopy(other);
         this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
         this.methods = unmodifiableDefensiveCopy(methods);
-
     }
 
     public String getName() {
@@ -44,5 +43,16 @@ public class ClassJavadoc {
 
     public List<MethodJavadoc> getMethods() {
         return methods;
+    }
+
+    @Override
+    public String toString() {
+        return "ClassJavadoc{" +
+                "name='" + name + '\'' +
+                ", comment=" + comment +
+                ", seeAlso=" + seeAlso +
+                ", other=" + other +
+                ", methods=" + methods +
+                '}';
     }
 }
