@@ -27,7 +27,7 @@ import com.squareup.javapoet.TypeSpec;
 public class JavadocAnnotationProcessor extends AbstractProcessor {
 
 
-    PackageElement getPackageElement(Element e) {
+    static PackageElement getPackageElement(Element e) {
         if (e instanceof PackageElement) {
             return (PackageElement) e;
         }
@@ -137,14 +137,16 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         javaFile.writeTo(processingEnv.getFiler());
     }
 
-    private static String getClassName(String qualifiedName) {
-        int index = qualifiedName.lastIndexOf(".");
-        String result = index == -1 ? qualifiedName : qualifiedName.substring(index + 1);
-        return result;
-    }
-
     private static String getClassName(TypeElement typeElement) {
-        return getClassName(typeElement.getQualifiedName().toString());
+        String typeName = typeElement.getQualifiedName().toString();
+        String packageName = getPackageElement(typeElement).getQualifiedName().toString();
+
+        if (!packageName.isEmpty()) {
+            typeName = typeName.substring(packageName.length() + 1);
+            typeName = typeName.replace(".", "$");
+        }
+
+        return typeName;
     }
 
 

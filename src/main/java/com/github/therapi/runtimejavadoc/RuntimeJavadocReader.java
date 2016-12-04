@@ -42,7 +42,16 @@ public class RuntimeJavadocReader {
     }
 
     public static Optional<ClassJavadoc> getJavadoc(Class c) {
-        return getJavadoc(c.getCanonicalName());
+        String packageName = c.getPackage().getName();
+        String typeName = c.getCanonicalName();
+
+        if (!packageName.isEmpty()) {
+            typeName = typeName.substring(packageName.length() + 1);
+            typeName = typeName.replace(".", "$");
+            typeName = packageName + "." + typeName;
+        }
+
+        return getJavadoc(typeName);
     }
 
     public static Optional<ClassJavadoc> getJavadoc(String qualifiedClassName) {
