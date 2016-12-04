@@ -22,57 +22,50 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
-//@SupportedAnnotationTypes("com.github.therapi.runtimejavadoc.RetainJavadoc")
-//@SupportedAnnotationTypes("*")
 public class JavadocAnnotationProcessor extends AbstractProcessor {
 
-
-    static PackageElement getPackageElement(Element e) {
-        if (e instanceof PackageElement) {
-            return (PackageElement) e;
-        }
-        return getPackageElement(e.getEnclosingElement());
-    }
-
     @Override
-    public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
         final Elements elements = processingEnv.getElementUtils();
 
         // Only process once (in case an annotated class is in an annotated package)
         Set<Element> alreadyProcessed = new HashSet<>();
 
-        for (Element e : roundEnvironment.getElementsAnnotatedWith(RetainJavadoc.class)) {
-            try {
+        for (TypeElement annotation : annotations) {
+            if (!isRetainJavadocAnnotation(annotation)) {
+                continue;
+            }
 
-                if (e.getKind() == ElementKind.PACKAGE) {
-                    System.out.println("package " + e.getSimpleName());
-                    for (Element containedInPackage : e.getEnclosedElements()) {
-                        System.out.println(containedInPackage.getKind() + " : " + containedInPackage.getSimpleName());
-
-                        if (containedInPackage.getKind() == ElementKind.CLASS) {
-                            generateJavadocForClass(elements, containedInPackage, alreadyProcessed);
-                        }
-                    }
+            for (Element e : roundEnvironment.getElementsAnnotatedWith(annotation)) {
+                try {
+                    generateJavadoc(elements, e, alreadyProcessed);
+                } catch (IOException ioe) {
+                    throw new RuntimeException(ioe);
                 }
-
-                if (e.getKind() == ElementKind.CLASS || e.getKind() == ElementKind.INTERFACE) {
-                    generateJavadocForClass(elements, e, alreadyProcessed);
-                }
-
-            } catch (IOException ioe) {
-                throw new RuntimeException(ioe);
             }
         }
-        //return true;
-        return true;
+
+        return false;
+    }
+
+    private void generateJavadoc(Elements elements, Element e, Set<Element> alreadyProcessed) throws IOException {
+        ElementKind kind = e.getKind();
+        if (kind == ElementKind.CLASS
+                || kind == ElementKind.INTERFACE
+                || kind == ElementKind.ENUM) {
+            generateJavadocForClass(elements, e, alreadyProcessed);
+        }
+
+        for (Element enclosed : e.getEnclosedElements()) {
+            generateJavadoc(elements, enclosed, alreadyProcessed);
+        }
     }
 
     private void generateJavadocForClass(Elements elements, Element e, Set<Element> alreadyProcessed) throws IOException {
         if (!alreadyProcessed.add(e)) {
-            System.out.println("already processed " + e.getSimpleName());
             return;
         }
-        System.out.println("imports: " + ImportUtils.getImports(e, processingEnv));
+        //  System.out.println("imports: " + ImportUtils.getImports(e, processingEnv));
 
         TypeElement classElement = (TypeElement) e;
         PackageElement packageElement = getPackageElement(classElement);
@@ -85,7 +78,6 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         JavadocParser.ParsedJavadoc parsed = JavadocParser.parse(javadoc);
 
-
         MethodSpec getString = MethodSpec.methodBuilder("getString")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(String.class)
@@ -95,18 +87,15 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         MethodSpec.Builder getJavadocBuilder = MethodSpec.methodBuilder("getJavadoc")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(ClassJavadoc.class)
-                .addStatement("$T<$T> methods = new $T<>()", List.class, MethodJavadoc.class, ArrayList.class)
-                ;
-
+                .addStatement("$T<$T> methods = new $T<>()", List.class, MethodJavadoc.class, ArrayList.class);
 
         for (Element child : classElement.getEnclosedElements()) {
             if (child.getKind() != ElementKind.METHOD
-                    //&& child.getKind() != ElementKind.CONSTRUCTOR
+                //&& child.getKind() != ElementKind.CONSTRUCTOR
                     ) {
                 continue;
             }
             ExecutableElement executableElement = (ExecutableElement) child;
-            System.out.println(executableElement.getSimpleName());
 
             String methodJavadoc = elements.getDocComment(executableElement);
 
@@ -137,6 +126,18 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         javaFile.writeTo(processingEnv.getFiler());
     }
 
+    private static PackageElement getPackageElement(Element e) {
+        if (e instanceof PackageElement) {
+            return (PackageElement) e;
+        }
+        return getPackageElement(e.getEnclosingElement());
+    }
+
+    private static boolean isRetainJavadocAnnotation(TypeElement annotation) {
+        return annotation.getQualifiedName().toString().equals(RetainJavadoc.class.getName())
+                || annotation.getAnnotation(RetainJavadoc.class) != null;
+    }
+
     private static String getClassName(TypeElement typeElement) {
         String typeName = typeElement.getQualifiedName().toString();
         String packageName = getPackageElement(typeElement).getQualifiedName().toString();
@@ -163,6 +164,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton(RetainJavadoc.class.getCanonicalName());
+//        return Collections.singleton(RetainJavadoc.class.getCanonicalName());
+        return Collections.singleton("*");
     }
 }
