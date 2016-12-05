@@ -49,10 +49,6 @@ and checking the box labeled "Enabled annotation processing".
 
 ### Reading Javadoc comments at runtime
 
-Include the `therapi-runtime-javadoc` library in your class path. With Gradle, that looks like this:
-
-
-
 Read the Javadoc by calling `RuntimeJavadoc.getJavadoc`, passing either a class literal or class name.
 Because Javadoc comments may contain inline tags, you'll want to use a `CommentFormatter` to convert
 comments to strings.
