@@ -26,7 +26,7 @@ dependencies {
     def jacksonVersion = '2.6.1'
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 
-    compile 'com.squareup:javapoet:1.7.0'
+    compile 'com.squareup:javapoet:1.8.0'
 
     testCompile 'junit:junit:4.12'
 }

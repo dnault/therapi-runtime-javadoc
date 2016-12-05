@@ -24,6 +24,10 @@ import com.squareup.javapoet.TypeSpec;
 
 public class JavadocAnnotationProcessor extends AbstractProcessor {
 
+    static String javadocMethodNameSuffix() {
+        return "__Javadoc";
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
         final Elements elements = processingEnv.getElementUtils();
@@ -110,7 +114,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         MethodSpec getJavadoc = getJavadocBuilder.build();
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(getClassName(classElement) + "Javadoc")
+        TypeSpec helloWorld = TypeSpec.classBuilder(getClassName(classElement) + javadocMethodNameSuffix())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addMethod(emptyPrivateConstructor())
                 .addMethod(getString)
