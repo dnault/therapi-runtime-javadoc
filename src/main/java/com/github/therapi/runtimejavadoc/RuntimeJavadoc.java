@@ -1,6 +1,6 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.github.therapi.runtimejavadoc.JavadocAnnotationProcessor.javadocMethodNameSuffix;
+import static com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor.javadocMethodNameSuffix;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

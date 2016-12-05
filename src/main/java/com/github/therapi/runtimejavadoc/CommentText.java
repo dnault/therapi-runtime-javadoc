@@ -1,11 +1,9 @@
 package com.github.therapi.runtimejavadoc;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class CommentText extends CommentElement {
     private final String value;
 
-    public CommentText(@JsonProperty("value") String value) {
+    public CommentText(String value) {
         this.value = value;
     }
 

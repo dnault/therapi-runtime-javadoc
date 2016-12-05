@@ -1,13 +1,10 @@
 package com.github.therapi.runtimejavadoc;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class InlineTag extends CommentElement {
     private final String name;
     private final String value;
 
-    public InlineTag(@JsonProperty("name") String name,
-                     @JsonProperty("value") String value) {
+    public InlineTag(String name, String value) {
         this.name = name;
         this.value = value;
     }

@@ -1,12 +1,10 @@
 package com.github.therapi.runtimejavadoc;
 
 /**
- * The {@code Javadoc} from this class is used for testing {@link RuntimeJavadocDoclet}.
+ * The {@code Javadoc} from this class is used for testing
  *
  * @author nobody@example.com
  * @custom.tag What does {@custom.inline this} mean?
- * @see RuntimeJavadocDocletTest The related unit test
- * @see RuntimeJavadocWriter
  */
 public class DocumentedClass {
 
