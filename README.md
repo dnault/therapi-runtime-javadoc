@@ -49,7 +49,7 @@ and checking the box labeled "Enabled annotation processing".
 
 ### Reading Javadoc comments at runtime
 
-Read the Javadoc by calling `RuntimeJavadoc.getJavadoc`, passing either a class literal or class name.
+Read the Javadoc by calling `RuntimeJavadoc.getJavadoc` and passing either a class literal or class name.
 Because Javadoc comments may contain inline tags, you'll want to use a `CommentFormatter` to convert
 comments to strings.
 
