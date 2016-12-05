@@ -14,8 +14,8 @@ repositories {
 group = "com.github.therapi"
 version = "0.1.3-SNAPSHOT"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile files(System.properties['java.home'] + "/../lib/tools.jar")
@@ -26,7 +26,15 @@ dependencies {
     def jacksonVersion = '2.6.1'
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 
+    compile 'com.squareup:javapoet:1.7.0'
+
     testCompile 'junit:junit:4.12'
+}
+
+
+tasks.withType(JavaCompile) {
+    // disable annotation processing
+   options.compilerArgs << "-proc:none"
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
