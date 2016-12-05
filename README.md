@@ -42,9 +42,9 @@ Apply the `@RetainJavadoc` annotation to each class whose Javadoc you wish to re
 The Javadoc comments are read by an annotation processor. The processer is automatically
 executed when the library is in your class path at compile time.
 
-When building in an IDE, you may have to explicitly enable annotation processing.
+When building in an IDE you may have to explicitly enable annotation processing.
 In IntelliJ this is done by going to  `Preferences > Build, Execution, Deployment > Compiler > Annotation Processors`
-and checking the box labeled "Enabled annotation processing".
+and checking the box labeled "Enable annotation processing".
 
 
 ### Reading Javadoc comments at runtime
