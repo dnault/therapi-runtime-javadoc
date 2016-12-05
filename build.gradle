@@ -1,10 +1,9 @@
 plugins {
     id "com.jfrog.bintray" version "1.3.1"
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
 apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 repositories {
@@ -18,23 +17,21 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile files(System.properties['java.home'] + "/../lib/tools.jar")
-
-    compile gradleApi()
-    compile localGroovy()
-
-    def jacksonVersion = '2.6.1'
-    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-
-    compile 'com.squareup:javapoet:1.7.0'
-
+    compileOnly files(System.properties['java.home'] + "/../lib/tools.jar")
+    compile 'com.squareup:javapoet:1.8.0'
     testCompile 'junit:junit:4.12'
 }
 
+shadowJar {
+    classifier = null
+    mergeServiceFiles()
+    // exclude 'META-INF/maven/**'
+    relocate 'com.squareup', 'com.github.therapi.repack.com.squareup'
+}
 
 tasks.withType(JavaCompile) {
     // disable annotation processing
-   options.compilerArgs << "-proc:none"
+    options.compilerArgs << "-proc:none"
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
@@ -79,7 +76,7 @@ publishing {
                 asNode().children().last() + pomConfig
             }
 
-            from components.java
+            from components.shadow
 
             artifact sourceJar {
                 classifier 'sources'
@@ -132,7 +129,8 @@ bintray {
         version {
             name = project.version //'1.3-Final' //Bintray logical version name
             //desc = 'optional, version-specific description'
-            released = new Date() //'optional, date of the version release' //2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
+            released = new Date()
+            //'optional, date of the version release' //2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
             vcsTag = "v" + project.version //'1.3.0'
 //            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
             gpg {
@@ -140,10 +138,12 @@ bintray {
                 //            passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
             }
             mavenCentralSync {
-                sync = false //true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                sync = false
+                //true //Optional (true by default). Determines whether to sync the version to Maven Central.
                 user = 'userToken' //OSS user token
                 password = 'paasword' //OSS user password
-                close = '0'//'1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                close = '0'
+//'1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
             }
         }
     }

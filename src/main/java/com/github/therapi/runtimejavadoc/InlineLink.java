@@ -1,11 +1,9 @@
 package com.github.therapi.runtimejavadoc;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class InlineLink extends CommentElement {
     private final Link link;
 
-    public InlineLink(@JsonProperty("link") Link link) {
+    public InlineLink(Link link) {
         this.link = link;
     }
 

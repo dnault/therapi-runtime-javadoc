@@ -1,10 +1,8 @@
 package com.github.therapi.runtimejavadoc;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 import java.util.List;
-
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 public class MethodJavadoc {
     private final String name;
@@ -16,14 +14,14 @@ public class MethodJavadoc {
     private final Comment returns;
     private final List<SeeAlsoJavadoc> seeAlso;
 
-    public MethodJavadoc(@JsonProperty("name") String name,
-                         @JsonProperty("signature") String signature,
-                         @JsonProperty("comment") Comment comment,
-                         @JsonProperty("params") List<ParamJavadoc> params,
-                         @JsonProperty("throws") List<ThrowsJavadoc> exceptions,
-                         @JsonProperty("other") List<OtherJavadoc> other,
-                         @JsonProperty("returns") Comment returns,
-                         @JsonProperty("seeAlso") List<SeeAlsoJavadoc> seeAlso) {
+    public MethodJavadoc(String name,
+                         String signature,
+                         Comment comment,
+                         List<ParamJavadoc> params,
+                         List<ThrowsJavadoc> exceptions,
+                         List<OtherJavadoc> other,
+                         Comment returns,
+                         List<SeeAlsoJavadoc> seeAlso) {
         this.name = name;
         this.signature = signature;
         this.comment = comment;

@@ -5,40 +5,51 @@
 ![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
 
 
-Bakes Javadoc comments into your JAR at build time so they can be accessed at runtime.
+Bakes Javadoc comments into your code so they can be accessed at runtime.
 
-## Usage
+## Coordinates
 
-### Building a JAR with embedded Javadoc
-
-Apply the Gradle plugin to the project whose Javadoc you wish to retain:
-
-    buildscript {
-        repositories {    
-            jcenter()
-        }
-
-        dependencies {
-            classpath "com.github.therapi:therapi-runtime-javadoc:0.1.2"
-        }
-    }
-
-    apply plugin: 'com.github.therapi.runtime-javadoc'
-
-
-### Reading Javadoc comments at runtime
-
-Include the `therapi-runtime-javadoc` library in your class path. With Gradle, that looks like this:
+Gradle:
 
     repositories {    
         jcenter()
     }
 
     dependencies {
-        compile "com.github.therapi:therapi-runtime-javadoc:0.1.2"
+        compile 'com.github.therapi:therapi-runtime-javadoc:0.2.0'
     }
 
-Read the Javadoc by creating a `RuntimeJavadocReader` and calling the `getDocumentation` method.
+Maven*:
+
+    <dependency>
+        <groupId>com.github.therapi</groupId>
+        <artifactId>therapi-runtime-javadoc</artifactId>
+        <version>0.2.0</version>
+    </dependency>
+
+*Maven must be configured to use the JCenter repository. Setup instructions are
+[here](https://bintray.com/bintray/jcenter) (click the wrench icon with the label "SET ME UP!").
+
+
+## Usage
+
+
+### Building a JAR with embedded Javadoc
+
+Apply the `@RetainJavadoc` annotation to each class whose Javadoc you wish to read at runtime.
+`@RetainJavadoc` also works as a meta-annotation (but not a meta-meta-annotation).
+
+The Javadoc comments are read by an annotation processor. The processer is automatically
+executed when the library is in your class path at compile time.
+
+When building in an IDE, you may have to explicitly enable annotation processing.
+In IntelliJ this is done by going to  `Preferences > Build, Execution, Deployment > Compiler > Annotation Processors`
+and checking the box labeled "Enabled annotation processing".
+
+
+### Reading Javadoc comments at runtime
+
+Read the Javadoc by calling `RuntimeJavadoc.getJavadoc` and passing either a class literal or class name.
 Because Javadoc comments may contain inline tags, you'll want to use a `CommentFormatter` to convert
 comments to strings.
 
@@ -48,12 +59,11 @@ Here's an example that prints all available documentation for a class:
     import java.io.IOException;
 
     public class Example {
-        // readers and formatters are reusable and thread-safe
-        private static final RuntimeJavadocReader reader = new RuntimeJavadocReader();
+        // formatters are reusable and thread-safe
         private static final CommentFormatter formatter = new CommentFormatter();
 
         public static void printJavadoc(String fullyQualifiedClassName) throws IOException {
-            ClassJavadoc classDoc = reader.getDocumentation(fullyQualifiedClassName);
+            ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(fullyQualifiedClassName).orElse(null);
             if (classDoc == null) {
                 System.out.println("no documentation for " + fullyQualifiedClassName);
                 return;
@@ -102,3 +112,9 @@ Here's an example that prints all available documentation for a class:
             return formatter.format(c);
         }
     }
+
+## Credits
+
+This library includes version of
+[JavaPoet](https://github.com/square/javapoet) repackaged to avoid dependency conflicts.
+JavaPoet is distributed under the Apache License 2.0.

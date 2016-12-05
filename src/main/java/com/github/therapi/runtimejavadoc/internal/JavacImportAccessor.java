@@ -1,4 +1,4 @@
-package com.github.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc.internal;
 
 import static java.util.Collections.emptySet;
 

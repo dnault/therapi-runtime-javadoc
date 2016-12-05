@@ -1,4 +1,4 @@
-package com.github.therapi.runtimejavadoc;
+package com.github.therapi.runtimejavadoc.internal;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -17,12 +17,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.github.therapi.runtimejavadoc.internal.JavadocParser;
+import com.github.therapi.runtimejavadoc.ClassJavadoc;
+import com.github.therapi.runtimejavadoc.MethodJavadoc;
+import com.github.therapi.runtimejavadoc.RetainJavadoc;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 public class JavadocAnnotationProcessor extends AbstractProcessor {
+
+    public static String javadocMethodNameSuffix() {
+        return "__Javadoc";
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
@@ -110,7 +116,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         MethodSpec getJavadoc = getJavadocBuilder.build();
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(getClassName(classElement) + "Javadoc")
+        TypeSpec helloWorld = TypeSpec.classBuilder(getClassName(classElement) + javadocMethodNameSuffix())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addMethod(emptyPrivateConstructor())
                 .addMethod(getString)
