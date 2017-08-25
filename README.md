@@ -115,6 +115,5 @@ Here's an example that prints all available documentation for a class:
 
 ## Credits
 
-This library includes version of
-[JavaPoet](https://github.com/square/javapoet) repackaged to avoid dependency conflicts.
+This library includes [JavaPoet](https://github.com/square/javapoet) repackaged to avoid dependency conflicts.
 JavaPoet is distributed under the Apache License 2.0.
