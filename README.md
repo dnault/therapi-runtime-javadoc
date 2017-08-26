@@ -16,7 +16,7 @@ Gradle:
     }
 
     dependencies {
-        compile 'com.github.therapi:therapi-runtime-javadoc:0.2.0'
+        compile 'com.github.therapi:therapi-runtime-javadoc:0.2.1'
     }
 
 Maven*:
@@ -24,7 +24,7 @@ Maven*:
     <dependency>
         <groupId>com.github.therapi</groupId>
         <artifactId>therapi-runtime-javadoc</artifactId>
-        <version>0.2.0</version>
+        <version>0.2.1</version>
     </dependency>
 
 *Maven must be configured to use the JCenter repository. Setup instructions are
