@@ -13,6 +13,7 @@ public class Example {
             return;
         }
 
+        System.out.println(classDoc.getName());
         System.out.println(format(classDoc.getComment()));
         System.out.println();
 

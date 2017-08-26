@@ -1,4 +1,6 @@
-package com.github.therapi.runtimejavadoc;
+package javasource;
+
+import com.github.therapi.runtimejavadoc.RetainJavadoc;
 
 /**
  * The {@code Javadoc} from this class is used for testing
@@ -6,6 +8,7 @@ package com.github.therapi.runtimejavadoc;
  * @author nobody@example.com
  * @custom.tag What does {@custom.inline this} mean?
  */
+@RetainJavadoc
 public class DocumentedClass {
 
     /**
@@ -15,7 +18,7 @@ public class DocumentedClass {
      * @param b oopsifizzle constant
      * @return {@code a} frobulated by {@code b}
      * @throws UnsupportedOperationException if frobulation cannot be performed
-     * @see DocumentedClass Hey, that's this class!
+     * @see com.github.therapi.runtimejavadoc.DocumentedClass Hey, that's this class!
      * @see #someOtherMethod()
      */
     public int frobulate(String a, int b) {

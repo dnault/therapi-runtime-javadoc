@@ -68,7 +68,8 @@ Here's an example that prints all available documentation for a class:
                 System.out.println("no documentation for " + fullyQualifiedClassName);
                 return;
             }
-
+                                    
+            System.out.println(classDoc.getName());
             System.out.println(format(classDoc.getComment()));
             System.out.println();
 

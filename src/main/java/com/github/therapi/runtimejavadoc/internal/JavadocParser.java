@@ -58,7 +58,7 @@ public class JavadocParser {
         return new Comment(commentElements);
     }
 
-    public static ClassJavadoc parseClassJavadoc(String javadoc, List<MethodJavadoc> methods) {
+    public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<MethodJavadoc> methods) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -67,7 +67,7 @@ public class JavadocParser {
             otherDocs.add(new OtherJavadoc(t.name, parseComment(t.value)));
         }
 
-        return new ClassJavadoc("whatever", parseComment(parsed.getDescription()),
+        return new ClassJavadoc(className, parseComment(parsed.getDescription()),
                 otherDocs, new ArrayList<SeeAlsoJavadoc>(), methods);
     }
 

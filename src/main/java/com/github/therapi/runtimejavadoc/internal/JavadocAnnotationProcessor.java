@@ -26,7 +26,7 @@ import com.squareup.javapoet.TypeSpec;
 
 public class JavadocAnnotationProcessor extends AbstractProcessor {
 
-    public static String javadocMethodNameSuffix() {
+    public static String javadocClassNameSuffix() {
         return "__Javadoc";
     }
 
@@ -112,11 +112,11 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         }
 
         getJavadocBuilder
-                .addStatement("return $T.parseClassJavadoc($S, methods)", JavadocParser.class, javadoc);
+                .addStatement("return $T.parseClassJavadoc($S, $S, methods)", JavadocParser.class, classElement.getQualifiedName(), javadoc);
 
         MethodSpec getJavadoc = getJavadocBuilder.build();
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(getClassName(classElement) + javadocMethodNameSuffix())
+        TypeSpec javadocBuddyClass = TypeSpec.classBuilder(getClassName(classElement) + javadocClassNameSuffix())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addMethod(emptyPrivateConstructor())
                 .addMethod(getString)
@@ -126,7 +126,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         String packageName = packageElement.getQualifiedName().toString();
 
-        JavaFile javaFile = JavaFile.builder(packageName, helloWorld)
+        JavaFile javaFile = JavaFile.builder(packageName, javadocBuddyClass)
                 .build();
 
         javaFile.writeTo(processingEnv.getFiler());
