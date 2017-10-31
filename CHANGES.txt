@@ -1,4 +1,9 @@
 
+v0.2.1 - August 26, 2017
+
+* [BUGFIX] #3 ClassJavadoc.getName() should return the class name
+
+
 v0.2.0 - December 4, 2016
 
 * Complete overhaul to use an annotation processor instead of a Gradle plugin.
