@@ -13,7 +13,6 @@ import com.github.therapi.runtimejavadoc.OtherJavadoc;
 import com.github.therapi.runtimejavadoc.ParamJavadoc;
 import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc;
 import com.github.therapi.runtimejavadoc.ThrowsJavadoc;
-import com.sun.tools.javadoc.resources.javadoc;
 
 public class JavadocParser {
     public static class ParsedJavadoc {

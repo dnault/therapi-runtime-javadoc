@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
-import java.time.LocalDate;
 import java.util.List;
 
 import com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor;
