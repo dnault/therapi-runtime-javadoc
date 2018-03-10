@@ -13,6 +13,7 @@ import com.github.therapi.runtimejavadoc.OtherJavadoc;
 import com.github.therapi.runtimejavadoc.ParamJavadoc;
 import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc;
 import com.github.therapi.runtimejavadoc.ThrowsJavadoc;
+import com.sun.tools.javadoc.resources.javadoc;
 
 public class JavadocParser {
     public static class ParsedJavadoc {
@@ -71,7 +72,7 @@ public class JavadocParser {
                 otherDocs, new ArrayList<SeeAlsoJavadoc>(), methods);
     }
 
-    public static MethodJavadoc parseMethodJavadoc(String methodName, String javadoc) {
+    public static MethodJavadoc parseMethodJavadoc(String methodName, List<String> paramTypes, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -95,7 +96,7 @@ public class JavadocParser {
             }
         }
 
-        return new MethodJavadoc(methodName, "", parseComment(parsed.getDescription()),
+        return new MethodJavadoc(methodName, paramTypes, parseComment(parsed.getDescription()),
                 paramDocs,
                 new ArrayList<ThrowsJavadoc>(),
                 otherDocs,

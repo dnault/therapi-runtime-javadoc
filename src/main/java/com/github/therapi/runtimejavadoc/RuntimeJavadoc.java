@@ -1,10 +1,11 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor.javadocClassNameSuffix;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
+
+import static com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor.javadocClassNameSuffix;
 
 public class RuntimeJavadoc {
     private RuntimeJavadoc() {
@@ -31,5 +32,14 @@ public class RuntimeJavadoc {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Optional<MethodJavadoc> getJavadoc(Method method) {
+        Optional<ClassJavadoc> javadoc = getJavadoc(method.getDeclaringClass());
+        return javadoc.map(ClassJavadoc::getMethods).flatMap(mDocs -> findMethodJavadoc(mDocs, method));
+    }
+
+    private static Optional<MethodJavadoc> findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
+        return methodDocs.stream().filter(m -> m.matches(method)).findAny();
     }
 }

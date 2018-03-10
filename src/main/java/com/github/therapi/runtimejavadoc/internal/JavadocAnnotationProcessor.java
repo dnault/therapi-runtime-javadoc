@@ -1,5 +1,12 @@
 package com.github.therapi.runtimejavadoc.internal;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
@@ -7,21 +14,19 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.lang.model.util.Types;
 
 import com.github.therapi.runtimejavadoc.ClassJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import com.github.therapi.runtimejavadoc.RetainJavadoc;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.TypeSpec;
 
 public class JavadocAnnotationProcessor extends AbstractProcessor {
@@ -92,9 +97,10 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         MethodSpec.Builder getJavadocBuilder = MethodSpec.methodBuilder("getJavadoc")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(ClassJavadoc.class)
-                .addStatement("$T<$T> methods = new $T<>()", List.class, MethodJavadoc.class, ArrayList.class);
+                .returns(ClassJavadoc.class);
+        addNewListDeclaration(getJavadocBuilder, "methods", MethodJavadoc.class);
 
+        int methodNum = 0;
         for (Element child : classElement.getEnclosedElements()) {
             if (child.getKind() != ElementKind.METHOD
                 //&& child.getKind() != ElementKind.CONSTRUCTOR
@@ -106,9 +112,13 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             String methodJavadoc = elements.getDocComment(executableElement);
 
             if (methodJavadoc != null) {
-                getJavadocBuilder
-                        .addStatement("methods.add($T.parseMethodJavadoc($S, $S))", JavadocParser.class, executableElement.getSimpleName(), methodJavadoc);
+                Name simpleName = executableElement.getSimpleName();
+                String paramsVarName = generateParamsVarName(simpleName, methodNum);
+                addParamsVariableCreation(getJavadocBuilder, executableElement, paramsVarName);
+                getJavadocBuilder.addStatement("methods.add($T.parseMethodJavadoc($S, $L, $S))", JavadocParser.class,
+                                simpleName, paramsVarName, methodJavadoc);
             }
+            methodNum++;
         }
 
         getJavadocBuilder
@@ -130,6 +140,31 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
                 .build();
 
         javaFile.writeTo(processingEnv.getFiler());
+    }
+
+    private static String generateParamsVarName(Name methodName, int methodNum) {
+        return methodName.toString() + "Params" + methodNum;
+    }
+
+    private void addParamsVariableCreation(Builder getJavadocBuilder, ExecutableElement executableElement,
+            String paramsVarName) {
+        addNewListDeclaration(getJavadocBuilder, paramsVarName, String.class);
+        List<String> paramTypes = getParamErasures(executableElement);
+        paramTypes.forEach(qualifiedType -> getJavadocBuilder.addStatement("$L.add($S)", paramsVarName, qualifiedType));
+    }
+
+    private static void addNewListDeclaration(Builder builder, String varName, Class<?> eltType) {
+        builder.addStatement("$T<$T> $L = new $T<>()", List.class, eltType, varName, ArrayList.class);
+    }
+
+    private List<String> getParamErasures(ExecutableElement executableElement) {
+        Types typeUtils = processingEnv.getTypeUtils();
+        return executableElement.getParameters()
+                                .stream()
+                                .map(Element::asType)
+                                .map(typeUtils::erasure)
+                                .map(TypeMirror::toString)
+                                .collect(Collectors.toList());
     }
 
     private static PackageElement getPackageElement(Element e) {
