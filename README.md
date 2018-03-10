@@ -86,7 +86,7 @@ Here's an example that prints all available documentation for a class:
             System.out.println("METHODS");
 
             for (MethodJavadoc methodDoc : classDoc.getMethods()) {
-                System.out.println(methodDoc.getName() + methodDoc.getSignature());
+                System.out.println(methodDoc.getName() + methodDoc.getParamTypes());
                 System.out.println(format(methodDoc.getComment()));
                 System.out.println("  returns " + format(methodDoc.getReturns()));
 
