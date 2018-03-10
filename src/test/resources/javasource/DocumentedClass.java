@@ -1,5 +1,7 @@
 package javasource;
 
+import java.util.List;
+
 import com.github.therapi.runtimejavadoc.RetainJavadoc;
 
 /**
@@ -22,6 +24,20 @@ public class DocumentedClass {
      * @see #someOtherMethod()
      */
     public int frobulate(String a, int b) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Frobulate {@code a} by multiple oopsifizzle constants
+     *
+     * @param a blurtification factor
+     * @param b oopsifizzle constants
+     * @return {@code a} frobulated by {@code b}
+     * @throws UnsupportedOperationException if frobulation cannot be performed
+     * @see com.github.therapi.runtimejavadoc.DocumentedClass Hey, that's this class!
+     * @see #someOtherMethod()
+     */
+    public int frobulate(String a, List<Integer> b) {
         throw new UnsupportedOperationException();
     }
 
