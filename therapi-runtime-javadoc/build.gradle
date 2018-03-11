@@ -1,0 +1,21 @@
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom.withXml {
+                asNode().appendNode('description', project.description)
+                asNode().children().last() + project.ext.pomConfig
+            }
+
+            from components.java
+
+            artifact sourceJar {
+                classifier 'sources'
+            }
+
+            artifact javadocJar {
+                classifier 'javadoc'
+            }
+        }
+    }
+}

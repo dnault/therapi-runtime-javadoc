@@ -1,150 +1,116 @@
 plugins {
     id "com.jfrog.bintray" version "1.3.1"
-    id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
+subprojects { subproject ->
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
 
-repositories {
-    jcenter()
-}
+    group = "com.github.therapi"
+    version = "0.3.0-SNAPSHOT"
 
-group = "com.github.therapi"
-version = "0.2.2-SNAPSHOT"
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-dependencies {
-    compileOnly files(System.properties['java.home'] + "/../lib/tools.jar")
-    compile 'com.squareup:javapoet:1.8.0'
-    testCompile 'junit:junit:4.12'
-    testCompile 'com.google.testing.compile:compile-testing:0.11'
-}
-
-shadowJar {
-    classifier = null
-    mergeServiceFiles()
-    // exclude 'META-INF/maven/**'
-    relocate 'com.squareup', 'com.github.therapi.repack.com.squareup'
-}
-
-tasks.withType(JavaCompile) {
-    // disable annotation processing
-    options.compilerArgs << "-proc:none"
-}
-
-task sourceJar(type: Jar, dependsOn: classes) {
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-}
-
-def gitProjectName = project.name
-def gitUrl = "git@github.com:dnault/${gitProjectName}.git"
-def pomConfig = {
-    name "${group}:${project.name}"
-    url "https://github.com/dnault/${gitProjectName}"
-    scm {
-        url "${gitUrl}"
-        connection "scm:git:${gitUrl}"
-        developerConnection "scm:git:${gitUrl}"
+    repositories {
+        jcenter()
     }
-    licenses {
-        license {
-            name 'Apache License 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    
+    dependencies {
+        testCompile 'junit:junit:4.12'
+    }
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    task sourceJar(type: Jar, dependsOn: classes) {
+        from sourceSets.main.allSource
+    }
+    
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        from javadoc.destinationDir
+    }
+
+    project.ext.gitProjectName = project.name
+    def gitUrl = "git@github.com:dnault/${project.ext.gitProjectName}.git"
+    project.ext.pomConfig = {
+        name "${group}:${project.name}"
+        url "https://github.com/dnault/${project.ext.gitProjectName}"
+        scm {
+            url "${gitUrl}"
+            connection "scm:git:${gitUrl}"
+            developerConnection "scm:git:${gitUrl}"
         }
-    }
-    developers {
-        developer {
-            name 'David Nault'
-            email 'dnault@mac.com'
-            organization 'dnault'
-            organizationUrl 'https://github.com/dnault'
+        licenses {
+            license {
+                name 'Apache License 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            }
         }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            pom.withXml {
-                asNode().appendNode('description', 'Access Javadoc comments at runtime')
-                asNode().children().last() + pomConfig
-            }
-
-            from components.shadow
-
-            artifact sourceJar {
-                classifier 'sources'
-            }
-
-            artifact javadocJar {
-                classifier 'javadoc'
+        developers {
+            developer {
+                name 'David Nault'
+                email 'dnault@mac.com'
+                organization 'dnault'
+                organizationUrl 'https://github.com/dnault'
             }
         }
     }
-}
 
-task install {
-    dependsOn(publishToMavenLocal)
-}
-
-bintrayUpload.doFirst {
-    if (version.contains("SNAPSHOT")) {
-        throw new RuntimeException("Must not upload snapshots to bintray (current version is ${version}) -- create and tag a release version first!")
-    }
-}
-
-bintray {
-    if (project.hasProperty('bintrayUsername')) {
-        user = project.bintrayUsername
+    task install {
+        dependsOn(publishToMavenLocal)
     }
 
-    if (project.hasProperty('bintrayApiKey')) {
-        key = project.bintrayApiKey
+    bintrayUpload.doFirst {
+        if (version.contains("SNAPSHOT")) {
+            throw new RuntimeException("Must not upload snapshots to bintray (current version is ${version}) -- create and tag a release version first!")
+        }
     }
+    
+    bintray {
+        if (project.hasProperty('bintrayUsername')) {
+            user = project.bintrayUsername
+        }
+    
+        if (project.hasProperty('bintrayApiKey')) {
+            key = project.bintrayApiKey
+        }
 
-    publications = ['mavenJava'] // When uploading Maven-based publication files
-
-    dryRun = false  //false //Whether to run this as dry-run, without deploying
-    publish = false //true //If version should be auto published after an upload
-
-    pkg {
-        repo = 'maven'
-        //  userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
-        name = 'therapi-runtime-javadoc'
-        desc = 'Bakes Javadoc comments into your code so they can be accessed at runtime.'
-        websiteUrl = 'https://github.com/dnault/therapi-runtime-javadoc'
-        issueTrackerUrl = 'https://github.com/dnault/therapi-runtime-javadoc/issues'
-        vcsUrl = 'https://github.com/dnault/therapi-runtime-javadoc.git'
-        licenses = ['Apache-2.0']
-        labels = ['runtime', 'javadoc']
-        publicDownloadNumbers = false//true
-        //attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
-        //Optional version descriptor
-        version {
-            name = project.version //'1.3-Final' //Bintray logical version name
-            //desc = 'optional, version-specific description'
-            released = new Date()
-            //'optional, date of the version release' //2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
-            vcsTag = "v" + project.version //'1.3.0'
-//            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
-            gpg {
-                //              sign = true //Determines whether to GPG sign the files. The default is false
-                //            passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
-            }
-            mavenCentralSync {
-                sync = false
-                //true //Optional (true by default). Determines whether to sync the version to Maven Central.
-                user = 'userToken' //OSS user token
-                password = 'paasword' //OSS user password
-                close = '0'
-//'1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+        publications = ['mavenJava'] // When uploading Maven-based publication files
+    
+        dryRun = false  //false //Whether to run this as dry-run, without deploying
+        publish = false //true //If version should be auto published after an upload
+    
+        pkg {
+            repo = 'maven'
+            //  userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
+            name = subproject.name
+            desc = subproject.description
+            websiteUrl = "https://github.com/dnault/${project.ext.gitProjectName}"
+            issueTrackerUrl = "https://github.com/dnault/${project.ext.gitProjectName}/issues"
+            vcsUrl = "https://github.com/dnault/${project.ext.gitProjectName}.git"
+            licenses = ['Apache-2.0']
+            labels = ['runtime', 'javadoc']
+            publicDownloadNumbers = false//true
+            //attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
+            //Optional version descriptor
+            version {
+                name = project.version //'1.3-Final' //Bintray logical version name
+                //desc = 'optional, version-specific description'
+                released = new Date()
+                //'optional, date of the version release' //2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
+                vcsTag = project.version //'1.3.0'
+    //            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
+                gpg {
+                    //              sign = true //Determines whether to GPG sign the files. The default is false
+                    //            passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
+                }
+                mavenCentralSync {
+                    sync = false
+                    //true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                    user = 'userToken' //OSS user token
+                    password = 'paasword' //OSS user password
+                    close = '0'
+    //'1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                }
             }
         }
     }
