@@ -12,6 +12,7 @@ class ImportUtils {
     }
 
     private ImportUtils() {
+        throw new AssertionError("not instantiable");
     }
 
     public static Set<String> getImports(Element element, ProcessingEnvironment env) {

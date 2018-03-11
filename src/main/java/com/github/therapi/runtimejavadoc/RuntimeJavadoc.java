@@ -1,14 +1,16 @@
 package com.github.therapi.runtimejavadoc;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocClassNameSuffix;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor.javadocClassNameSuffix;
-
 public class RuntimeJavadoc {
+
     private RuntimeJavadoc() {
+        throw new AssertionError("not instantiable");
     }
 
     public static Optional<ClassJavadoc> getJavadoc(Class c) {
