@@ -21,7 +21,7 @@ serving up your Javadoc on demand.
 
 ### Gradle
 
-```
+```groovy
 repositories {    
     jcenter()
 }
@@ -81,9 +81,11 @@ you want to keep. (Subpackages are included, recursively.)
     
 For Gradle that might look like this:
 
-    tasks.withType(JavaCompile) {            
-      options.compilerArgs << "-Ajavadoc.packages=com.example,org.example"
-    }
+```groovy
+tasks.withType(JavaCompile) {            
+  options.compilerArgs << "-Ajavadoc.packages=com.example,org.example"
+}
+```
 
 If you don't specify any packages, the default behavior is to retain Javadoc
 from all packages.
