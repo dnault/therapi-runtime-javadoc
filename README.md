@@ -100,7 +100,7 @@ Because Javadoc comments may contain inline tags, you'll want to use a
 
 Here's an example that prints all available documentation for a class:
 
-```
+```java
 import com.github.therapi.runtimejavadoc.*;
 import java.io.IOException;
 
