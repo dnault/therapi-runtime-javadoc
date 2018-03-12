@@ -1,6 +1,6 @@
 # Change history
 
-## 0.3.0 - March 2018
+## 0.3.0 - March 11, 2018
 
 Javadoc for all classes is now retained by default. The `@RetainJavadoc`
 annotation is no longer required.
