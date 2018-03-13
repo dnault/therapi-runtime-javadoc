@@ -10,7 +10,7 @@
 1. Add an annotation processor to your class path at compile time.
 2. Read Javadoc comments at run time.
 
-The annotation processor copies the Javadoc from your source code
+The annotation processor copies Javadoc from your source code
 into class path resources.
 
 The runtime library reads the class path resources, serving up your
@@ -28,10 +28,10 @@ repositories {
 
 dependencies {
     // Annotation processor
-    compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.3.0'
+    compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.4.0'
 
     // Runtime library
-    compile 'com.github.therapi:therapi-runtime-javadoc:0.3.0'        
+    compile 'com.github.therapi:therapi-runtime-javadoc:0.4.0'        
 }
 ```
 
@@ -42,7 +42,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <scope>provided</scope>
 </dependency>
     
@@ -50,7 +50,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 

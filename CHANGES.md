@@ -1,5 +1,16 @@
 # Change history
 
+## 0.4.0 - March 12, 2018
+
+Javadoc is now stored as class path resources instead of Java classes,
+yielding smaller JAR sizes.
+
+Issues resolved:
+
+* [ENHANCEMENT] #10 Write Javadoc to class path resources instead of Java classes 
+* [ENHANCEMENT] #8 Don't generate companion class if there is no Javadoc
+
+
 ## 0.3.0 - March 11, 2018
 
 Javadoc for all classes is now retained by default. The `@RetainJavadoc`
