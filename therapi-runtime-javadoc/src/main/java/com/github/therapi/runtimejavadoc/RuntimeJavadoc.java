@@ -1,11 +1,26 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocClassNameSuffix;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.classDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodNameFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
+import com.github.therapi.runtimejavadoc.internal.JavadocParser;
 
 public class RuntimeJavadoc {
 
@@ -22,16 +37,36 @@ public class RuntimeJavadoc {
     }
 
     public static Optional<ClassJavadoc> getJavadoc(String qualifiedClassName, ClassLoader classLoader) {
-        try {
-            Class<?> javadocClass = Class.forName(qualifiedClassName + javadocClassNameSuffix(), true, classLoader);
-            Method javadocMethod = javadocClass.getMethod("getJavadoc");
-            ClassJavadoc classJavadoc = (ClassJavadoc) javadocMethod.invoke(null);
-            return Optional.ofNullable(classJavadoc);
+        final String resourceName = qualifiedClassName.replace(".", "/") + javadocResourceSuffix();
+        try (InputStream is = classLoader.getResourceAsStream(resourceName)) {
+            if (is == null) {
+                return Optional.empty();
+            }
 
-        } catch (ClassNotFoundException e) {
-            return Optional.empty();
+            try (InputStreamReader r = new InputStreamReader(is, UTF_8)) {
+                JsonObject json = Json.parse(r).asObject();
 
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                JsonArray methodArray = json.get(methodsFieldName()).asArray();
+                List<MethodJavadoc> methods = new ArrayList<>(methodArray.size());
+                for (JsonValue methodValue : methodArray) {
+                    JsonObject method = methodValue.asObject();
+                    String methodName = method.getString(methodNameFieldName(), null);
+
+                    JsonArray paramTypesArray = method.get(paramTypesFieldName()).asArray();
+                    List<String> paramTypes = new ArrayList<>(paramTypesArray.size());
+                    for (JsonValue v : paramTypesArray) {
+                        paramTypes.add(v.asString());
+                    }
+
+                    String methodDoc = method.getString(methodDocFieldName(), null);
+
+                    methods.add(JavadocParser.parseMethodJavadoc(methodName, paramTypes, methodDoc));
+                }
+                String className = qualifiedClassName.replace("$", ".");
+                return Optional.of(JavadocParser.parseClassJavadoc(className, json.getString(classDocFieldName(), null), methods));
+            }
+
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

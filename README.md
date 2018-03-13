@@ -10,11 +10,11 @@
 1. Add an annotation processor to your class path at compile time.
 2. Read Javadoc comments at run time.
 
-The annotation processor takes the Javadoc from your source code
-and embeds it in companion classes.
+The annotation processor copies the Javadoc from your source code
+into class path resources.
 
-The runtime library uses reflection to invoke the companion classes,
-serving up your Javadoc on demand.
+The runtime library reads the class path resources, serving up your
+Javadoc on demand.
 
 
 ## Coordinates
@@ -165,5 +165,5 @@ public class Example {
 
 ## Credits
 
-This library includes [JavaPoet](https://github.com/square/javapoet) repackaged to avoid dependency conflicts.
-JavaPoet is distributed under the Apache License 2.0.
+This library includes [minimal-json](https://github.com/ralfstx/minimal-json)
+(MIT License) repackaged to avoid dependency conflicts.

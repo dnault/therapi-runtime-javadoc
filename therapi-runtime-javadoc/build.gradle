@@ -1,13 +1,13 @@
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        mavenJava(MavenPublication) { publication ->
+            project.shadow.component(publication)
+
             pom.withXml {
                 asNode().appendNode('description', project.description)
                 asNode().children().last() + project.ext.pomConfig
             }
-
-            from components.java
 
             artifact sourceJar {
                 classifier 'sources'

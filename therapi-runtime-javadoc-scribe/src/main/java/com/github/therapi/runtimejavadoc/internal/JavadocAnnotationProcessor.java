@@ -1,6 +1,12 @@
 package com.github.therapi.runtimejavadoc.internal;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocClassNameSuffix;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.classDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodNameFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -8,8 +14,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.QualifiedNameable;
 import javax.lang.model.element.TypeElement;
@@ -17,8 +21,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import javax.tools.StandardLocation;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +32,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.github.therapi.runtimejavadoc.ClassJavadoc;
-import com.github.therapi.runtimejavadoc.MethodJavadoc;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
 import com.github.therapi.runtimejavadoc.RetainJavadoc;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.MethodSpec.Builder;
-import com.squareup.javapoet.TypeSpec;
 
 public class JavadocAnnotationProcessor extends AbstractProcessor {
     private static final String PACKAGES_OPTION = "javadoc.packages";
@@ -67,7 +68,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         }
 
         for (Element e : roundEnvironment.getRootElements()) {
-            if (!isGeneratedJavadocClass(e) && packageFilter.test(e)) {
+            if (packageFilter.test(e)) {
                 generateJavadoc(elements, e, alreadyProcessed);
             }
         }
@@ -83,10 +84,6 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             }
         }
         return ((QualifiedNameable) e).getQualifiedName().toString();
-    }
-
-    private static boolean isGeneratedJavadocClass(Element e) {
-        return e.getSimpleName().toString().endsWith(javadocClassNameSuffix());
     }
 
     private static class PackageFilter implements Predicate<Element> {
@@ -163,20 +160,11 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             classDoc = "";
         }
 
-        JavadocParser.ParsedJavadoc parsed = JavadocParser.parse(classDoc);
+        JsonObject json = new JsonObject();
+        json.add(classDocFieldName(), classDoc);
+        JsonArray methods = new JsonArray();
+        json.add(methodsFieldName(), methods);
 
-        MethodSpec getString = MethodSpec.methodBuilder("getString")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(String.class)
-                .addStatement("return $S", parsed.getDescription())
-                .build();
-
-        MethodSpec.Builder getJavadocBuilder = MethodSpec.methodBuilder("getJavadoc")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(ClassJavadoc.class);
-        addNewListDeclaration(getJavadocBuilder, "methods", MethodJavadoc.class);
-
-        int methodNum = 0;
         for (Element child : classElement.getEnclosedElements()) {
             if (child.getKind() != ElementKind.METHOD
                 //&& child.getKind() != ElementKind.CONSTRUCTOR
@@ -187,59 +175,40 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
             String methodJavadoc = elements.getDocComment(executableElement);
 
-            if (!isBlank(methodJavadoc)) {
-                Name simpleName = executableElement.getSimpleName();
-                String paramsVarName = generateParamsVarName(simpleName, methodNum);
-                addParamsVariableCreation(getJavadocBuilder, executableElement, paramsVarName);
-                getJavadocBuilder.addStatement("methods.add($T.parseMethodJavadoc($S, $L, $S))", JavadocParser.class,
-                        simpleName, paramsVarName, methodJavadoc);
-                methodNum++;
+            if (isBlank(methodJavadoc)) {
+                continue;
             }
+
+            JsonObject method = new JsonObject();
+
+            String simpleName = executableElement.getSimpleName().toString();
+            method.add(methodNameFieldName(), simpleName);
+
+            JsonArray paramTypes = new JsonArray();
+            getParamErasures(executableElement).forEach(paramTypes::add);
+
+            method.add(paramTypesFieldName(), paramTypes);
+            method.add(methodDocFieldName(), methodJavadoc);
+            methods.add(method);
         }
 
-        if (methodNum == 0 && isBlank(classDoc)) {
-            // No Javadoc. Don't need to create companion class.
+        if (methods.isEmpty() && isBlank(classDoc)) {
             return;
         }
 
-        getJavadocBuilder
-                .addStatement("return $T.parseClassJavadoc($S, $S, methods)", JavadocParser.class, classElement.getQualifiedName(), classDoc);
-
-        MethodSpec getJavadoc = getJavadocBuilder.build();
-
-        TypeSpec javadocBuddyClass = TypeSpec.classBuilder(getClassName(classElement) + javadocClassNameSuffix())
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addMethod(emptyPrivateConstructor())
-                .addMethod(getString)
-                .addMethod(getJavadoc)
-                .build();
-
-
         String packageName = packageElement.getQualifiedName().toString();
+        String relativeName = getClassName(classElement) + javadocResourceSuffix();
 
-        JavaFile javaFile = JavaFile.builder(packageName, javadocBuddyClass)
-                .build();
-
-        javaFile.writeTo(processingEnv.getFiler());
+        try (OutputStream os = processingEnv.getFiler()
+                .createResource(StandardLocation.CLASS_OUTPUT, packageName, relativeName, e)
+                .openOutputStream()) {
+            os.write(json.toString().getBytes(UTF_8));
+        }
     }
 
-    private static String generateParamsVarName(Name methodName, int methodNum) {
-        return methodName.toString() + "Params" + methodNum;
-    }
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
-    }
-
-    private void addParamsVariableCreation(Builder getJavadocBuilder, ExecutableElement executableElement,
-                                           String paramsVarName) {
-        addNewListDeclaration(getJavadocBuilder, paramsVarName, String.class);
-        List<String> paramTypes = getParamErasures(executableElement);
-        paramTypes.forEach(qualifiedType -> getJavadocBuilder.addStatement("$L.add($S)", paramsVarName, qualifiedType));
-    }
-
-    private static void addNewListDeclaration(Builder builder, String varName, Class<?> eltType) {
-        builder.addStatement("$T<$T> $L = new $T<>()", List.class, eltType, varName, ArrayList.class);
     }
 
     private List<String> getParamErasures(ExecutableElement executableElement) {
@@ -274,13 +243,6 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         }
 
         return typeName;
-    }
-
-
-    private static MethodSpec emptyPrivateConstructor() {
-        return MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PRIVATE)
-                .build();
     }
 
     @Override

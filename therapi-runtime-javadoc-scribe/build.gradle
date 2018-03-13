@@ -1,21 +1,10 @@
-plugins {
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
-}
 
 dependencies {
     compileOnly files(System.properties['java.home'] + "/../lib/tools.jar")
-    compile 'com.squareup:javapoet:1.10.0'
     shadow project(':therapi-runtime-javadoc')
 
     testCompile project(':therapi-runtime-javadoc')
     testCompile 'com.google.testing.compile:compile-testing:0.11'
-}
-
-shadowJar {
-    classifier = null
-    mergeServiceFiles()
-    // exclude 'META-INF/maven/**'
-    relocate 'com.squareup', 'com.github.therapi.runtimejavadoc.repack.com.squareup'
 }
 
 tasks.withType(JavaCompile) {

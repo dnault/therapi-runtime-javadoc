@@ -15,7 +15,27 @@ public class RuntimeJavadocHelper {
         return list == null ? Collections.<T>emptyList() : unmodifiableList(new ArrayList<>(list));
     }
 
-    public static String javadocClassNameSuffix() {
-        return "__Javadoc";
+    public static String javadocResourceSuffix() {
+        return "__Javadoc.json";
+    }
+
+    public static String paramTypesFieldName() {
+        return "paramTypes";
+    }
+
+    public static String methodsFieldName() {
+        return "methods";
+    }
+
+    public static String classDocFieldName() {
+        return "doc";
+    }
+
+    public static String methodDocFieldName() {
+        return "doc";
+    }
+
+    public static String methodNameFieldName() {
+        return "name";
     }
 }
