@@ -20,6 +20,9 @@ public class JavadocAnnotationProcessorTest {
     private static final String DOCUMENTED_CLASS = "javasource.foo.DocumentedClass";
     private static final String ANOTHER_DOCUMENTED_CLASS = "javasource.bar.AnotherDocumentedClass";
     private static final String ANNOTATED_WITH_RETAIN_JAVADOC = "javasource.bar.YetAnotherDocumentedClass";
+    private static final String UNDOCUMENTED = "javasource.bar.UndocumentedClass";
+    private static final String BLANK_COMMENTS = "javasource.bar.BlankDocumentation";
+    private static final String METHOD_DOC_BUT_NO_CLASS_DOC = "javasource.bar.OnlyMethodDocumented";
 
     private static List<JavaFileObject> sources() {
         List<JavaFileObject> files = new ArrayList<>();
@@ -27,6 +30,9 @@ public class JavadocAnnotationProcessorTest {
                 "javasource/foo/DocumentedClass.java",
                 "javasource/bar/AnotherDocumentedClass.java",
                 "javasource/bar/YetAnotherDocumentedClass.java",
+                "javasource/bar/UndocumentedClass.java",
+                "javasource/bar/BlankDocumentation.java",
+                "javasource/bar/OnlyMethodDocumented.java",
         }) {
             files.add(JavaFileObjects.forResource(resource));
         }
@@ -139,6 +145,21 @@ public class JavadocAnnotationProcessorTest {
             Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$Nested");
             ClassJavadoc classJavadoc = expectJavadoc(c);
             assertEquals(DOCUMENTED_CLASS + ".Nested", classJavadoc.getName());
+        }
+    }
+
+    @Test
+    public void noCompanionGeneratedForUndocumentedClass() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            expectNoJavadoc(classLoader.loadClass(UNDOCUMENTED));
+            expectNoJavadoc(classLoader.loadClass(BLANK_COMMENTS));
+        }
+    }
+
+    @Test
+    public void companionGeneratedForClassWithMethodDocButNoClassDoc() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            expectJavadoc(classLoader.loadClass(METHOD_DOC_BUT_NO_CLASS_DOC));
         }
     }
 

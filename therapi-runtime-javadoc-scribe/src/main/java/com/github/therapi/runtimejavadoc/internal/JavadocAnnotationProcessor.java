@@ -157,13 +157,13 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         TypeElement classElement = (TypeElement) e;
         PackageElement packageElement = getPackageElement(classElement);
 
-        String javadoc = elements.getDocComment(classElement);
+        String classDoc = elements.getDocComment(classElement);
 
-        if (javadoc == null) {
-            javadoc = "";
+        if (isBlank(classDoc)) {
+            classDoc = "";
         }
 
-        JavadocParser.ParsedJavadoc parsed = JavadocParser.parse(javadoc);
+        JavadocParser.ParsedJavadoc parsed = JavadocParser.parse(classDoc);
 
         MethodSpec getString = MethodSpec.methodBuilder("getString")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -187,18 +187,23 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
             String methodJavadoc = elements.getDocComment(executableElement);
 
-            if (methodJavadoc != null) {
+            if (!isBlank(methodJavadoc)) {
                 Name simpleName = executableElement.getSimpleName();
                 String paramsVarName = generateParamsVarName(simpleName, methodNum);
                 addParamsVariableCreation(getJavadocBuilder, executableElement, paramsVarName);
                 getJavadocBuilder.addStatement("methods.add($T.parseMethodJavadoc($S, $L, $S))", JavadocParser.class,
                         simpleName, paramsVarName, methodJavadoc);
+                methodNum++;
             }
-            methodNum++;
+        }
+
+        if (methodNum == 0 && isBlank(classDoc)) {
+            // No Javadoc. Don't need to create companion class.
+            return;
         }
 
         getJavadocBuilder
-                .addStatement("return $T.parseClassJavadoc($S, $S, methods)", JavadocParser.class, classElement.getQualifiedName(), javadoc);
+                .addStatement("return $T.parseClassJavadoc($S, $S, methods)", JavadocParser.class, classElement.getQualifiedName(), classDoc);
 
         MethodSpec getJavadoc = getJavadocBuilder.build();
 
@@ -220,6 +225,10 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
     private static String generateParamsVarName(Name methodName, int methodNum) {
         return methodName.toString() + "Params" + methodNum;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private void addParamsVariableCreation(Builder getJavadocBuilder, ExecutableElement executableElement,
