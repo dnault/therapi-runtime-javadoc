@@ -22,10 +22,6 @@ Javadoc on demand.
 ### Gradle
 
 ```groovy
-repositories {    
-    jcenter()
-}
-
 dependencies {
     // Annotation processor
     compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.4.0'
@@ -53,10 +49,6 @@ dependencies {
     <version>0.4.0</version>
 </dependency>
 ```
-
-*Maven must be configured to use the JCenter repository. Setup instructions are
-[here](https://bintray.com/bintray/jcenter) (click the wrench icon with the
-label "SET ME UP!").
 
 
 ## Usage
