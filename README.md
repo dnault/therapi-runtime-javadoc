@@ -31,7 +31,7 @@ dependencies {
 }
 ```
 
-### Maven*
+### Maven
 
 ```xml
 <!-- Annotation processor -->
