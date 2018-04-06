@@ -23,6 +23,8 @@ public class JavadocAnnotationProcessorTest {
     private static final String UNDOCUMENTED = "javasource.bar.UndocumentedClass";
     private static final String BLANK_COMMENTS = "javasource.bar.BlankDocumentation";
     private static final String METHOD_DOC_BUT_NO_CLASS_DOC = "javasource.bar.OnlyMethodDocumented";
+    private static final String DOCUMENTED_ENUM = "javasource.bar.DocumentedEnum";
+
 
     private static List<JavaFileObject> sources() {
         List<JavaFileObject> files = new ArrayList<>();
@@ -33,6 +35,7 @@ public class JavadocAnnotationProcessorTest {
                 "javasource/bar/UndocumentedClass.java",
                 "javasource/bar/BlankDocumentation.java",
                 "javasource/bar/OnlyMethodDocumented.java",
+                "javasource/bar/DocumentedEnum.java"
         }) {
             files.add(JavaFileObjects.forResource(resource));
         }
@@ -140,6 +143,26 @@ public class JavadocAnnotationProcessorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    public void enumConstantDocTest() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<? extends Enum> c = (Class<? extends Enum>) classLoader.loadClass(DOCUMENTED_ENUM);
+
+            final String enumConstantName = "FOO11";
+            final Enum e = Enum.valueOf(c, enumConstantName);
+            assertEnumConstantMatches(e, "This is the FOO11 value documentation");
+        }
+    }
+
+    private static void assertEnumConstantMatches(Enum enumConstant, String expectedDescription) {
+        EnumConstantJavadoc enumConstantDoc = expectJavadoc(enumConstant);
+        assertEquals(enumConstant.name(), enumConstantDoc.getName());
+
+        String actualDesc = formatter.format(enumConstantDoc.getComment());
+        assertEquals(expectedDescription, actualDesc);
+    }
+
+    @Test
     public void nestedClassNameIsPreserved() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
             Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$Nested");
@@ -171,6 +194,11 @@ public class JavadocAnnotationProcessorTest {
     private static MethodJavadoc expectJavadoc(Method m) {
         return RuntimeJavadoc.getJavadoc(m)
                 .orElseThrow(() -> new AssertionError("Missing Javadoc for " + m));
+    }
+
+    private static EnumConstantJavadoc expectJavadoc(Enum e) {
+        return RuntimeJavadoc.getJavadoc(e)
+            .orElseThrow(() -> new AssertionError("Missing Javadoc for " + e));
     }
 
     private static void expectNoJavadoc(Class<?> c) {

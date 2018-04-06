@@ -10,17 +10,20 @@ public class ClassJavadoc {
     private final List<SeeAlsoJavadoc> seeAlso;
     private final List<OtherJavadoc> other;
     private final List<MethodJavadoc> methods;
+    private final List<EnumConstantJavadoc> enumConstants;
 
     public ClassJavadoc(String name,
                         Comment comment,
                         List<OtherJavadoc> other,
                         List<SeeAlsoJavadoc> seeAlso,
-                        List<MethodJavadoc> methods) {
+                        List<MethodJavadoc> methods,
+                        List<EnumConstantJavadoc> enumConstants) {
         this.name = name;
         this.comment = comment;
         this.other = unmodifiableDefensiveCopy(other);
         this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
         this.methods = unmodifiableDefensiveCopy(methods);
+        this.enumConstants = unmodifiableDefensiveCopy(enumConstants);
     }
 
     public String getName() {
@@ -43,6 +46,10 @@ public class ClassJavadoc {
         return methods;
     }
 
+    public List<EnumConstantJavadoc> getEnumConstants() {
+        return enumConstants;
+    }
+
     @Override
     public String toString() {
         return "ClassJavadoc{" +
@@ -51,6 +58,7 @@ public class ClassJavadoc {
                 ", seeAlso=" + seeAlso +
                 ", other=" + other +
                 ", methods=" + methods +
+                ", enumConstants=" + enumConstants +
                 '}';
     }
 }

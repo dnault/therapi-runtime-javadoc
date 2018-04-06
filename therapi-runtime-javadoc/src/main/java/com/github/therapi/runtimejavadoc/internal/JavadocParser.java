@@ -8,6 +8,7 @@ import com.github.therapi.runtimejavadoc.ClassJavadoc;
 import com.github.therapi.runtimejavadoc.Comment;
 import com.github.therapi.runtimejavadoc.CommentElement;
 import com.github.therapi.runtimejavadoc.CommentText;
+import com.github.therapi.runtimejavadoc.EnumConstantJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import com.github.therapi.runtimejavadoc.OtherJavadoc;
 import com.github.therapi.runtimejavadoc.ParamJavadoc;
@@ -58,7 +59,8 @@ public class JavadocParser {
         return new Comment(commentElements);
     }
 
-    public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<MethodJavadoc> methods) {
+    public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<MethodJavadoc> methods,
+                                                 List<EnumConstantJavadoc> enumConstants) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -68,7 +70,7 @@ public class JavadocParser {
         }
 
         return new ClassJavadoc(className, parseComment(parsed.getDescription()),
-                otherDocs, new ArrayList<SeeAlsoJavadoc>(), methods);
+                otherDocs, new ArrayList<SeeAlsoJavadoc>(), methods, enumConstants);
     }
 
     public static MethodJavadoc parseMethodJavadoc(String methodName, List<String> paramTypes, String javadoc) {
@@ -101,6 +103,16 @@ public class JavadocParser {
                 otherDocs,
                 returns,
                 new ArrayList<SeeAlsoJavadoc>());
+    }
+
+    public static EnumConstantJavadoc parseEnumConstantJavadoc(String enumConstantName, String javadoc) {
+        ParsedJavadoc parsed = parse(javadoc);
+        List<OtherJavadoc> otherDocs = new ArrayList<>();
+        for (BlockTag t : parsed.getBlockTags()) {
+            otherDocs.add(new OtherJavadoc(t.name, parseComment(t.value)));
+        }
+        return new EnumConstantJavadoc(enumConstantName, parseComment(parsed.getDescription()),
+            otherDocs, new ArrayList<>());
     }
 
     private static final Pattern blockSeparator = Pattern.compile("^\\s*@(?=\\S)", Pattern.MULTILINE);

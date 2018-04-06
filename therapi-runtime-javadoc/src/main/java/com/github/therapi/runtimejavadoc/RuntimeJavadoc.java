@@ -1,6 +1,9 @@
 package com.github.therapi.runtimejavadoc;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.classDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantNameFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodNameFieldName;
@@ -82,8 +85,18 @@ public class RuntimeJavadoc {
 
                 methods.add(JavadocParser.parseMethodJavadoc(methodName, paramTypes, methodDoc));
             }
+            final JsonValue enumConstantsValue = json.get(enumConstantsFieldName());
+            JsonArray enumConstantsArray = enumConstantsValue != null ? enumConstantsValue.asArray() : new JsonArray();
+            List<EnumConstantJavadoc> enumConstants = new ArrayList<>(enumConstantsArray.size());
+            for (JsonValue enumConstantValue : enumConstantsArray) {
+                JsonObject enumConstant = enumConstantValue.asObject();
+                String enumConstantName = enumConstant.getString(enumConstantNameFieldName(), null);
+                String enumConstantDoc = enumConstant.getString(enumConstantDocFieldName(), null);
+
+                enumConstants.add(JavadocParser.parseEnumConstantJavadoc(enumConstantName, enumConstantDoc));
+            }
             String className = qualifiedClassName.replace("$", ".");
-            return Optional.of(JavadocParser.parseClassJavadoc(className, json.getString(classDocFieldName(), null), methods));
+            return Optional.of(JavadocParser.parseClassJavadoc(className, json.getString(classDocFieldName(), null), methods, enumConstants));
         }
     }
 
@@ -92,7 +105,16 @@ public class RuntimeJavadoc {
         return javadoc.map(ClassJavadoc::getMethods).flatMap(mDocs -> findMethodJavadoc(mDocs, method));
     }
 
+    public static Optional<EnumConstantJavadoc> getJavadoc(Enum enumValue) {
+        Optional<ClassJavadoc> javadoc = getJavadoc(enumValue.getDeclaringClass());
+        return javadoc.map(ClassJavadoc::getEnumConstants).flatMap(eDocs -> findEnumConstantJavadoc(eDocs, enumValue));
+    }
+
     private static Optional<MethodJavadoc> findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
         return methodDocs.stream().filter(m -> m.matches(method)).findAny();
+    }
+
+    private static Optional<EnumConstantJavadoc> findEnumConstantJavadoc(List<EnumConstantJavadoc> enumDocs, Enum enumValue) {
+        return enumDocs.stream().filter(m -> m.matches(enumValue)).findAny();
     }
 }
