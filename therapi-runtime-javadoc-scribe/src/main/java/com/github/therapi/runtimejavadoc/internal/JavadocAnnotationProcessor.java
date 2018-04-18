@@ -15,7 +15,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.QualifiedNameable;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -74,56 +73,6 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         }
 
         return false;
-    }
-
-    private static String getPackage(Element e) {
-        while (e.getKind() != ElementKind.PACKAGE) {
-            e = e.getEnclosingElement();
-            if (e == null) {
-                return "";
-            }
-        }
-        return ((QualifiedNameable) e).getQualifiedName().toString();
-    }
-
-    private static class PackageFilter implements Predicate<Element> {
-        private final Set<String> rootPackages = new HashSet<>();
-        private final Set<String> packages = new HashSet<>();
-        private final Set<String> negatives = new HashSet<>();
-
-        private PackageFilter(String commaDelimitedPackages) {
-            for (String pkg : commaDelimitedPackages.split(",")) {
-                pkg = pkg.trim();
-                if (!pkg.isEmpty()) {
-                    rootPackages.add(pkg);
-                }
-            }
-            packages.addAll(rootPackages);
-        }
-
-        @Override
-        public boolean test(Element element) {
-            final String elementPackage = getPackage(element);
-
-            if (negatives.contains(elementPackage)) {
-                return false;
-            }
-
-            if (packages.contains(elementPackage)) {
-                return true;
-            }
-
-            for (String p : rootPackages) {
-                if (elementPackage.startsWith(p + ".")) {
-                    // Element's package is a subpackage of an included package.
-                    packages.add(elementPackage);
-                    return true;
-                }
-            }
-
-            negatives.add(elementPackage);
-            return false;
-        }
     }
 
     private void generateJavadoc(Elements elements, Element e, Set<Element> alreadyProcessed) {
