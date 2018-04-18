@@ -120,24 +120,10 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
                     ) {
                 continue;
             }
-            ExecutableElement executableElement = (ExecutableElement) child;
-
-            String methodJavadoc = elements.getDocComment(executableElement);
-
-            if (isBlank(methodJavadoc)) {
+            JsonObject method = generateMethodJavadoc(elements, (ExecutableElement) child);
+            if (method == null) {
                 continue;
             }
-
-            JsonObject method = new JsonObject();
-
-            String simpleName = executableElement.getSimpleName().toString();
-            method.add(methodNameFieldName(), simpleName);
-
-            JsonArray paramTypes = new JsonArray();
-            getParamErasures(executableElement).forEach(paramTypes::add);
-
-            method.add(paramTypesFieldName(), paramTypes);
-            method.add(methodDocFieldName(), methodJavadoc);
             methods.add(method);
         }
 
@@ -155,6 +141,25 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    private JsonObject generateMethodJavadoc(Elements elements, ExecutableElement methodElement) {
+        String methodJavadoc = elements.getDocComment(methodElement);
+
+        if (isBlank(methodJavadoc)) {
+            return null;
+        }
+
+        JsonObject method = new JsonObject();
+
+        String simpleName = methodElement.getSimpleName().toString();
+        method.add(methodNameFieldName(), simpleName);
+
+        JsonArray paramTypes = new JsonArray();
+        getParamErasures(methodElement).forEach(paramTypes::add);
+
+        method.add(paramTypesFieldName(), paramTypes);
+        method.add(methodDocFieldName(), methodJavadoc);
+        return method;
+    }
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
