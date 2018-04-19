@@ -10,12 +10,12 @@ subprojects { subproject ->
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = "com.github.therapi"
-    version = "0.4.1-SNAPSHOT"
+    version = "0.5.0-SNAPSHOT"
 
     repositories {
         jcenter()
     }
-    
+
     dependencies {
         compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
         testCompile 'junit:junit:4.12'
@@ -29,11 +29,11 @@ subprojects { subproject ->
         mergeServiceFiles()
         relocate 'com.eclipsesource', 'com.github.therapi.runtimejavadoc.repack.com.eclipsesource'
     }
-    
+
     task sourceJar(type: Jar, dependsOn: classes) {
         from sourceSets.main.allSource
     }
-    
+
     task javadocJar(type: Jar, dependsOn: javadoc) {
         from javadoc.destinationDir
     }
@@ -73,21 +73,21 @@ subprojects { subproject ->
             throw new RuntimeException("Must not upload snapshots to bintray (current version is ${version}) -- create and tag a release version first!")
         }
     }
-    
+
     bintray {
         if (project.hasProperty('bintrayUsername')) {
             user = project.bintrayUsername
         }
-    
+
         if (project.hasProperty('bintrayApiKey')) {
             key = project.bintrayApiKey
         }
 
         publications = ['mavenJava'] // When uploading Maven-based publication files
-    
+
         dryRun = false  //false //Whether to run this as dry-run, without deploying
         publish = false //true //If version should be auto published after an upload
-    
+
         pkg {
             repo = 'maven'
             //  userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
