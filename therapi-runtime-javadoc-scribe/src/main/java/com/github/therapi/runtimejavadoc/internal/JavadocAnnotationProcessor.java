@@ -17,7 +17,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.StandardLocation;
@@ -42,7 +41,6 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
-        final Elements elements = processingEnv.getElementUtils();
         final Map<String, String> options = processingEnv.getOptions();
         final String packagesOption = options.get(PACKAGES_OPTION);
 
@@ -60,7 +58,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             for (TypeElement annotation : annotations) {
                 if (isRetainJavadocAnnotation(annotation)) {
                     for (Element e : roundEnvironment.getElementsAnnotatedWith(annotation)) {
-                        generateJavadoc(elements, e, alreadyProcessed);
+                        generateJavadoc(e, alreadyProcessed);
                     }
                 }
             }
@@ -68,42 +66,42 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         for (Element e : roundEnvironment.getRootElements()) {
             if (packageFilter.test(e)) {
-                generateJavadoc(elements, e, alreadyProcessed);
+                generateJavadoc(e, alreadyProcessed);
             }
         }
 
         return false;
     }
 
-    private void generateJavadoc(Elements elements, Element e, Set<Element> alreadyProcessed) {
-        ElementKind kind = e.getKind();
+    private void generateJavadoc(Element element, Set<Element> alreadyProcessed) {
+        ElementKind kind = element.getKind();
         if (kind == ElementKind.CLASS
                 || kind == ElementKind.INTERFACE
                 || kind == ElementKind.ENUM) {
             try {
-                generateJavadocForClass(elements, e, alreadyProcessed);
+                generateJavadocForClass(element, alreadyProcessed);
             } catch (Exception ex) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                        "Javadoc retention failed; " + ex, e);
-                throw new RuntimeException("Javadoc retention failed for " + e, ex);
+                        "Javadoc retention failed; " + ex, element);
+                throw new RuntimeException("Javadoc retention failed for " + element, ex);
             }
         }
 
-        for (Element enclosed : e.getEnclosedElements()) {
-            generateJavadoc(elements, enclosed, alreadyProcessed);
+        for (Element enclosed : element.getEnclosedElements()) {
+            generateJavadoc(enclosed, alreadyProcessed);
         }
     }
 
-    private void generateJavadocForClass(Elements elements, Element e, Set<Element> alreadyProcessed) throws IOException {
-        if (!alreadyProcessed.add(e)) {
+    private void generateJavadocForClass(Element element, Set<Element> alreadyProcessed) throws IOException {
+        if (!alreadyProcessed.add(element)) {
             return;
         }
         //  System.out.println("imports: " + ImportUtils.getImports(e, processingEnv));
 
-        TypeElement classElement = (TypeElement) e;
+        TypeElement classElement = (TypeElement) element;
         PackageElement packageElement = getPackageElement(classElement);
 
-        String classDoc = elements.getDocComment(classElement);
+        String classDoc = processingEnv.getElementUtils().getDocComment(classElement);
 
         if (isBlank(classDoc)) {
             classDoc = "";
@@ -120,7 +118,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
                     ) {
                 continue;
             }
-            JsonObject method = generateMethodJavadoc(elements, (ExecutableElement) child);
+            JsonObject method = generateMethodJavadoc((ExecutableElement) child);
             if (method == null) {
                 continue;
             }
@@ -135,14 +133,14 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         String relativeName = getClassName(classElement) + javadocResourceSuffix();
 
         try (OutputStream os = processingEnv.getFiler()
-                .createResource(StandardLocation.CLASS_OUTPUT, packageName, relativeName, e)
-                .openOutputStream()) {
+                                            .createResource(StandardLocation.CLASS_OUTPUT, packageName, relativeName, element)
+                                            .openOutputStream()) {
             os.write(json.toString().getBytes(UTF_8));
         }
     }
 
-    private JsonObject generateMethodJavadoc(Elements elements, ExecutableElement methodElement) {
-        String methodJavadoc = elements.getDocComment(methodElement);
+    private JsonObject generateMethodJavadoc(ExecutableElement methodElement) {
+        String methodJavadoc = processingEnv.getElementUtils().getDocComment(methodElement);
 
         if (isBlank(methodJavadoc)) {
             return null;
@@ -175,11 +173,11 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
                 .collect(Collectors.toList());
     }
 
-    private static PackageElement getPackageElement(Element e) {
-        if (e instanceof PackageElement) {
-            return (PackageElement) e;
+    private static PackageElement getPackageElement(Element element) {
+        if (element instanceof PackageElement) {
+            return (PackageElement) element;
         }
-        return getPackageElement(e.getEnclosingElement());
+        return getPackageElement(element.getEnclosingElement());
     }
 
     private static boolean isRetainJavadocAnnotation(TypeElement annotation) {
