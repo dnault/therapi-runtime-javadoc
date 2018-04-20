@@ -1,26 +1,19 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.classDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodDocFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodNameFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
-import com.github.therapi.runtimejavadoc.internal.JavadocParser;
+import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
 
 public class RuntimeJavadoc {
 
@@ -65,25 +58,7 @@ public class RuntimeJavadoc {
 
         try (InputStreamReader r = new InputStreamReader(is, UTF_8)) {
             JsonObject json = Json.parse(r).asObject();
-
-            JsonArray methodArray = json.get(methodsFieldName()).asArray();
-            List<MethodJavadoc> methods = new ArrayList<>(methodArray.size());
-            for (JsonValue methodValue : methodArray) {
-                JsonObject method = methodValue.asObject();
-                String methodName = method.getString(methodNameFieldName(), null);
-
-                JsonArray paramTypesArray = method.get(paramTypesFieldName()).asArray();
-                List<String> paramTypes = new ArrayList<>(paramTypesArray.size());
-                for (JsonValue v : paramTypesArray) {
-                    paramTypes.add(v.asString());
-                }
-
-                String methodDoc = method.getString(methodDocFieldName(), null);
-
-                methods.add(JavadocParser.parseMethodJavadoc(methodName, paramTypes, methodDoc));
-            }
-            String className = qualifiedClassName.replace("$", ".");
-            return Optional.of(JavadocParser.parseClassJavadoc(className, json.getString(classDocFieldName(), null), methods));
+            return JsonJavadocReader.readClassJavadoc(qualifiedClassName, json);
         }
     }
 
@@ -94,5 +69,23 @@ public class RuntimeJavadoc {
 
     private static Optional<MethodJavadoc> findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
         return methodDocs.stream().filter(m -> m.matches(method)).findAny();
+    }
+
+    public static Optional<FieldJavadoc> getJavadoc(Field field) {
+        Optional<ClassJavadoc> javadoc = getJavadoc(field.getDeclaringClass());
+        return javadoc.map(ClassJavadoc::getFields).flatMap(fDocs -> findFieldJavadoc(fDocs, field));
+    }
+
+    private static Optional<FieldJavadoc> findFieldJavadoc(List<FieldJavadoc> fieldDocs, Field field) {
+        return fieldDocs.stream().filter(m -> m.getName().equals(field.getName())).findAny();
+    }
+
+    public static Optional<FieldJavadoc> getJavadoc(Enum<?> enumValue) {
+        Optional<ClassJavadoc> javadoc = getJavadoc(enumValue.getDeclaringClass());
+        return javadoc.map(ClassJavadoc::getEnumConstants).flatMap(fDocs -> findEnumValueJavadoc(fDocs, enumValue));
+    }
+
+    private static Optional<FieldJavadoc> findEnumValueJavadoc(List<FieldJavadoc> fieldDocs, Enum<?> enumValue) {
+        return fieldDocs.stream().filter(m -> m.getName().equals(enumValue.name())).findAny();
     }
 }

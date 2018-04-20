@@ -23,19 +23,24 @@ public class RuntimeJavadocHelper {
         return "paramTypes";
     }
 
+    public static String fieldsFieldName() {
+        return "fields";
+    }
+
+    public static String enumConstantsFieldName() {
+        return "enumConstants";
+    }
+
     public static String methodsFieldName() {
         return "methods";
     }
 
-    public static String classDocFieldName() {
-        return "doc";
-    }
-
-    public static String methodDocFieldName() {
-        return "doc";
-    }
-
-    public static String methodNameFieldName() {
+    public static String elementNameFieldName() {
         return "name";
     }
+
+    public static String elementDocFieldName() {
+        return "doc";
+    }
+
 }
