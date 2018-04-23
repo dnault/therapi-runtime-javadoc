@@ -1,6 +1,9 @@
 package com.github.therapi.runtimejavadoc.internal;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.classDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantDocFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantNameFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodNameFieldName;
@@ -17,6 +20,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.QualifiedNameable;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -164,35 +168,53 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         json.add(classDocFieldName(), classDoc);
         JsonArray methods = new JsonArray();
         json.add(methodsFieldName(), methods);
+        JsonArray enumConstants = new JsonArray();
+        if (classElement.getKind() == ElementKind.ENUM)
+            json.add(enumConstantsFieldName(), enumConstants);
 
         for (Element child : classElement.getEnclosedElements()) {
-            if (child.getKind() != ElementKind.METHOD
-                //&& child.getKind() != ElementKind.CONSTRUCTOR
-                    ) {
-                continue;
+            switch (child.getKind()) {
+                case ENUM_CONSTANT: {
+                    VariableElement variableElement = (VariableElement) child;
+                    String enumConstantJavaDoc = elements.getDocComment(variableElement);
+                    if (isBlank(enumConstantJavaDoc)) {
+                        break;
+                    }
+
+                    JsonObject enumConstant = new JsonObject();
+
+                    String simpleName = variableElement.getSimpleName().toString();
+                    enumConstant.add(enumConstantNameFieldName(), simpleName);
+                    enumConstant.add(enumConstantDocFieldName(), enumConstantJavaDoc);
+                    enumConstants.add(enumConstant);
+                    break;
+                }
+                case METHOD: {
+                    ExecutableElement executableElement = (ExecutableElement) child;
+
+                    String methodJavadoc = elements.getDocComment(executableElement);
+
+                    if (isBlank(methodJavadoc)) {
+                        break;
+                    }
+
+                    JsonObject method = new JsonObject();
+
+                    String simpleName = executableElement.getSimpleName().toString();
+                    method.add(methodNameFieldName(), simpleName);
+
+                    JsonArray paramTypes = new JsonArray();
+                    getParamErasures(executableElement).forEach(paramTypes::add);
+
+                    method.add(paramTypesFieldName(), paramTypes);
+                    method.add(methodDocFieldName(), methodJavadoc);
+                    methods.add(method);
+                    break;
+                }
             }
-            ExecutableElement executableElement = (ExecutableElement) child;
-
-            String methodJavadoc = elements.getDocComment(executableElement);
-
-            if (isBlank(methodJavadoc)) {
-                continue;
-            }
-
-            JsonObject method = new JsonObject();
-
-            String simpleName = executableElement.getSimpleName().toString();
-            method.add(methodNameFieldName(), simpleName);
-
-            JsonArray paramTypes = new JsonArray();
-            getParamErasures(executableElement).forEach(paramTypes::add);
-
-            method.add(paramTypesFieldName(), paramTypes);
-            method.add(methodDocFieldName(), methodJavadoc);
-            methods.add(method);
         }
 
-        if (methods.isEmpty() && isBlank(classDoc)) {
+        if (methods.isEmpty() && enumConstants.isEmpty() && isBlank(classDoc)) {
             return;
         }
 

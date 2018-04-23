@@ -27,6 +27,10 @@ public class RuntimeJavadocHelper {
         return "methods";
     }
 
+    public static String enumConstantsFieldName() {
+        return "enumConstants";
+    }
+
     public static String classDocFieldName() {
         return "doc";
     }
@@ -36,6 +40,14 @@ public class RuntimeJavadocHelper {
     }
 
     public static String methodNameFieldName() {
+        return "name";
+    }
+
+    public static String enumConstantDocFieldName() {
+        return "doc";
+    }
+
+    public static String enumConstantNameFieldName() {
         return "name";
     }
 }
