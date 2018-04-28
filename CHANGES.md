@@ -7,7 +7,7 @@ it's now possible to read the Javadoc of fields and enum constants.
 
 Issues resolved:
 
-* [ENHANCEMENT] #15 Add field and enum constants support (joffrey-bion)
+* [ENHANCEMENT] #15 Add field and enum constants support (joffrey-bion, skissane)
 * [BUGFIX] #12 NullPointerException in RuntimeJavadoc due to null ClassLoader
 
 
