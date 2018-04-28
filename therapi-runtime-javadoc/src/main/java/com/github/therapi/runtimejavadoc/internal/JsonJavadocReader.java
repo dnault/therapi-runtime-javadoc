@@ -1,6 +1,7 @@
 package com.github.therapi.runtimejavadoc.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,10 @@ public class JsonJavadocReader {
     }
 
     private static List<FieldJavadoc> readFieldDocs(JsonValue fieldsValue) {
+        if (fieldsValue == null) {
+            // old versions might not have this JSON field
+            return Collections.emptyList();
+        }
         JsonArray fieldsArray = fieldsValue.asArray();
         List<FieldJavadoc> fields = new ArrayList<>(fieldsArray.size());
         for (JsonValue fieldValue : fieldsArray) {
