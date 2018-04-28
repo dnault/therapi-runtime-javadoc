@@ -1,5 +1,16 @@
 # Change history
 
+## 0.5.0 - April 28, 2018
+
+Thanks to contributions from Joffrey Bion and Simone Kisanne,
+it's now possible to read the Javadoc of fields and enum constants.
+
+Issues resolved:
+
+* [ENHANCEMENT] #15 Add field and enum constants support (joffrey-bion)
+* [BUGFIX] #12 NullPointerException in RuntimeJavadoc due to null ClassLoader
+
+
 ## 0.4.0 - March 12, 2018
 
 Javadoc is now stored as class path resources instead of Java classes,
