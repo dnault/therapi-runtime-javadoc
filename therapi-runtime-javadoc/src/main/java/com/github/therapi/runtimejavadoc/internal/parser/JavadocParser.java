@@ -1,4 +1,4 @@
-package com.github.therapi.runtimejavadoc.internal;
+package com.github.therapi.runtimejavadoc.internal.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,42 +14,10 @@ import com.github.therapi.runtimejavadoc.OtherJavadoc;
 import com.github.therapi.runtimejavadoc.ParamJavadoc;
 
 public class JavadocParser {
-    public static class ParsedJavadoc {
-        String description;
-        List<BlockTag> blockTags = new ArrayList<>();
 
-        @Override
-        public String toString() {
-            return "ParsedJavadoc{" +
-                    "description='" + description + '\'' +
-                    ", blockTags=" + blockTags +
-                    '}';
-        }
+    private static final Pattern blockSeparator = Pattern.compile("^\\s*@(?=\\S)", Pattern.MULTILINE);
 
-        public String getDescription() {
-            return description;
-        }
-
-        public List<BlockTag> getBlockTags() {
-            return blockTags;
-        }
-    }
-
-    public static class BlockTag {
-        BlockTag(String nameAndValue) {
-            String[] s = whitespace.split(nameAndValue, 2);
-            name = s[0];
-            value = s.length > 1 ? s[1] : "";
-        }
-
-        final String name;
-        final String value;
-
-        @Override
-        public String toString() {
-            return "@" + name + " : " + value;
-        }
-    }
+    private static final Pattern whitespace = Pattern.compile("\\s");
 
     private static Comment parseComment(String s) {
         List<CommentElement> commentElements = new ArrayList<>();
@@ -108,18 +76,22 @@ public class JavadocParser {
                 new ArrayList<>(), otherDocs, returns, new ArrayList<>());
     }
 
-    private static final Pattern blockSeparator = Pattern.compile("^\\s*@(?=\\S)", Pattern.MULTILINE);
-    private static final Pattern whitespace = Pattern.compile("\\s");
-
-    public static ParsedJavadoc parse(String javadoc) {
+    private static ParsedJavadoc parse(String javadoc) {
         String[] blocks = blockSeparator.split(javadoc);
 
         ParsedJavadoc result = new ParsedJavadoc();
         result.description = blocks[0].trim();
 
         for (int i = 1; i < blocks.length; i++) {
-            result.blockTags.add(new BlockTag(blocks[i].trim()));
+            result.blockTags.add(parseBlockTag(blocks[i]));
         }
         return result;
+    }
+
+    private static BlockTag parseBlockTag(String block) {
+        String[] s = whitespace.split(block.trim(), 2);
+        String name = s[0];
+        String value = s.length > 1 ? s[1] : "";
+        return new BlockTag(name, value);
     }
 }
