@@ -1,56 +1,48 @@
 package com.github.therapi.runtimejavadoc.internal;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.classDocFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodDocFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodNameFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.QualifiedNameable;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.github.therapi.runtimejavadoc.RetainJavadoc;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class JavadocAnnotationProcessor extends AbstractProcessor {
+
     private static final String PACKAGES_OPTION = "javadoc.packages";
 
     private static final Predicate<Element> ALL_PACKAGES = e -> true;
 
+    private JsonJavadocBuilder jsonJavadocBuilder;
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
-        final Elements elements = processingEnv.getElementUtils();
+        this.jsonJavadocBuilder = new JsonJavadocBuilder(processingEnv);
+
         final Map<String, String> options = processingEnv.getOptions();
         final String packagesOption = options.get(PACKAGES_OPTION);
 
         // Retain Javadoc for classes that match this predicate
-        final Predicate<Element> packageFilter = packagesOption == null
-                ? ALL_PACKAGES
-                : new PackageFilter(packagesOption);
+        final Predicate<Element> packageFilter =
+                packagesOption == null ? ALL_PACKAGES : new PackageFilter(packagesOption);
 
         // Make sure each element only gets processed once.
         final Set<Element> alreadyProcessed = new HashSet<>();
@@ -61,7 +53,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             for (TypeElement annotation : annotations) {
                 if (isRetainJavadocAnnotation(annotation)) {
                     for (Element e : roundEnvironment.getElementsAnnotatedWith(annotation)) {
-                        generateJavadoc(elements, e, alreadyProcessed);
+                        generateJavadoc(e, alreadyProcessed);
                     }
                 }
             }
@@ -69,163 +61,11 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         for (Element e : roundEnvironment.getRootElements()) {
             if (packageFilter.test(e)) {
-                generateJavadoc(elements, e, alreadyProcessed);
+                generateJavadoc(e, alreadyProcessed);
             }
         }
 
         return false;
-    }
-
-    private static String getPackage(Element e) {
-        while (e.getKind() != ElementKind.PACKAGE) {
-            e = e.getEnclosingElement();
-            if (e == null) {
-                return "";
-            }
-        }
-        return ((QualifiedNameable) e).getQualifiedName().toString();
-    }
-
-    private static class PackageFilter implements Predicate<Element> {
-        private final Set<String> rootPackages = new HashSet<>();
-        private final Set<String> packages = new HashSet<>();
-        private final Set<String> negatives = new HashSet<>();
-
-        private PackageFilter(String commaDelimitedPackages) {
-            for (String pkg : commaDelimitedPackages.split(",")) {
-                pkg = pkg.trim();
-                if (!pkg.isEmpty()) {
-                    rootPackages.add(pkg);
-                }
-            }
-            packages.addAll(rootPackages);
-        }
-
-        @Override
-        public boolean test(Element element) {
-            final String elementPackage = getPackage(element);
-
-            if (negatives.contains(elementPackage)) {
-                return false;
-            }
-
-            if (packages.contains(elementPackage)) {
-                return true;
-            }
-
-            for (String p : rootPackages) {
-                if (elementPackage.startsWith(p + ".")) {
-                    // Element's package is a subpackage of an included package.
-                    packages.add(elementPackage);
-                    return true;
-                }
-            }
-
-            negatives.add(elementPackage);
-            return false;
-        }
-    }
-
-    private void generateJavadoc(Elements elements, Element e, Set<Element> alreadyProcessed) {
-        ElementKind kind = e.getKind();
-        if (kind == ElementKind.CLASS
-                || kind == ElementKind.INTERFACE
-                || kind == ElementKind.ENUM) {
-            try {
-                generateJavadocForClass(elements, e, alreadyProcessed);
-            } catch (Exception ex) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                        "Javadoc retention failed; " + ex, e);
-                throw new RuntimeException("Javadoc retention failed for " + e, ex);
-            }
-        }
-
-        for (Element enclosed : e.getEnclosedElements()) {
-            generateJavadoc(elements, enclosed, alreadyProcessed);
-        }
-    }
-
-    private void generateJavadocForClass(Elements elements, Element e, Set<Element> alreadyProcessed) throws IOException {
-        if (!alreadyProcessed.add(e)) {
-            return;
-        }
-        //  System.out.println("imports: " + ImportUtils.getImports(e, processingEnv));
-
-        TypeElement classElement = (TypeElement) e;
-        PackageElement packageElement = getPackageElement(classElement);
-
-        String classDoc = elements.getDocComment(classElement);
-
-        if (isBlank(classDoc)) {
-            classDoc = "";
-        }
-
-        JsonObject json = new JsonObject();
-        json.add(classDocFieldName(), classDoc);
-        JsonArray methods = new JsonArray();
-        json.add(methodsFieldName(), methods);
-
-        for (Element child : classElement.getEnclosedElements()) {
-            if (child.getKind() != ElementKind.METHOD
-                //&& child.getKind() != ElementKind.CONSTRUCTOR
-                    ) {
-                continue;
-            }
-            ExecutableElement executableElement = (ExecutableElement) child;
-
-            String methodJavadoc = elements.getDocComment(executableElement);
-
-            if (isBlank(methodJavadoc)) {
-                continue;
-            }
-
-            JsonObject method = new JsonObject();
-
-            String simpleName = executableElement.getSimpleName().toString();
-            method.add(methodNameFieldName(), simpleName);
-
-            JsonArray paramTypes = new JsonArray();
-            getParamErasures(executableElement).forEach(paramTypes::add);
-
-            method.add(paramTypesFieldName(), paramTypes);
-            method.add(methodDocFieldName(), methodJavadoc);
-            methods.add(method);
-        }
-
-        if (methods.isEmpty() && isBlank(classDoc)) {
-            return;
-        }
-
-        String packageName = packageElement.getQualifiedName().toString();
-        String relativeName = getClassName(classElement) + javadocResourceSuffix();
-
-        try (OutputStream os = processingEnv.getFiler()
-                .createResource(StandardLocation.CLASS_OUTPUT, packageName, relativeName, e)
-                .openOutputStream()) {
-            os.write(json.toString().getBytes(UTF_8));
-        }
-    }
-
-
-    private static boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
-    }
-
-    private List<String> getParamErasures(ExecutableElement executableElement) {
-        Types typeUtils = processingEnv.getTypeUtils();
-        return executableElement.getParameters()
-                .stream()
-                .map(Element::asType)
-                .map(typeUtils::erasure)
-                .map(TypeMirror::toString)
-                .collect(Collectors.toList());
-    }
-
-    private static PackageElement getPackageElement(Element e) {
-        if (e instanceof PackageElement) {
-            return (PackageElement) e;
-        }
-        return getPackageElement(e.getEnclosingElement());
     }
 
     private static boolean isRetainJavadocAnnotation(TypeElement annotation) {
@@ -233,7 +73,60 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
                 || annotation.getAnnotation(RetainJavadoc.class) != null;
     }
 
+    private void generateJavadoc(Element element, Set<Element> alreadyProcessed) {
+        ElementKind kind = element.getKind();
+        if (kind == ElementKind.CLASS || kind == ElementKind.INTERFACE || kind == ElementKind.ENUM) {
+            try {
+                generateJavadocForClass(element, alreadyProcessed);
+            } catch (Exception ex) {
+                processingEnv.getMessager()
+                             .printMessage(Diagnostic.Kind.ERROR, "Javadoc retention failed; " + ex, element);
+                throw new RuntimeException("Javadoc retention failed for " + element, ex);
+            }
+        }
+
+        for (Element enclosed : element.getEnclosedElements()) {
+            generateJavadoc(enclosed, alreadyProcessed);
+        }
+    }
+
+    private void generateJavadocForClass(Element element, Set<Element> alreadyProcessed) throws IOException {
+        if (!alreadyProcessed.add(element)) {
+            return;
+        }
+        TypeElement classElement = (TypeElement) element;
+        Optional<JsonObject> maybeClassJsonDoc = jsonJavadocBuilder.getClassJavadocAsJson(classElement);
+        if (maybeClassJsonDoc.isPresent()) {
+            JsonObject classJsonDoc = maybeClassJsonDoc.get();
+            outputJsonDoc(classElement, classJsonDoc);
+        }
+    }
+
+    private void outputJsonDoc(TypeElement classElement, JsonObject classJsonDoc) throws IOException {
+        String jsonString = classJsonDoc.toString();
+        FileObject resource = createJavadocResourceFile(classElement);
+        try (OutputStream os = resource.openOutputStream()) {
+            os.write(jsonString.getBytes(UTF_8));
+        }
+    }
+
+    private FileObject createJavadocResourceFile(TypeElement classElement) throws IOException {
+        PackageElement packageElement = getPackageElement(classElement);
+        String packageName = packageElement.getQualifiedName().toString();
+        String relativeName = getClassName(classElement) + javadocResourceSuffix();
+        return processingEnv.getFiler()
+                            .createResource(StandardLocation.CLASS_OUTPUT, packageName, relativeName, classElement);
+    }
+
+    private static PackageElement getPackageElement(Element element) {
+        if (element instanceof PackageElement) {
+            return (PackageElement) element;
+        }
+        return getPackageElement(element.getEnclosingElement());
+    }
+
     private static String getClassName(TypeElement typeElement) {
+        // we can't take the simple name if we want to return names like EnclosingClass$NestedClass
         String typeName = typeElement.getQualifiedName().toString();
         String packageName = getPackageElement(typeElement).getQualifiedName().toString();
 
@@ -241,7 +134,6 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             typeName = typeName.substring(packageName.length() + 1);
             typeName = typeName.replace(".", "$");
         }
-
         return typeName;
     }
 

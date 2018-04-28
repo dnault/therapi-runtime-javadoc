@@ -1,23 +1,28 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.google.testing.compile.CompilationSubject.assertThat;
-import static com.google.testing.compile.Compiler.javac;
-import static org.junit.Assert.assertEquals;
-
-import javax.tools.JavaFileObject;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.tools.JavaFileObject;
+
+import org.junit.Test;
 
 import com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
-import org.junit.Test;
+
+import static com.google.testing.compile.CompilationSubject.assertThat;
+import static com.google.testing.compile.Compiler.javac;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JavadocAnnotationProcessorTest {
 
     private static final String DOCUMENTED_CLASS = "javasource.foo.DocumentedClass";
+    private static final String DOCUMENTED_ENUM = "javasource.foo.DocumentedEnum";
+    private static final String COMPLEX_ENUM = "javasource.foo.ComplexEnum";
     private static final String ANOTHER_DOCUMENTED_CLASS = "javasource.bar.AnotherDocumentedClass";
     private static final String ANNOTATED_WITH_RETAIN_JAVADOC = "javasource.bar.YetAnotherDocumentedClass";
     private static final String UNDOCUMENTED = "javasource.bar.UndocumentedClass";
@@ -28,6 +33,8 @@ public class JavadocAnnotationProcessorTest {
         List<JavaFileObject> files = new ArrayList<>();
         for (String resource : new String[]{
                 "javasource/foo/DocumentedClass.java",
+                "javasource/foo/DocumentedEnum.java",
+                "javasource/foo/ComplexEnum.java",
                 "javasource/bar/AnotherDocumentedClass.java",
                 "javasource/bar/YetAnotherDocumentedClass.java",
                 "javasource/bar/UndocumentedClass.java",
@@ -118,6 +125,55 @@ public class JavadocAnnotationProcessorTest {
     }
 
     @Test
+    public void fieldsMatch() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
+
+            Field f = c.getDeclaredField("myField");
+            assertFieldDocMatches(f, "I'm a useful field, maybe.");
+        }
+    }
+
+    @Test
+    public void enumsAreRetrieved() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<? extends Enum> c = (Class<? extends Enum<?>>) classLoader.loadClass(DOCUMENTED_ENUM);
+
+            assertEnumConstantMatches(Enum.valueOf(c, "FOO11"), "This is the FOO11 value documentation");
+            assertEnumConstantMatches(Enum.valueOf(c, "BAR22"), "This is the BAR22 value documentation");
+            assertEnumConstantMatches(Enum.valueOf(c, "BAZ33"), "This is the BAZ33 value documentation");
+        }
+    }
+
+    @Test
+    public void complexEnumsAreRetrieved() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<? extends Enum> c = (Class<? extends Enum<?>>) classLoader.loadClass(COMPLEX_ENUM);
+
+            assertEnumConstantMatches(Enum.valueOf(c, "FOO11"), "This is the FOO11 value documentation");
+            assertEnumConstantMatches(Enum.valueOf(c, "BAR22"), "This is the BAR22 value documentation");
+            assertEnumConstantMatches(Enum.valueOf(c, "BAZ33"), "This is the BAZ33 value documentation");
+
+            Field f = c.getDeclaredField("content");
+            assertFieldDocMatches(f, "Content field description.");
+        }
+    }
+
+    private static void assertFieldDocMatches(Field field, String expectedDoc) {
+        Optional<FieldJavadoc> fieldJavadoc = RuntimeJavadoc.getJavadoc(field);
+        assertTrue(fieldJavadoc.isPresent());
+        assertEquals(field.getName(), fieldJavadoc.get().getName());
+        assertEquals(expectedDoc, fieldJavadoc.get().getComment().toString());
+    }
+
+    private static void assertEnumConstantMatches(Enum enumConstant, String expectedDoc) {
+        FieldJavadoc enumConstantDoc = expectJavadoc(enumConstant);
+        assertEquals(enumConstant.name(), enumConstantDoc.getName());
+        String actualDesc = formatter.format(enumConstantDoc.getComment());
+        assertEquals(expectedDoc, actualDesc);
+    }
+
+    @Test
     public void methodsMatchDespiteOverload() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
             Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
@@ -171,6 +227,11 @@ public class JavadocAnnotationProcessorTest {
     private static MethodJavadoc expectJavadoc(Method m) {
         return RuntimeJavadoc.getJavadoc(m)
                 .orElseThrow(() -> new AssertionError("Missing Javadoc for " + m));
+    }
+
+    private static FieldJavadoc expectJavadoc(Enum<?> e) {
+        return RuntimeJavadoc.getJavadoc(e)
+                .orElseThrow(() -> new AssertionError("Missing Javadoc for " + e));
     }
 
     private static void expectNoJavadoc(Class<?> c) {

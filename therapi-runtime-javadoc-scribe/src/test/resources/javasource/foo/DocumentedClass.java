@@ -12,6 +12,13 @@ import java.util.List;
 public class DocumentedClass {
 
   /**
+   * I'm a useful field, maybe.
+   *
+   * @see #frobulate(String, int) interesting method, but nothing to do with this field
+   */
+  private int myField;
+
+  /**
    * Frobulate {@code a} by {@code b}
    *
    * @param a blurtification factor

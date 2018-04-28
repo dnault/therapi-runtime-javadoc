@@ -1,42 +1,29 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
-
 import java.util.List;
 
-public class ClassJavadoc {
-    private final String name;
-    private final Comment comment;
-    private final List<SeeAlsoJavadoc> seeAlso;
-    private final List<OtherJavadoc> other;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
+
+public class ClassJavadoc extends BaseJavadoc {
+
+    private final List<FieldJavadoc> fields;
+    private final List<FieldJavadoc> enumConstants;
     private final List<MethodJavadoc> methods;
 
-    public ClassJavadoc(String name,
-                        Comment comment,
-                        List<OtherJavadoc> other,
-                        List<SeeAlsoJavadoc> seeAlso,
-                        List<MethodJavadoc> methods) {
-        this.name = name;
-        this.comment = comment;
-        this.other = unmodifiableDefensiveCopy(other);
-        this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
+    public ClassJavadoc(String name, Comment comment, List<FieldJavadoc> fields, List<FieldJavadoc> enumConstants,
+            List<MethodJavadoc> methods, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
+        super(name, comment, seeAlso, other);
+        this.fields = unmodifiableDefensiveCopy(fields);
+        this.enumConstants = unmodifiableDefensiveCopy(enumConstants);
         this.methods = unmodifiableDefensiveCopy(methods);
     }
 
-    public String getName() {
-        return name;
+    public List<FieldJavadoc> getFields() {
+        return fields;
     }
 
-    public Comment getComment() {
-        return comment;
-    }
-
-    public List<SeeAlsoJavadoc> getSeeAlso() {
-        return seeAlso;
-    }
-
-    public List<OtherJavadoc> getOther() {
-        return other;
+    public List<FieldJavadoc> getEnumConstants() {
+        return enumConstants;
     }
 
     public List<MethodJavadoc> getMethods() {
@@ -46,11 +33,12 @@ public class ClassJavadoc {
     @Override
     public String toString() {
         return "ClassJavadoc{" +
-                "name='" + name + '\'' +
-                ", comment=" + comment +
-                ", seeAlso=" + seeAlso +
-                ", other=" + other +
+                "name='" + getName() + '\'' +
+                ", comment=" + getComment() +
+                ", fields=" + fields +
                 ", methods=" + methods +
+                ", seeAlso=" + getSeeAlso() +
+                ", other=" + getOther() +
                 '}';
     }
 }
