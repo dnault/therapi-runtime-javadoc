@@ -2,6 +2,8 @@ package com.github.therapi.runtimejavadoc;
 
 import java.util.List;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
+
 public abstract class BaseJavadoc {
 
     private final String name;
@@ -12,8 +14,8 @@ public abstract class BaseJavadoc {
     BaseJavadoc(String name, Comment comment, List<SeeAlsoJavadoc> seeAlso, List<OtherJavadoc> other) {
         this.name = name;
         this.comment = comment;
-        this.other = other;
-        this.seeAlso = seeAlso;
+        this.other = unmodifiableDefensiveCopy(other);
+        this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
     }
 
     public String getName() {
