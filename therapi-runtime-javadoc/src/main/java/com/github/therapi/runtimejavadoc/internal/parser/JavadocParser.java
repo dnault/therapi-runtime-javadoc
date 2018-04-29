@@ -6,8 +6,6 @@ import java.util.regex.Pattern;
 
 import com.github.therapi.runtimejavadoc.ClassJavadoc;
 import com.github.therapi.runtimejavadoc.Comment;
-import com.github.therapi.runtimejavadoc.CommentElement;
-import com.github.therapi.runtimejavadoc.CommentText;
 import com.github.therapi.runtimejavadoc.FieldJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import com.github.therapi.runtimejavadoc.OtherJavadoc;
@@ -19,12 +17,6 @@ public class JavadocParser {
 
     private static final Pattern whitespace = Pattern.compile("\\s");
 
-    private static Comment parseComment(String s) {
-        List<CommentElement> commentElements = new ArrayList<>();
-        commentElements.add(new CommentText(s));
-        return new Comment(commentElements);
-    }
-
     public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<FieldJavadoc> fields,
             List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods) {
         ParsedJavadoc parsed = parse(javadoc);
@@ -32,10 +24,10 @@ public class JavadocParser {
         List<OtherJavadoc> otherDocs = new ArrayList<>();
 
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, parseComment(t.value)));
+            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(t.value)));
         }
 
-        return new ClassJavadoc(className, parseComment(parsed.getDescription()), fields, enumConstants, methods,
+        return new ClassJavadoc(className, CommentParser.parse(parsed.getDescription()), fields, enumConstants, methods,
                 otherDocs, new ArrayList<>());
     }
 
@@ -44,10 +36,10 @@ public class JavadocParser {
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, parseComment(t.value)));
+            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(t.value)));
         }
 
-        return new FieldJavadoc(fieldName, parseComment(parsed.getDescription()), otherDocs, new ArrayList<>());
+        return new FieldJavadoc(fieldName, CommentParser.parse(parsed.getDescription()), otherDocs, new ArrayList<>());
     }
 
     public static MethodJavadoc parseMethodJavadoc(String methodName, List<String> paramTypes, String javadoc) {
@@ -64,15 +56,15 @@ public class JavadocParser {
                 String paramName = paramNameAndComment[0];
                 String paramComment = paramNameAndComment.length == 1 ? "" :paramNameAndComment[1];
 
-                paramDocs.add(new ParamJavadoc(paramName, parseComment(paramComment)));
+                paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(paramComment)));
             } else if (t.name.equals("return")) {
-                returns = parseComment(t.value);
+                returns = CommentParser.parse(t.value);
             } else {
-                otherDocs.add(new OtherJavadoc(t.name, parseComment(t.value)));
+                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(t.value)));
             }
         }
 
-        return new MethodJavadoc(methodName, paramTypes, parseComment(parsed.getDescription()), paramDocs,
+        return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(parsed.getDescription()), paramDocs,
                 new ArrayList<>(), otherDocs, returns, new ArrayList<>());
     }
 
