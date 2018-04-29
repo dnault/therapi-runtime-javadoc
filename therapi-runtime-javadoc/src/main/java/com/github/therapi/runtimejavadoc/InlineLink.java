@@ -1,5 +1,7 @@
 package com.github.therapi.runtimejavadoc;
 
+import java.util.Objects;
+
 public class InlineLink extends CommentElement {
     private final Link link;
 
@@ -9,5 +11,22 @@ public class InlineLink extends CommentElement {
 
     public Link getLink() {
         return link;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InlineLink that = (InlineLink) o;
+        return Objects.equals(link, that.link);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(link);
     }
 }
