@@ -15,7 +15,7 @@ import com.github.therapi.runtimejavadoc.Link;
 
 class CommentParser {
 
-    private static final Pattern inlineTag = Pattern.compile("\\{@(\\w+)\\s+(\\w[^}]+)}");
+    private static final Pattern inlineTag = Pattern.compile("\\{@(\\w+)(?:\\s+(\\w[^}]+)?)?}");
 
     private static final Pattern whitespace = Pattern.compile("\\s+");
 

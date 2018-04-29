@@ -15,6 +15,7 @@ import com.github.therapi.runtimejavadoc.InlineTag;
 import com.github.therapi.runtimejavadoc.Link;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 @RunWith(Theories.class)
 public class CommentParserTest {
@@ -22,8 +23,13 @@ public class CommentParserTest {
     @DataPoints
     public static String[] textOnlyData() {
         return new String[] {
-                "", " ", "\t\n", "abcdef", "abc def\nxyz", "abc}def"
+                "", " ", "\t\n", "abcdef", "abc def\nxyz", "abc}def", "{abc}def"
         };
+    }
+
+    @Test
+    public void parse_nullInput() {
+        assertNull(CommentParser.parse(null));
     }
 
     @Theory
@@ -83,6 +89,20 @@ public class CommentParserTest {
     }
 
     @Test
+    public void parse_tagOnly_emptyTag() {
+        List<CommentElement> elements = CommentParser.parse("{@sometag}").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineTag("sometag", null), elements.get(0));
+    }
+
+    @Test
+    public void parse_tagOnly_whitespaceTag() {
+        List<CommentElement> elements = CommentParser.parse("{@sometag  \t }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineTag("sometag", null), elements.get(0));
+    }
+
+    @Test
     public void parse_mix_textAndTag() {
         List<CommentElement> elements = CommentParser.parse("text before {@sometag some value}").getElements();
         assertEquals(2, elements.size());
@@ -101,7 +121,8 @@ public class CommentParserTest {
 
     @Test
     public void parse_mix_textAndLink_realLife() {
-        List<CommentElement> elements = CommentParser.parse("Adds the given {@link Action}s to the queue.").getElements();
+        List<CommentElement> elements = CommentParser.parse("Adds the given {@link Action}s to the queue.")
+                                                     .getElements();
         assertEquals(3, elements.size());
         assertEquals(new CommentText("Adds the given "), elements.get(0));
         assertEquals(new InlineLink(new Link("Action", "Action", null)), elements.get(1));
@@ -115,5 +136,16 @@ public class CommentParserTest {
         assertEquals(new CommentText("text}before "), elements.get(0));
         assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(1));
         assertEquals(new CommentText(" text{after"), elements.get(2));
+    }
+
+    @Test
+    public void parse_mix_praiseTheMightyThor() {
+        String input = "text}bef{}ore {@link ClassName}{@} text{after} and {@empty}";
+        List<CommentElement> elements = CommentParser.parse(input).getElements();
+        assertEquals(4, elements.size());
+        assertEquals(new CommentText("text}bef{}ore "), elements.get(0));
+        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(1));
+        assertEquals(new CommentText("{@} text{after} and "), elements.get(2));
+        assertEquals(new InlineTag("empty", null), elements.get(3));
     }
 }
