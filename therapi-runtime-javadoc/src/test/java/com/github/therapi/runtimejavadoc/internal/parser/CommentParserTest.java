@@ -100,6 +100,15 @@ public class CommentParserTest {
     }
 
     @Test
+    public void parse_mix_textAndLink_realLife() {
+        List<CommentElement> elements = CommentParser.parse("Adds the given {@link Action}s to the queue.").getElements();
+        assertEquals(3, elements.size());
+        assertEquals(new CommentText("Adds the given "), elements.get(0));
+        assertEquals(new InlineLink(new Link("Action", "Action", null)), elements.get(1));
+        assertEquals(new CommentText("s to the queue."), elements.get(2));
+    }
+
+    @Test
     public void parse_mix_textAndLink_withWeirdBraces() {
         List<CommentElement> elements = CommentParser.parse("text}before {@link ClassName} text{after").getElements();
         assertEquals(3, elements.size());
