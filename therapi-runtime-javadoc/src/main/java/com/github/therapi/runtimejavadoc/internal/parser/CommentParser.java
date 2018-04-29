@@ -21,16 +21,11 @@ class CommentParser {
 
     private static final Pattern linkRefSplitter = Pattern.compile("#");
 
-    private static final Comment EMPTY_COMMENT = new Comment(Collections.singletonList(new CommentText("")));
-
     static Comment parse(String commentText) {
-        if (commentText == null) {
+        if (commentText == null || commentText.trim().isEmpty()) {
             return null;
         }
-        if (commentText.isEmpty()) {
-            return EMPTY_COMMENT;
-        }
-        return new Comment(parseElements(commentText));
+        return new Comment(parseElements(commentText.trim()));
     }
 
     private static List<CommentElement> parseElements(String commentText) {

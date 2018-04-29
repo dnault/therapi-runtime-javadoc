@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
+import org.junit.experimental.theories.FromDataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -20,23 +21,30 @@ import static org.junit.Assert.assertNull;
 @RunWith(Theories.class)
 public class CommentParserTest {
 
-    @DataPoints
-    public static String[] textOnlyData() {
+    @DataPoints("null/blank")
+    public static String[] nullOrBlank() {
         return new String[] {
-                "", " ", "\t\n", "abcdef", "abc def\nxyz", "abc}def", "{abc}def"
+                null, "", " ", "   ", "\t\n", "  \n  "
         };
     }
 
-    @Test
-    public void parse_nullInput() {
-        assertNull(CommentParser.parse(null));
+    @DataPoints("non-blank")
+    public static String[] nonBlankTextOnly() {
+        return new String[] {
+                "abcdef", "abc def\nxyz", "abc}def", "{abc}def"
+        };
     }
 
     @Theory
-    public void parse_textOnly(String text) {
-        List<CommentElement> elements = CommentParser.parse(text).getElements();
+    public void parse_absentCommment_shouldBeNull(@FromDataPoints("null/blank") String input) {
+        assertNull(CommentParser.parse(input));
+    }
+
+    @Theory
+    public void parse_textOnly_shouldBeSingleTextNode(@FromDataPoints("non-blank") String input) {
+        List<CommentElement> elements = CommentParser.parse(input).getElements();
         assertEquals(1, elements.size());
-        assertEquals(new CommentText(text), elements.get(0));
+        assertEquals(new CommentText(input), elements.get(0));
     }
 
     @Test
@@ -140,12 +148,12 @@ public class CommentParserTest {
 
     @Test
     public void parse_mix_praiseTheMightyThor() {
-        String input = "text}bef{}ore {@link ClassName}{@} text{after} and {@empty}";
+        String input = "  text}bef{}ore {@link ClassName}{@} text{after}\nand {@empty}\n\n";
         List<CommentElement> elements = CommentParser.parse(input).getElements();
         assertEquals(4, elements.size());
         assertEquals(new CommentText("text}bef{}ore "), elements.get(0));
         assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(1));
-        assertEquals(new CommentText("{@} text{after} and "), elements.get(2));
+        assertEquals(new CommentText("{@} text{after}\nand "), elements.get(2));
         assertEquals(new InlineTag("empty", null), elements.get(3));
     }
 }
