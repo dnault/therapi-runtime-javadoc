@@ -2,7 +2,7 @@
 
 ## 0.5.0 - April 28, 2018
 
-Thanks to contributions from Joffrey Bion and Simone Kisanne,
+Thanks to contributions from Joffrey Bion and Simon Kissane,
 it's now possible to read the Javadoc of fields and enum constants.
 
 Issues resolved:
