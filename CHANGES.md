@@ -1,5 +1,15 @@
 # Change history
 
+## 0.6.0 - May 3, 2018
+
+Thanks to Joffrey Bion, inline tags and links in comments are now parsed
+and presented as `InlineTag` and `InlineLink` comment elements. 
+
+Issues resolved:
+
+* [ENHANCEMENT] #17 Add links and tags elements to Comment (joffrey-bion)
+
+
 ## 0.5.0 - April 28, 2018
 
 Thanks to contributions from Joffrey Bion and Simon Kissane,
