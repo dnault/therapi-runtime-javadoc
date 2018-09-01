@@ -5,23 +5,23 @@ import java.util.List;
 
 public class ParsedJavadoc {
 
-    String description;
+  String description;
 
-    List<BlockTag> blockTags = new ArrayList<>();
+  List<BlockTag> blockTags = new ArrayList<>();
 
-    @Override
-    public String toString() {
-        return "ParsedJavadoc{" +
-                "description='" + description + '\'' +
-                ", blockTags=" + blockTags +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "ParsedJavadoc{" +
+        "description='" + description + '\'' +
+        ", blockTags=" + blockTags +
+        '}';
+  }
 
-    String getDescription() {
-        return description;
-    }
+  String getDescription() {
+    return description;
+  }
 
-    List<BlockTag> getBlockTags() {
-        return blockTags;
-    }
+  List<BlockTag> getBlockTags() {
+    return blockTags;
+  }
 }

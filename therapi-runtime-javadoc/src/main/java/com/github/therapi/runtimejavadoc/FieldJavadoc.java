@@ -4,17 +4,17 @@ import java.util.List;
 
 public class FieldJavadoc extends BaseJavadoc {
 
-    public FieldJavadoc(String name, Comment comment, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
-        super(name, comment, seeAlso, other);
-    }
+  public FieldJavadoc(String name, Comment comment, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
+    super(name, comment, seeAlso, other);
+  }
 
-    @Override
-    public String toString() {
-        return "FieldJavadoc{"
-                + "name='" + getName() + '\''
-                + ", comment=" + getComment()
-                + ", other=" + getOther()
-                + ", seeAlso=" + getSeeAlso()
-                + '}';
-    }
+  @Override
+  public String toString() {
+    return "FieldJavadoc{"
+        + "name='" + getName() + '\''
+        + ", comment=" + getComment()
+        + ", other=" + getOther()
+        + ", seeAlso=" + getSeeAlso()
+        + '}';
+  }
 }
