@@ -1,22 +1,21 @@
 package com.github.therapi.runtimejavadoc;
 
+import com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor;
+import com.google.testing.compile.Compilation;
+import com.google.testing.compile.JavaFileObjects;
+import org.junit.Test;
+
+import javax.tools.JavaFileObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import javax.tools.JavaFileObject;
-
-import org.junit.Test;
-
-import com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor;
-import com.google.testing.compile.Compilation;
-import com.google.testing.compile.JavaFileObjects;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class JavadocAnnotationProcessorTest {
 
@@ -160,10 +159,10 @@ public class JavadocAnnotationProcessorTest {
     }
 
     private static void assertFieldDocMatches(Field field, String expectedDoc) {
-        Optional<FieldJavadoc> fieldJavadoc = RuntimeJavadoc.getJavadoc(field);
-        assertTrue(fieldJavadoc.isPresent());
-        assertEquals(field.getName(), fieldJavadoc.get().getName());
-        assertEquals(expectedDoc, fieldJavadoc.get().getComment().toString());
+        FieldJavadoc fieldJavadoc = RuntimeJavadoc.getJavadoc(field);
+        assertNotNull(fieldJavadoc);
+        assertEquals(field.getName(), fieldJavadoc.getName());
+        assertEquals(expectedDoc, fieldJavadoc.getComment().toString());
     }
 
     private static void assertEnumConstantMatches(Enum enumConstant, String expectedDoc) {
@@ -220,21 +219,25 @@ public class JavadocAnnotationProcessorTest {
     }
 
     private static ClassJavadoc expectJavadoc(Class<?> c) {
-        return RuntimeJavadoc.getJavadoc(c)
-                .orElseThrow(() -> new AssertionError("Missing Javadoc for " + c));
+        return assertNonNull(RuntimeJavadoc.getJavadoc(c), "Missing Javadoc for " + c);
     }
 
     private static MethodJavadoc expectJavadoc(Method m) {
-        return RuntimeJavadoc.getJavadoc(m)
-                .orElseThrow(() -> new AssertionError("Missing Javadoc for " + m));
+        return assertNonNull(RuntimeJavadoc.getJavadoc(m), "Missing Javadoc for " + m);
     }
 
     private static FieldJavadoc expectJavadoc(Enum<?> e) {
-        return RuntimeJavadoc.getJavadoc(e)
-                .orElseThrow(() -> new AssertionError("Missing Javadoc for " + e));
+        return assertNonNull(RuntimeJavadoc.getJavadoc(e), "Missing Javadoc for " + e);
     }
 
     private static void expectNoJavadoc(Class<?> c) {
-        assertEquals(Optional.empty(), RuntimeJavadoc.getJavadoc(c));
+        assertNull(RuntimeJavadoc.getJavadoc(c));
+    }
+    
+    private static <T> T assertNonNull(T value, String msg) {
+        if (value == null) {
+            throw new AssertionError(msg);
+        }
+        return value;
     }
 }

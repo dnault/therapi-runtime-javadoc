@@ -1,16 +1,16 @@
 package com.github.therapi.runtimejavadoc;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
+import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -33,7 +33,8 @@ public class RuntimeJavadoc {
      *
      * @return the Javadoc of the given class, or an empty optional if no documentation was found
      */
-    public static Optional<ClassJavadoc> getJavadoc(Class clazz) {
+    @Nullable
+    public static ClassJavadoc getJavadoc(Class clazz) {
         return getJavadoc(clazz.getName(), clazz);
     }
 
@@ -45,7 +46,8 @@ public class RuntimeJavadoc {
      *
      * @return the Javadoc of the given class, or an empty optional if no documentation was found
      */
-    public static Optional<ClassJavadoc> getJavadoc(String qualifiedClassName) {
+    @Nullable
+    public static ClassJavadoc getJavadoc(String qualifiedClassName) {
         return getJavadoc(qualifiedClassName, RuntimeJavadoc.class);
     }
 
@@ -59,7 +61,8 @@ public class RuntimeJavadoc {
      *
      * @return the Javadoc of the given class, or an empty optional if no documentation was found
      */
-    public static Optional<ClassJavadoc> getJavadoc(String qualifiedClassName, ClassLoader classLoader) {
+    @Nullable
+    public static ClassJavadoc getJavadoc(String qualifiedClassName, ClassLoader classLoader) {
         final String resourceName = getResourceName(qualifiedClassName);
         try (InputStream is = classLoader.getResourceAsStream(resourceName)) {
             return parseJavadocResource(qualifiedClassName, is);
@@ -78,7 +81,8 @@ public class RuntimeJavadoc {
      *
      * @return the Javadoc of the given class, or an empty optional if no documentation was found
      */
-    public static Optional<ClassJavadoc> getJavadoc(String qualifiedClassName, Class loader) {
+    @Nullable
+    public static ClassJavadoc getJavadoc(String qualifiedClassName, Class loader) {
         final String resourceName = getResourceName(qualifiedClassName);
         try (InputStream is = loader.getResourceAsStream("/" + resourceName)) {
             return parseJavadocResource(qualifiedClassName, is);
@@ -91,9 +95,10 @@ public class RuntimeJavadoc {
         return qualifiedClassName.replace(".", "/") + javadocResourceSuffix();
     }
 
-    private static Optional<ClassJavadoc> parseJavadocResource(String qualifiedClassName, InputStream is) throws IOException {
+    @Nullable
+    private static ClassJavadoc parseJavadocResource(String qualifiedClassName, InputStream is) throws IOException {
         if (is == null) {
-            return Optional.empty();
+            return null;
         }
 
         try (InputStreamReader r = new InputStreamReader(is, UTF_8)) {
@@ -115,13 +120,20 @@ public class RuntimeJavadoc {
      *
      * @return the given method's Javadoc, or an empty optional if no documentation was found
      */
-    public static Optional<MethodJavadoc> getJavadoc(Method method) {
-        Optional<ClassJavadoc> javadoc = getJavadoc(method.getDeclaringClass());
-        return javadoc.map(ClassJavadoc::getMethods).flatMap(mDocs -> findMethodJavadoc(mDocs, method));
+    @Nullable
+    public static MethodJavadoc getJavadoc(Method method) {
+        ClassJavadoc javadoc = getJavadoc(method.getDeclaringClass());
+        return (javadoc != null) ? findMethodJavadoc(javadoc.getMethods(), method) : null;
     }
 
-    private static Optional<MethodJavadoc> findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
-        return methodDocs.stream().filter(m -> m.matches(method)).findAny();
+    @Nullable
+    private static MethodJavadoc findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
+        for (MethodJavadoc methodJavadoc : methodDocs) {
+            if (methodJavadoc.matches(method)) {
+                return methodJavadoc;
+            }
+        }
+        return null;
     }
 
     /**
@@ -137,13 +149,20 @@ public class RuntimeJavadoc {
      *
      * @return the given field's Javadoc, or an empty optional if no documentation was found
      */
-    public static Optional<FieldJavadoc> getJavadoc(Field field) {
-        Optional<ClassJavadoc> javadoc = getJavadoc(field.getDeclaringClass());
-        return javadoc.map(ClassJavadoc::getFields).flatMap(fDocs -> findFieldJavadoc(fDocs, field));
+    @Nullable
+    public static FieldJavadoc getJavadoc(Field field) {
+        ClassJavadoc javadoc = getJavadoc(field.getDeclaringClass());
+        return javadoc != null ? findFieldJavadoc(javadoc.getFields(), field) : null;
     }
 
-    private static Optional<FieldJavadoc> findFieldJavadoc(List<FieldJavadoc> fieldDocs, Field field) {
-        return fieldDocs.stream().filter(m -> m.getName().equals(field.getName())).findAny();
+    @Nullable
+    private static FieldJavadoc findFieldJavadoc(List<FieldJavadoc> fieldDocs, Field field) {
+        for (FieldJavadoc fDoc : fieldDocs) {
+            if (fDoc.getName().equals(field.getName())) {
+                return fDoc;
+            }
+        }
+        return null;
     }
 
     /**
@@ -159,12 +178,19 @@ public class RuntimeJavadoc {
      *
      * @return the given enum constant's Javadoc, or an empty optional if no documentation was found
      */
-    public static Optional<FieldJavadoc> getJavadoc(Enum<?> enumValue) {
-        Optional<ClassJavadoc> javadoc = getJavadoc(enumValue.getDeclaringClass());
-        return javadoc.map(ClassJavadoc::getEnumConstants).flatMap(fDocs -> findEnumValueJavadoc(fDocs, enumValue));
+    @Nullable
+    public static FieldJavadoc getJavadoc(Enum<?> enumValue) {
+        ClassJavadoc javadoc = getJavadoc(enumValue.getDeclaringClass());
+        return javadoc != null ? findEnumValueJavadoc(javadoc.getEnumConstants(), enumValue) : null;
     }
 
-    private static Optional<FieldJavadoc> findEnumValueJavadoc(List<FieldJavadoc> fieldDocs, Enum<?> enumValue) {
-        return fieldDocs.stream().filter(m -> m.getName().equals(enumValue.name())).findAny();
+    @Nullable
+    private static FieldJavadoc findEnumValueJavadoc(List<FieldJavadoc> fieldDocs, Enum<?> enumValue) {
+        for (FieldJavadoc fDoc : fieldDocs) {
+            if (fDoc.getName().equals(enumValue.name())) {
+                return fDoc;
+            }
+        }
+        return null;
     }
 }

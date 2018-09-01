@@ -41,7 +41,7 @@ public class CompilationClassLoader extends URLClassLoader {
 
     @Override
     public URL findResource(String name) {
-        JavaFileObject generatedResource = compilation.generatedFile(CLASS_OUTPUT, name).orElse(null);
+        final JavaFileObject generatedResource = compilation.generatedFile(CLASS_OUTPUT, name).orElse(null);
         if (generatedResource == null) {
             return super.findResource(name);
         }
