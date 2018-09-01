@@ -30,7 +30,7 @@ import static javax.lang.model.element.ElementKind.FIELD;
 import static javax.lang.model.element.ElementKind.METHOD;
 
 class JsonJavadocBuilder {
-    
+
     private final ProcessingEnvironment processingEnv;
 
     JsonJavadocBuilder(ProcessingEnvironment processingEnv) {
@@ -44,7 +44,7 @@ class JsonJavadocBuilder {
         if (isBlank(classDoc)) {
             classDoc = "";
         }
-    
+
         Map<ElementKind, List<Element>> children = new HashMap<>();
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (!children.containsKey(enclosedElement.getKind())) {
@@ -52,12 +52,12 @@ class JsonJavadocBuilder {
             }
             children.get(enclosedElement.getKind()).add(enclosedElement);
         }
-    
-        final List<Element> emptyList = Collections.unmodifiableList(Collections.<Element>emptyList());
-        List<Element> enclosedFields = children.containsKey(FIELD) ? children.get(FIELD) : emptyList;
-        List<Element> enclosedEnumConstants = children.containsKey(ENUM_CONSTANT) ? children.get(ENUM_CONSTANT) : emptyList;
-        List<Element> enclosedMethods = children.containsKey(METHOD) ? children.get(METHOD) : emptyList;
-        
+
+        final List<Element> emptyList = Collections.emptyList();
+        List<Element> enclosedFields = defaultIfNull(children.get(FIELD), emptyList);
+        List<Element> enclosedEnumConstants = defaultIfNull(children.get(ENUM_CONSTANT), emptyList);
+        List<Element> enclosedMethods = defaultIfNull(children.get(METHOD), emptyList);
+
         JsonArray fieldDocs = getJavadocsAsJson(enclosedFields, new FieldJavadocAsJson());
         JsonArray enumConstantDocs = getJavadocsAsJson(enclosedEnumConstants, new FieldJavadocAsJson());
         JsonArray methodDocs = getJavadocsAsJson(enclosedMethods, new MethodJavadocAsJson());
@@ -88,7 +88,7 @@ class JsonJavadocBuilder {
     private interface ElementToJsonFunction {
         @Nullable JsonObject apply(Element e);
     }
-    
+
     private class FieldJavadocAsJson implements ElementToJsonFunction {
         @Override @Nullable
         public JsonObject apply(Element field) {
@@ -96,24 +96,24 @@ class JsonJavadocBuilder {
             if (isBlank(javadoc)) {
                 return null;
             }
-            
+
             JsonObject jsonDoc = new JsonObject();
             jsonDoc.add(elementNameFieldName(), field.getSimpleName().toString());
             jsonDoc.add(elementDocFieldName(), javadoc);
             return jsonDoc;
         }
     }
-    
+
     private class MethodJavadocAsJson implements ElementToJsonFunction {
         @Override @Nullable
         public JsonObject apply(Element method) {
             assert method instanceof ExecutableElement;
-    
+
             String methodJavadoc = processingEnv.getElementUtils().getDocComment(method);
             if (isBlank(methodJavadoc)) {
                 return null;
             }
-    
+
             JsonObject jsonDoc = new JsonObject();
             jsonDoc.add(elementNameFieldName(), method.getSimpleName().toString());
             jsonDoc.add(paramTypesFieldName(), getParamErasures((ExecutableElement) method));
@@ -124,7 +124,7 @@ class JsonJavadocBuilder {
 
     private JsonArray getParamErasures(ExecutableElement executableElement) {
         Types typeUtils = processingEnv.getTypeUtils();
-        
+
         final JsonArray jsonValues = new JsonArray();
         for (VariableElement parameter : executableElement.getParameters()) {
             TypeMirror erasure = typeUtils.erasure(parameter.asType());
@@ -135,5 +135,9 @@ class JsonJavadocBuilder {
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private static <T> T defaultIfNull(T actualValue, T defaultValue) {
+        return actualValue != null ? actualValue : defaultValue;
     }
 }
