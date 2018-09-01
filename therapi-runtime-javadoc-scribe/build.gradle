@@ -1,41 +1,42 @@
-dependencies {
-  compileOnly files(System.properties['java.home'] + "/../lib/tools.jar")
-  shadow project(':therapi-runtime-javadoc')
 
-  testCompile project(':therapi-runtime-javadoc')
-  testCompile 'com.google.testing.compile:compile-testing:0.11'
+dependencies {
+    compileOnly files(System.properties['java.home'] + "/../lib/tools.jar")
+    shadow project(':therapi-runtime-javadoc')
+
+    testCompile project(':therapi-runtime-javadoc')
+    testCompile 'com.google.testing.compile:compile-testing:0.11'
 }
 
 tasks.withType(JavaCompile) {
-  // disable annotation processing
-  options.compilerArgs << "-proc:none"
+    // disable annotation processing
+    options.compilerArgs << "-proc:none"
 }
 
 publishing {
-  publications {
-    mavenJava(MavenPublication) { publication ->
-      project.shadow.component(publication)
+    publications {
+        mavenJava(MavenPublication) { publication ->
+            project.shadow.component(publication)
 
-      pom.withXml {
-        asNode().appendNode('description', project.description)
+            pom.withXml {
+                asNode().appendNode('description', project.description)
 
-        asNode().children().last() + project.ext.pomConfig
+                asNode().children().last() + project.ext.pomConfig
 
-        // Workaround for https://github.com/johnrengelman/shadow/issues/334
-        def dep = asNode().get("dependencies")[0].appendNode("dependency")
-        dep.appendNode("groupId", project.group)
-        dep.appendNode("artifactId", "therapi-runtime-javadoc")
-        dep.appendNode("version", project.version)
-        dep.appendNode("scope", "compile")
-      }
+                // Workaround for https://github.com/johnrengelman/shadow/issues/334
+                def dep = asNode().get("dependencies")[0].appendNode("dependency")
+                dep.appendNode("groupId", project.group)
+                dep.appendNode("artifactId", "therapi-runtime-javadoc")
+                dep.appendNode("version", project.version)
+                dep.appendNode("scope", "compile")
+            }
 
-      artifact sourceJar {
-        classifier 'sources'
-      }
+            artifact sourceJar {
+                classifier 'sources'
+            }
 
-      artifact javadocJar {
-        classifier 'javadoc'
-      }
+            artifact javadocJar {
+                classifier 'javadoc'
+            }
+        }
     }
-  }
 }
