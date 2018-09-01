@@ -31,7 +31,7 @@ public class RuntimeJavadoc {
      * @param clazz
      *         the class to retrieve the Javadoc for
      *
-     * @return the Javadoc of the given class, or an empty optional if no documentation was found
+     * @return the Javadoc of the given class, or {@code null} if no documentation was found
      */
     @Nullable
     public static ClassJavadoc getJavadoc(Class clazz) {
@@ -44,7 +44,7 @@ public class RuntimeJavadoc {
      * @param qualifiedClassName
      *         the fully qualified name of the class to retrieve the Javadoc for
      *
-     * @return the Javadoc of the given class, or an empty optional if no documentation was found
+     * @return the Javadoc of the given class, or {@code null} if no documentation was found
      */
     @Nullable
     public static ClassJavadoc getJavadoc(String qualifiedClassName) {
@@ -59,7 +59,7 @@ public class RuntimeJavadoc {
      * @param classLoader
      *         the class loader to use to find the Javadoc resource file
      *
-     * @return the Javadoc of the given class, or an empty optional if no documentation was found
+     * @return the Javadoc of the given class, or {@code null} if no documentation was found
      */
     @Nullable
     public static ClassJavadoc getJavadoc(String qualifiedClassName, ClassLoader classLoader) {
@@ -79,7 +79,7 @@ public class RuntimeJavadoc {
      * @param loader
      *         the class object to use to find the Javadoc resource file
      *
-     * @return the Javadoc of the given class, or an empty optional if no documentation was found
+     * @return the Javadoc of the given class, or {@code null} if no documentation was found
      */
     @Nullable
     public static ClassJavadoc getJavadoc(String qualifiedClassName, Class loader) {
@@ -118,7 +118,7 @@ public class RuntimeJavadoc {
      * @param method
      *         the method to get the Javadoc for
      *
-     * @return the given method's Javadoc, or an empty optional if no documentation was found
+     * @return the given method's Javadoc, or {@code null} if no documentation was found
      */
     @Nullable
     public static MethodJavadoc getJavadoc(Method method) {
@@ -147,7 +147,7 @@ public class RuntimeJavadoc {
      * @param field
      *         the field to get the Javadoc for
      *
-     * @return the given field's Javadoc, or an empty optional if no documentation was found
+     * @return the given field's Javadoc, or {@code null} if no documentation was found
      */
     @Nullable
     public static FieldJavadoc getJavadoc(Field field) {
@@ -176,7 +176,7 @@ public class RuntimeJavadoc {
      * @param enumValue
      *         the enum constant to get the Javadoc for
      *
-     * @return the given enum constant's Javadoc, or an empty optional if no documentation was found
+     * @return the given enum constant's Javadoc, or {@code null} if no documentation was found
      */
     @Nullable
     public static FieldJavadoc getJavadoc(Enum<?> enumValue) {
