@@ -1,18 +1,21 @@
 package com.github.therapi.runtimejavadoc.internal;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Predicate;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.QualifiedNameable;
+import java.util.HashSet;
+import java.util.Set;
 
-class PackageFilter implements Predicate<Element> {
+class PackageFilter {
 
     private final Set<String> rootPackages = new HashSet<>();
     private final Set<String> packages = new HashSet<>();
     private final Set<String> negatives = new HashSet<>();
-
+    
+    PackageFilter() {
+        // leaves the package white-list empty, which implies it can be ignore
+    }
+    
     PackageFilter(String commaDelimitedPackages) {
         for (String pkg : commaDelimitedPackages.split(",")) {
             pkg = pkg.trim();
@@ -23,7 +26,6 @@ class PackageFilter implements Predicate<Element> {
         packages.addAll(rootPackages);
     }
 
-    @Override
     public boolean test(Element element) {
         final String elementPackage = getPackage(element);
 
@@ -31,7 +33,7 @@ class PackageFilter implements Predicate<Element> {
             return false;
         }
 
-        if (packages.contains(elementPackage)) {
+        if (packages.isEmpty() || packages.contains(elementPackage)) {
             return true;
         }
 
@@ -55,5 +57,9 @@ class PackageFilter implements Predicate<Element> {
             }
         }
         return ((QualifiedNameable) e).getQualifiedName().toString();
+    }
+    
+    boolean allowAllPackages() {
+        return packages.isEmpty();
     }
 }

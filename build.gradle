@@ -13,16 +13,18 @@ subprojects { subproject ->
     version = "0.6.0"
 
     repositories {
+        mavenLocal()
         jcenter()
     }
 
     dependencies {
         compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+        compile 'com.google.code.findbugs:jsr305:3.0.2'
         testCompile 'junit:junit:4.12'
     }
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
     shadowJar {
         classifier = null

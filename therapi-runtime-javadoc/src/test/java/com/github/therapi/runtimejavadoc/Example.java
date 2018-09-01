@@ -7,7 +7,7 @@ public class Example {
     private static final CommentFormatter formatter = new CommentFormatter();
 
     public static void printJavadoc(String fullyQualifiedClassName) throws IOException {
-        ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(fullyQualifiedClassName).orElse(null);
+        ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(fullyQualifiedClassName);
         if (classDoc == null) {
             System.out.println("no documentation for " + fullyQualifiedClassName);
             return;

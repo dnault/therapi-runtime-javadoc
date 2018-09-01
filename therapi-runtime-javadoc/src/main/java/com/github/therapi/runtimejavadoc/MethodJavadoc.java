@@ -1,9 +1,8 @@
 package com.github.therapi.runtimejavadoc;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
@@ -39,9 +38,10 @@ public class MethodJavadoc {
         if (!method.getName().equals(name)) {
             return false;
         }
-        List<String> methodParamsTypes = Arrays.stream(method.getParameterTypes())
-                                               .map(Class::getCanonicalName)
-                                               .collect(Collectors.toList());
+        List<String> methodParamsTypes = new ArrayList<>();
+        for (Class<?> aClass : method.getParameterTypes()) {
+            methodParamsTypes.add(aClass.getCanonicalName());
+        }
         return methodParamsTypes.equals(paramTypes);
     }
 
