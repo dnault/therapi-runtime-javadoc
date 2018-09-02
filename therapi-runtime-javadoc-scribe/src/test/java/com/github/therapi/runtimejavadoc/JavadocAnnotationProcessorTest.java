@@ -134,6 +134,7 @@ public class JavadocAnnotationProcessorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void enumsAreRetrieved() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
             Class<? extends Enum> c = (Class<? extends Enum<?>>) classLoader.loadClass(DOCUMENTED_ENUM);
@@ -145,6 +146,7 @@ public class JavadocAnnotationProcessorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void complexEnumsAreRetrieved() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
             Class<? extends Enum> c = (Class<? extends Enum<?>>) classLoader.loadClass(COMPLEX_ENUM);
