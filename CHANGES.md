@@ -2,7 +2,7 @@
 
 ## 0.7.0 - September 1, 2018
 
-Thanks to Benny Benny Bottema, now compatible with Java 7.
+Thanks to Benny Bottema, now compatible with Java 7.
 
 ### BREAKING API CHANGE
 Public API methods that previously returned `Optional<X>` now return `X`,
