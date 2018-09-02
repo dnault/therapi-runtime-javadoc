@@ -158,4 +158,4 @@ public class Example {
 ## Credits
 
 This library includes [minimal-json](https://github.com/ralfstx/minimal-json)
-(MIT License) repackaged to avoid dependency conflicts.
+(MIT License) repackaged to avoid potential dependency conflicts.
