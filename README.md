@@ -23,8 +23,8 @@ Javadoc on demand.
 
 ```groovy
 dependencies {
-    // Annotation processor
-    compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.7.0'
+    // Annotation processor (prior to Gradle 4.6, use `compileOnly` instead)
+    annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.7.0'
 
     // Runtime library
     compile 'com.github.therapi:therapi-runtime-javadoc:0.7.0'        
