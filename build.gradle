@@ -10,10 +10,9 @@ subprojects { subproject ->
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = "com.github.therapi"
-    version = "0.7.0"
+    version = "0.8.0-SNAPSHOT"
 
     repositories {
-        mavenLocal()
         jcenter()
     }
 
