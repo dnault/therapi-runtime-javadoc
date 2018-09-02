@@ -24,10 +24,10 @@ Javadoc on demand.
 ```groovy
 dependencies {
     // Annotation processor
-    compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.6.0'
+    compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.7.0'
 
     // Runtime library
-    compile 'com.github.therapi:therapi-runtime-javadoc:0.6.0'        
+    compile 'com.github.therapi:therapi-runtime-javadoc:0.7.0'        
 }
 ```
 
@@ -38,7 +38,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <scope>provided</scope>
 </dependency>
     
@@ -46,7 +46,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
