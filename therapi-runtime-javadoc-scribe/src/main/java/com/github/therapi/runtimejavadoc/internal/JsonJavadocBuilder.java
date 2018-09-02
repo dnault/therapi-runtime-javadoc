@@ -4,7 +4,6 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
-import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -23,6 +22,7 @@ import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.el
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementNameFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.fieldsFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
 import static javax.lang.model.element.ElementKind.ENUM_CONSTANT;
@@ -37,8 +37,7 @@ class JsonJavadocBuilder {
         this.processingEnv = processingEnv;
     }
 
-    @Nullable
-    JsonObject getClassJavadocAsJson(TypeElement classElement) {
+    JsonObject getClassJavadocAsJsonOrNull(TypeElement classElement) {
         String classDoc = processingEnv.getElementUtils().getDocComment(classElement);
 
         if (isBlank(classDoc)) {
@@ -86,11 +85,12 @@ class JsonJavadocBuilder {
     }
 
     private interface ElementToJsonFunction {
-        @Nullable JsonObject apply(Element e);
+        // nullable
+        JsonObject apply(Element e);
     }
 
     private class FieldJavadocAsJson implements ElementToJsonFunction {
-        @Override @Nullable
+        @Override
         public JsonObject apply(Element field) {
             String javadoc = processingEnv.getElementUtils().getDocComment(field);
             if (isBlank(javadoc)) {
@@ -105,7 +105,7 @@ class JsonJavadocBuilder {
     }
 
     private class MethodJavadocAsJson implements ElementToJsonFunction {
-        @Override @Nullable
+        @Override
         public JsonObject apply(Element method) {
             assert method instanceof ExecutableElement;
 
@@ -131,10 +131,6 @@ class JsonJavadocBuilder {
             jsonValues.add(Json.value(erasure.toString()));
         }
         return jsonValues;
-    }
-
-    private static boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
     }
 
     private static <T> T defaultIfNull(T actualValue, T defaultValue) {

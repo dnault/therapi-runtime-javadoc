@@ -1,10 +1,10 @@
 package com.github.therapi.runtimejavadoc.internal;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.unmodifiableList;
 
 public class RuntimeJavadocHelper {
     private RuntimeJavadocHelper() {
@@ -13,6 +13,17 @@ public class RuntimeJavadocHelper {
 
     public static <T> List<T> unmodifiableDefensiveCopy(List<T> list) {
         return list == null ? Collections.<T>emptyList() : unmodifiableList(new ArrayList<>(list));
+    }
+
+    public static <T> T requireNonNull(T object) {
+        if (object == null) {
+            throw new NullPointerException();
+        }
+        return object;
+    }
+
+    public static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     public static String javadocResourceSuffix() {
@@ -42,5 +53,4 @@ public class RuntimeJavadocHelper {
     public static String elementDocFieldName() {
         return "doc";
     }
-
 }

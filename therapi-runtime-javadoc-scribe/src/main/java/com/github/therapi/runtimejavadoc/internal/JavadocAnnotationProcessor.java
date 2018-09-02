@@ -91,7 +91,7 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             return;
         }
         TypeElement classElement = (TypeElement) element;
-        JsonObject maybeClassJsonDoc = jsonJavadocBuilder.getClassJavadocAsJson(classElement);
+        JsonObject maybeClassJsonDoc = jsonJavadocBuilder.getClassJavadocAsJsonOrNull(classElement);
         if (maybeClassJsonDoc != null) {
             outputJsonDoc(classElement, maybeClassJsonDoc);
         }

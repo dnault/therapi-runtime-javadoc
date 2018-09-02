@@ -1,17 +1,18 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.github.therapi.runtimejavadoc.Comment;
 import com.github.therapi.runtimejavadoc.CommentElement;
 import com.github.therapi.runtimejavadoc.CommentText;
 import com.github.therapi.runtimejavadoc.InlineLink;
 import com.github.therapi.runtimejavadoc.InlineTag;
 import com.github.therapi.runtimejavadoc.Link;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
 
 class CommentParser {
 
@@ -22,10 +23,7 @@ class CommentParser {
     private static final Pattern linkRefSplitter = Pattern.compile("#");
 
     static Comment parse(String commentText) {
-        if (commentText == null || commentText.trim().isEmpty()) {
-            return null;
-        }
-        return new Comment(parseElements(commentText.trim()));
+        return isBlank(commentText) ? Comment.createEmpty() : new Comment(parseElements(commentText.trim()));
     }
 
     private static List<CommentElement> parseElements(String commentText) {

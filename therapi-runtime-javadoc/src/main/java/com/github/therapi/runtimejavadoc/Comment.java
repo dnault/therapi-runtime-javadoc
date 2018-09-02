@@ -1,14 +1,25 @@
 package com.github.therapi.runtimejavadoc;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
-
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 /**
  * Comment text that may contain inline tags.
  */
 public class Comment implements Iterable<CommentElement> {
+    private static final Comment EMPTY = new Comment(Collections.<CommentElement>emptyList());
+
+    public static Comment createEmpty() {
+        return EMPTY;
+    }
+
+    public static Comment nullToEmpty(Comment c) {
+        return c == null ? EMPTY : c;
+    }
+
     private final List<CommentElement> elements;
 
     public Comment(List<CommentElement> elements) {

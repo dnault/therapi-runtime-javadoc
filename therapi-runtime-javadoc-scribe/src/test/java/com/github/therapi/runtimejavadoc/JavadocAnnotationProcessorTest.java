@@ -14,8 +14,8 @@ import java.util.List;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class JavadocAnnotationProcessorTest {
 
@@ -219,23 +219,26 @@ public class JavadocAnnotationProcessorTest {
     }
 
     private static ClassJavadoc expectJavadoc(Class<?> c) {
-        return assertNonNull(RuntimeJavadoc.getJavadoc(c), "Missing Javadoc for " + c);
+        return assertPresent(RuntimeJavadoc.getJavadoc(c), "Missing Javadoc for " + c);
     }
 
     private static MethodJavadoc expectJavadoc(Method m) {
-        return assertNonNull(RuntimeJavadoc.getJavadoc(m), "Missing Javadoc for " + m);
+        return assertPresent(RuntimeJavadoc.getJavadoc(m), "Missing Javadoc for " + m);
     }
 
     private static FieldJavadoc expectJavadoc(Enum<?> e) {
-        return assertNonNull(RuntimeJavadoc.getJavadoc(e), "Missing Javadoc for " + e);
+        return assertPresent(RuntimeJavadoc.getJavadoc(e), "Missing Javadoc for " + e);
     }
 
     private static void expectNoJavadoc(Class<?> c) {
-        assertNull(RuntimeJavadoc.getJavadoc(c));
+        ClassJavadoc doc = RuntimeJavadoc.getJavadoc(c);
+        assertNotNull(doc);
+        assertFalse(doc.isPresent());
+        assertEquals(c.getName(), doc.getName());
     }
-    
-    private static <T> T assertNonNull(T value, String msg) {
-        if (value == null) {
+
+    private static <T extends BaseJavadoc> T assertPresent(T value, String msg) {
+        if (value == null || !value.isPresent()) {
             throw new AssertionError(msg);
         }
         return value;

@@ -15,8 +15,10 @@ import com.github.therapi.runtimejavadoc.InlineLink;
 import com.github.therapi.runtimejavadoc.InlineTag;
 import com.github.therapi.runtimejavadoc.Link;
 
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Theories.class)
 public class CommentParserTest {
@@ -36,8 +38,8 @@ public class CommentParserTest {
     }
 
     @Theory
-    public void parse_absentCommment_shouldBeNull(@FromDataPoints("null/blank") String input) {
-        assertNull(CommentParser.parse(input));
+    public void parse_absentCommment_shouldBeEmpty(@FromDataPoints("null/blank") String input) {
+        assertEquals(emptyList(), CommentParser.parse(input).getElements());
     }
 
     @Theory
