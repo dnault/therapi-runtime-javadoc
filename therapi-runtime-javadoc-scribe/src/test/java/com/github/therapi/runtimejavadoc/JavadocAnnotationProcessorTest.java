@@ -14,8 +14,8 @@ import java.util.List;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class JavadocAnnotationProcessorTest {
 
@@ -235,12 +235,12 @@ public class JavadocAnnotationProcessorTest {
     private static void expectNoJavadoc(Class<?> c) {
         ClassJavadoc doc = RuntimeJavadoc.getJavadoc(c);
         assertNotNull(doc);
-        assertFalse(doc.isPresent());
+        assertTrue(doc.isEmpty());
         assertEquals(c.getName(), doc.getName());
     }
 
     private static <T extends BaseJavadoc> T assertPresent(T value, String msg) {
-        if (value == null || !value.isPresent()) {
+        if (value == null || value.isEmpty()) {
             throw new AssertionError(msg);
         }
         return value;

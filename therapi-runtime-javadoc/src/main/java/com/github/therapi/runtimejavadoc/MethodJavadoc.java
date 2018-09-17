@@ -27,11 +27,11 @@ public class MethodJavadoc extends BaseJavadoc {
         this.returns = Comment.nullToEmpty(returns);
     }
 
-    public static MethodJavadoc createAbsent(Method method) {
+    public static MethodJavadoc createEmpty(Method method) {
         return new MethodJavadoc(method.getName(), null, null, null, null, null, null, null) {
             @Override
-            public boolean isPresent() {
-                return false;
+            public boolean isEmpty() {
+                return true;
             }
         };
     }

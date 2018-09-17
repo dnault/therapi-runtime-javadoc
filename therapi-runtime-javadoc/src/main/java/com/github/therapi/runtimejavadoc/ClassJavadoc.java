@@ -18,11 +18,11 @@ public class ClassJavadoc extends BaseJavadoc {
         this.methods = unmodifiableDefensiveCopy(methods);
     }
 
-    public static ClassJavadoc createAbsent(String qualifiedClassName) {
+    public static ClassJavadoc createEmpty(String qualifiedClassName) {
         return new ClassJavadoc(qualifiedClassName, null, null, null, null, null, null) {
             @Override
-            public boolean isPresent() {
-                return false;
+            public boolean isEmpty() {
+                return true;
             }
         };
     }

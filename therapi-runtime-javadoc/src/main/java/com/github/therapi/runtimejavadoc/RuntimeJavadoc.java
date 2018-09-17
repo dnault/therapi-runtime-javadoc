@@ -28,11 +28,10 @@ public class RuntimeJavadoc {
      * Gets the Javadoc of the given class.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      *
      * @param clazz the class whose Javadoc you want to retrieve
-     * @return the Javadoc of the given class, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the Javadoc of the given class
      */
     public static ClassJavadoc getJavadoc(Class clazz) {
         return getJavadoc(clazz.getName(), clazz);
@@ -42,11 +41,10 @@ public class RuntimeJavadoc {
      * Gets the Javadoc of the given class.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      *
      * @param qualifiedClassName the fully qualified name of the class whose Javadoc you want to retrieve
-     * @return the Javadoc of the given class, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the Javadoc of the given class
      */
     public static ClassJavadoc getJavadoc(String qualifiedClassName) {
         return getJavadoc(qualifiedClassName, RuntimeJavadoc.class);
@@ -56,12 +54,11 @@ public class RuntimeJavadoc {
      * Gets the Javadoc of the given class, using the given {@link ClassLoader} to find the Javadoc resource.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      *
      * @param qualifiedClassName the fully qualified name of the class whose Javadoc you want to retrieve
      * @param classLoader        the class loader to use to find the Javadoc resource file
-     * @return the Javadoc of the given class, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the Javadoc of the given class
      */
     public static ClassJavadoc getJavadoc(String qualifiedClassName, ClassLoader classLoader) {
         final String resourceName = getResourceName(qualifiedClassName);
@@ -76,12 +73,11 @@ public class RuntimeJavadoc {
      * Gets the Javadoc of the given class, using the given {@link Class} object to load the Javadoc resource.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      *
      * @param qualifiedClassName the fully qualified name of the class whose Javadoc you want to retrieve
      * @param loader             the class object to use to find the Javadoc resource file
-     * @return the Javadoc of the given class, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the Javadoc of the given class
      */
     public static ClassJavadoc getJavadoc(String qualifiedClassName, Class loader) {
         final String resourceName = getResourceName(qualifiedClassName);
@@ -98,7 +94,7 @@ public class RuntimeJavadoc {
 
     private static ClassJavadoc parseJavadocResource(String qualifiedClassName, InputStream is) throws IOException {
         if (is == null) {
-            return ClassJavadoc.createAbsent(qualifiedClassName);
+            return ClassJavadoc.createEmpty(qualifiedClassName);
         }
 
         try (InputStreamReader r = new InputStreamReader(is, UTF_8)) {
@@ -111,7 +107,7 @@ public class RuntimeJavadoc {
      * Gets the Javadoc of the given method.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      * <p>
      * Implementation note: this method first retrieves the Javadoc of the class, and then matches the method signature
      * with the correct documentation. If the client code's purpose is to loop through all methods doc, prefer using
@@ -119,8 +115,7 @@ public class RuntimeJavadoc {
      * returned class doc to retrieve method docs.
      *
      * @param method the method whose Javadoc you want to retrieve
-     * @return the given method's Javadoc, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the given method's Javadoc
      */
     public static MethodJavadoc getJavadoc(Method method) {
         ClassJavadoc javadoc = getJavadoc(method.getDeclaringClass());
@@ -133,14 +128,14 @@ public class RuntimeJavadoc {
                 return methodJavadoc;
             }
         }
-        return MethodJavadoc.createAbsent(method);
+        return MethodJavadoc.createEmpty(method);
     }
 
     /**
      * Gets the Javadoc of the given field.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      * <p>
      * Implementation note: this method first retrieves the Javadoc of the class, and then matches the field name
      * with the correct documentation. If the client code's purpose is to loop through all fields doc, prefer using
@@ -148,8 +143,7 @@ public class RuntimeJavadoc {
      * returned class doc to retrieve field docs.
      *
      * @param field the field whose Javadoc you want to retrieve
-     * @return the given field's Javadoc, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the given field's Javadoc
      */
     public static FieldJavadoc getJavadoc(Field field) {
         ClassJavadoc javadoc = getJavadoc(field.getDeclaringClass());
@@ -160,7 +154,7 @@ public class RuntimeJavadoc {
      * Gets the Javadoc of the given enum constant.
      * <p>
      * The return value is always non-null. If no Javadoc is available, the returned object's
-     * {@link BaseJavadoc#isPresent isPresent()} method will return {@code false}.
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      * <p>
      * Implementation note: this method first retrieves the Javadoc of the class, and then matches the enum constant's
      * name with the correct documentation. If the client code's purpose is to loop through all enum constants docs,
@@ -168,8 +162,7 @@ public class RuntimeJavadoc {
      * {@link ClassJavadoc#getEnumConstants()} on the returned class doc to retrieve enum constant docs.
      *
      * @param enumValue the enum constant whose Javadoc you want to retrieve
-     * @return the given enum constant's Javadoc, or a placeholder
-     * whose {@link BaseJavadoc#isPresent() isPresent()} method returns {@code false}
+     * @return the given enum constant's Javadoc
      */
     public static FieldJavadoc getJavadoc(Enum<?> enumValue) {
         ClassJavadoc javadoc = getJavadoc(enumValue.getDeclaringClass());
@@ -182,6 +175,6 @@ public class RuntimeJavadoc {
                 return fDoc;
             }
         }
-        return FieldJavadoc.createAbsent(fieldName);
+        return FieldJavadoc.createEmpty(fieldName);
     }
 }
