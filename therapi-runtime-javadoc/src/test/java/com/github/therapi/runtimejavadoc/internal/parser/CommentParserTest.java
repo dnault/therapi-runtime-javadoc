@@ -74,12 +74,19 @@ public class CommentParserTest {
         assertEquals(1, elements.size());
         assertEquals(new InlineLink(new Link("ClassName#member", "ClassName", "member")), elements.get(0));
     }
-
+    
     @Test
     public void parse_linkOnly_labeledLinkWithMemberRef() {
         List<CommentElement> elements = CommentParser.parse("{@link ClassName#member label}").getElements();
         assertEquals(1, elements.size());
         assertEquals(new InlineLink(new Link("label", "ClassName", "member")), elements.get(0));
+    }
+    
+    @Test
+    public void parse_linkOnly_labeledLinkWithMemberRef_ImplicitRef() {
+        List<CommentElement> elements = CommentParser.parse("{@link #member label}").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("label", null, "member")), elements.get(0));
     }
 
     @Test
