@@ -53,42 +53,57 @@ public class CommentParserTest {
     public void parse_linkOnly_simpleLink() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link ClassName}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(0));
+        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null, null)), elements.get(0));
+    }
+    
+    @Test
+    public void parse_linkOnly_simpleLink_FullyQualified() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link org.company.ClassName}").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("org.company.ClassName", "org.company.ClassName", null, null)), elements.get(0));
     }
 
     @Test
     public void parse_linkOnly_labeledLink_noWhiteSpace() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link ClassName myLabel}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("myLabel", "ClassName", null)), elements.get(0));
+        assertEquals(new InlineLink(new Link("myLabel", "ClassName", null, null)), elements.get(0));
     }
 
     @Test
     public void parse_linkOnly_labeledLink_withWhiteSpace() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link ClassName my label}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("my label", "ClassName", null)), elements.get(0));
+        assertEquals(new InlineLink(new Link("my label", "ClassName", null, null)), elements.get(0));
     }
 
     @Test
     public void parse_linkOnly_linkWithMemberRef() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link ClassName#member}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("ClassName#member", "ClassName", "member")), elements.get(0));
+        assertEquals(new InlineLink(new Link("ClassName#member", "ClassName", "member", null)), elements.get(0));
     }
     
     @Test
     public void parse_linkOnly_labeledLinkWithMemberRef() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link ClassName#member label}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("label", "ClassName", "member")), elements.get(0));
+        assertEquals(new InlineLink(new Link("label", "ClassName", "member", null)), elements.get(0));
     }
     
     @Test
     public void parse_linkOnly_labeledLinkWithMemberRef_ImplicitRef() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link #member label}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("label", "TestClass", "member")), elements.get(0));
+        assertEquals(new InlineLink(new Link("label", "TestClass", "member", null)), elements.get(0));
+    }
+    
+    @Test
+    public void parse_linkOnly_labeledLinkWithMethodMemberRef_ImplicitRef() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link #withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("label", "TestClass", "withRecipientsWithDefaultName",
+                new String[] {"String", "Collection", "RecipientType"})), elements.get(0));
     }
 
     @Test
@@ -132,7 +147,7 @@ public class CommentParserTest {
         List<CommentElement> elements = CommentParser.parse("TestClass", "text before {@link ClassName} text after").getElements();
         assertEquals(3, elements.size());
         assertEquals(new CommentText("text before "), elements.get(0));
-        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(1));
+        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null, null)), elements.get(1));
         assertEquals(new CommentText(" text after"), elements.get(2));
     }
 
@@ -142,7 +157,7 @@ public class CommentParserTest {
                                                      .getElements();
         assertEquals(3, elements.size());
         assertEquals(new CommentText("Adds the given "), elements.get(0));
-        assertEquals(new InlineLink(new Link("Action", "Action", null)), elements.get(1));
+        assertEquals(new InlineLink(new Link("Action", "Action", null, null)), elements.get(1));
         assertEquals(new CommentText("s to the queue."), elements.get(2));
     }
 
@@ -151,7 +166,7 @@ public class CommentParserTest {
         List<CommentElement> elements = CommentParser.parse("TestClass", "text}before {@link ClassName} text{after").getElements();
         assertEquals(3, elements.size());
         assertEquals(new CommentText("text}before "), elements.get(0));
-        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(1));
+        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null, null)), elements.get(1));
         assertEquals(new CommentText(" text{after"), elements.get(2));
     }
 
@@ -161,7 +176,7 @@ public class CommentParserTest {
         List<CommentElement> elements = CommentParser.parse("TestClass", input).getElements();
         assertEquals(4, elements.size());
         assertEquals(new CommentText("text}bef{}ore "), elements.get(0));
-        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null)), elements.get(1));
+        assertEquals(new InlineLink(new Link("ClassName", "ClassName", null, null)), elements.get(1));
         assertEquals(new CommentText("{@} text{after}\nand "), elements.get(2));
         assertEquals(new InlineTag("empty", null), elements.get(3));
     }

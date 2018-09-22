@@ -13,14 +13,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
+import static java.util.regex.Pattern.compile;
 
 class CommentParser {
 
-    private static final Pattern inlineTag = Pattern.compile("\\{@(\\w+)(?:\\s+([\\w#][^}]+)?)?}");
-
-    private static final Pattern whitespace = Pattern.compile("\\s+");
-
-    private static final Pattern linkRefSplitter = Pattern.compile("#");
+    private static final Pattern inlineTag = compile("\\{@(\\w+)(?:\\s+([\\w#][^}]+)?)?}");
+    
+    // https://regex101.com/r/IvCACP/3
+    private static final Pattern linkPattern = compile("^(?<classname>[\\w\\.]+)?(?:#(?<member>\\w+))?(?:\\((?<params>.*)\\))?(?:\\s(?<label>\\w+(?:\\s\\w+)*))?$");
 
     static Comment parse(String owningClass, String commentText) {
         return isBlank(commentText) ? Comment.createEmpty() : new Comment(parseElements(owningClass, commentText.trim()));
@@ -54,14 +54,21 @@ class CommentParser {
     }
 
     private static InlineLink createLinkElement(String owningClass, String value) {
-        String[] linkElts = whitespace.split(value, 2);
-        String label = linkElts.length > 1 ? linkElts[1] : linkElts[0];
-
-        String[] ref = linkRefSplitter.split(linkElts[0], 2);
-        String classRef = ref[0];
-        String memberRef = ref.length > 1 ? ref[1] : null;
-
-        Link link = new Link(label, classRef.isEmpty() ? owningClass : classRef, memberRef);
-        return new InlineLink(link);
+        Matcher linkMatcher = linkPattern.matcher(value);
+        if (!linkMatcher.matches()) {
+            throw new AssertionError("Link didn't match regex format");
+        }
+        String classRef = linkMatcher.group("classname");
+        String memberRef = linkMatcher.group("member");
+        String params = linkMatcher.group("params");
+        String label = linkMatcher.group("label");
+    
+        String effectiveClassName = classRef == null ? owningClass : classRef;
+        String effectiveLabel = label != null ? label : linkMatcher.group(0);
+        return new InlineLink(new Link(effectiveLabel, effectiveClassName, memberRef, formatMember(params)));
+    }
+    
+    private static String[] formatMember(String params) {
+        return params != null ? params.split(",\\s?") : null;
     }
 }
