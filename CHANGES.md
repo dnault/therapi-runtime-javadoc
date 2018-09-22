@@ -1,5 +1,27 @@
 # Change history
 
+## 0.7.0 - September 1, 2018
+
+Thanks to Benny Bottema, now compatible with Java 7.
+
+### BREAKING API CHANGE
+Public API methods that previously returned `Optional<X>` now return `X`,
+always non-null.
+
+If the Javadoc is not available, the returned object will be a placeholder
+following the **Null Object Pattern**. A placeholder acts just a like a "real"
+`Class/Method/FieldDoc` object, but its methods return values that model
+absent Javadoc.
+
+If you need to distinguish a placeholder from a "real"
+documentation object, you can call the `isPresent()` method which always
+returns `false` for placeholders.
+  
+Issues resolved:
+
+* [ENHANCEMENT] #22 Make this available in Java 7 (Benny Bottema)
+
+
 ## 0.6.0 - May 3, 2018
 
 Thanks to Joffrey Bion, inline tags and links in comments are now parsed

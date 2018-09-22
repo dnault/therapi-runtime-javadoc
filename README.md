@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dnault/therapi-runtime-javadoc.svg?branch=master)](https://travis-ci.org/dnault/therapi-runtime-javadoc)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
+![Java 1.7+](https://img.shields.io/badge/java-1.7+-lightgray.svg)
 
 
 ## Bake Javadoc comments into your code
@@ -23,11 +23,11 @@ Javadoc on demand.
 
 ```groovy
 dependencies {
-    // Annotation processor
-    compileOnly 'com.github.therapi:therapi-runtime-javadoc-scribe:0.6.0'
+    // Annotation processor (prior to Gradle 4.6, use `compileOnly` instead)
+    annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.7.0'
 
     // Runtime library
-    compile 'com.github.therapi:therapi-runtime-javadoc:0.6.0'        
+    compile 'com.github.therapi:therapi-runtime-javadoc:0.7.0'        
 }
 ```
 
@@ -38,7 +38,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <scope>provided</scope>
 </dependency>
     
@@ -46,7 +46,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -103,8 +103,8 @@ public class Example {
     private static final CommentFormatter formatter = new CommentFormatter();
 
     public static void printJavadoc(String fullyQualifiedClassName) throws IOException {
-        ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(fullyQualifiedClassName).orElse(null);
-        if (classDoc == null) {
+        ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(fullyQualifiedClassName);
+        if (!classDoc.isPresent()) { // optionally skip absent documentation
             System.out.println("no documentation for " + fullyQualifiedClassName);
             return;
         }
@@ -158,4 +158,4 @@ public class Example {
 ## Credits
 
 This library includes [minimal-json](https://github.com/ralfstx/minimal-json)
-(MIT License) repackaged to avoid dependency conflicts.
+(MIT License) repackaged to avoid potential dependency conflicts.

@@ -18,6 +18,15 @@ public class ClassJavadoc extends BaseJavadoc {
         this.methods = unmodifiableDefensiveCopy(methods);
     }
 
+    public static ClassJavadoc createEmpty(String qualifiedClassName) {
+        return new ClassJavadoc(qualifiedClassName, null, null, null, null, null, null) {
+            @Override
+            public boolean isEmpty() {
+                return true;
+            }
+        };
+    }
+
     public List<FieldJavadoc> getFields() {
         return fields;
     }

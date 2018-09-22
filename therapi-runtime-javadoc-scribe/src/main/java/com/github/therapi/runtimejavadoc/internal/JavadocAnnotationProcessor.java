@@ -1,13 +1,8 @@
 package com.github.therapi.runtimejavadoc.internal;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
+import com.eclipsesource.json.JsonObject;
+import com.github.therapi.runtimejavadoc.RetainJavadoc;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
@@ -18,9 +13,12 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-
-import com.eclipsesource.json.JsonObject;
-import com.github.therapi.runtimejavadoc.RetainJavadoc;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -28,8 +26,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class JavadocAnnotationProcessor extends AbstractProcessor {
 
     private static final String PACKAGES_OPTION = "javadoc.packages";
-
-    private static final Predicate<Element> ALL_PACKAGES = e -> true;
 
     private JsonJavadocBuilder jsonJavadocBuilder;
 
@@ -41,15 +37,15 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
         final String packagesOption = options.get(PACKAGES_OPTION);
 
         // Retain Javadoc for classes that match this predicate
-        final Predicate<Element> packageFilter =
-                packagesOption == null ? ALL_PACKAGES : new PackageFilter(packagesOption);
+        final PackageFilter packageFilter =
+                packagesOption == null ? new PackageFilter() : new PackageFilter(packagesOption);
 
         // Make sure each element only gets processed once.
         final Set<Element> alreadyProcessed = new HashSet<>();
 
         // If retaining Javadoc for all packages, the @RetainJavadoc annotation is redundant.
         // Otherwise, make sure annotated classes have their Javadoc retained regardless of package.
-        if (packageFilter != ALL_PACKAGES) {
+        if (!packageFilter.allowAllPackages()) {
             for (TypeElement annotation : annotations) {
                 if (isRetainJavadocAnnotation(annotation)) {
                     for (Element e : roundEnvironment.getElementsAnnotatedWith(annotation)) {
@@ -95,10 +91,9 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
             return;
         }
         TypeElement classElement = (TypeElement) element;
-        Optional<JsonObject> maybeClassJsonDoc = jsonJavadocBuilder.getClassJavadocAsJson(classElement);
-        if (maybeClassJsonDoc.isPresent()) {
-            JsonObject classJsonDoc = maybeClassJsonDoc.get();
-            outputJsonDoc(classElement, classJsonDoc);
+        JsonObject maybeClassJsonDoc = jsonJavadocBuilder.getClassJavadocAsJsonOrNull(classElement);
+        if (maybeClassJsonDoc != null) {
+            outputJsonDoc(classElement, maybeClassJsonDoc);
         }
     }
 

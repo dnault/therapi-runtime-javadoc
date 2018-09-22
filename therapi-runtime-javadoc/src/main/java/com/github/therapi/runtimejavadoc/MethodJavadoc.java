@@ -1,21 +1,16 @@
 package com.github.therapi.runtimejavadoc;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
-public class MethodJavadoc {
-    private final String name;
+public class MethodJavadoc extends BaseJavadoc {
     private final List<String> paramTypes;
-    private final Comment comment;
     private final List<ParamJavadoc> params;
     private final List<ThrowsJavadoc> exceptions;
-    private final List<OtherJavadoc> other;
     private final Comment returns;
-    private final List<SeeAlsoJavadoc> seeAlso;
 
     public MethodJavadoc(String name,
                          List<String> paramTypes,
@@ -25,36 +20,35 @@ public class MethodJavadoc {
                          List<OtherJavadoc> other,
                          Comment returns,
                          List<SeeAlsoJavadoc> seeAlso) {
-        this.name = name;
-        this.paramTypes = paramTypes;
-        this.comment = comment;
+        super(name, comment, seeAlso, other);
+        this.paramTypes = unmodifiableDefensiveCopy(paramTypes);
         this.params = unmodifiableDefensiveCopy(params);
         this.exceptions = unmodifiableDefensiveCopy(exceptions);
-        this.other = unmodifiableDefensiveCopy(other);
-        this.returns = returns;
-        this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
+        this.returns = Comment.nullToEmpty(returns);
+    }
+
+    public static MethodJavadoc createEmpty(Method method) {
+        return new MethodJavadoc(method.getName(), null, null, null, null, null, null, null) {
+            @Override
+            public boolean isEmpty() {
+                return true;
+            }
+        };
     }
 
     public boolean matches(Method method) {
-        if (!method.getName().equals(name)) {
+        if (!method.getName().equals(getName())) {
             return false;
         }
-        List<String> methodParamsTypes = Arrays.stream(method.getParameterTypes())
-                                               .map(Class::getCanonicalName)
-                                               .collect(Collectors.toList());
+        List<String> methodParamsTypes = new ArrayList<>();
+        for (Class<?> aClass : method.getParameterTypes()) {
+            methodParamsTypes.add(aClass.getCanonicalName());
+        }
         return methodParamsTypes.equals(paramTypes);
-    }
-
-    public String getName() {
-        return name;
     }
 
     public List<String> getParamTypes() {
         return paramTypes;
-    }
-
-    public Comment getComment() {
-        return comment;
     }
 
     public List<ParamJavadoc> getParams() {
@@ -65,29 +59,21 @@ public class MethodJavadoc {
         return exceptions;
     }
 
-    public List<OtherJavadoc> getOther() {
-        return other;
-    }
-
     public Comment getReturns() {
         return returns;
-    }
-
-    public List<SeeAlsoJavadoc> getSeeAlso() {
-        return seeAlso;
     }
 
     @Override
     public String toString() {
         return "MethodJavadoc{" +
-                "name='" + name + '\'' +
+                "name='" + getName() + '\'' +
                 ", paramTypes='" + paramTypes + '\'' +
-                ", comment=" + comment +
+                ", comment=" + getComment() +
                 ", params=" + params +
                 ", exceptions=" + exceptions +
-                ", other=" + other +
+                ", other=" + getOther() +
                 ", returns=" + returns +
-                ", seeAlso=" + seeAlso +
+                ", seeAlso=" + getSeeAlso() +
                 '}';
     }
 }

@@ -1,15 +1,17 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import com.github.therapi.runtimejavadoc.ClassJavadoc;
 import com.github.therapi.runtimejavadoc.Comment;
 import com.github.therapi.runtimejavadoc.FieldJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import com.github.therapi.runtimejavadoc.OtherJavadoc;
 import com.github.therapi.runtimejavadoc.ParamJavadoc;
+import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc;
+import com.github.therapi.runtimejavadoc.ThrowsJavadoc;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class JavadocParser {
 
@@ -28,7 +30,7 @@ public class JavadocParser {
         }
 
         return new ClassJavadoc(className, CommentParser.parse(className, parsed.getDescription()), fields, enumConstants, methods,
-                otherDocs, new ArrayList<>());
+                otherDocs, new ArrayList<SeeAlsoJavadoc>());
     }
 
     public static FieldJavadoc parseFieldJavadoc(String owningClass, String fieldName, String javadoc) {
@@ -39,7 +41,7 @@ public class JavadocParser {
             otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
         }
 
-        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, parsed.getDescription()), otherDocs, new ArrayList<>());
+        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, parsed.getDescription()), otherDocs, new ArrayList<SeeAlsoJavadoc>());
     }
 
     public static MethodJavadoc parseMethodJavadoc(String owningClass, String methodName, List<String> paramTypes, String javadoc) {
@@ -65,7 +67,7 @@ public class JavadocParser {
         }
 
         return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(owningClass, parsed.getDescription()), paramDocs,
-                new ArrayList<>(), otherDocs, returns, new ArrayList<>());
+                new ArrayList<ThrowsJavadoc>(), otherDocs, returns, new ArrayList<SeeAlsoJavadoc>());
     }
 
     private static ParsedJavadoc parse(String javadoc) {

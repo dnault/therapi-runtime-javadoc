@@ -2,6 +2,7 @@ package com.github.therapi.runtimejavadoc;
 
 import java.util.List;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.requireNonNull;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 public abstract class BaseJavadoc {
@@ -12,8 +13,8 @@ public abstract class BaseJavadoc {
     private final List<OtherJavadoc> other;
 
     BaseJavadoc(String name, Comment comment, List<SeeAlsoJavadoc> seeAlso, List<OtherJavadoc> other) {
-        this.name = name;
-        this.comment = comment;
+        this.name = requireNonNull(name);
+        this.comment = Comment.nullToEmpty(comment);
         this.other = unmodifiableDefensiveCopy(other);
         this.seeAlso = unmodifiableDefensiveCopy(seeAlso);
     }
@@ -32,5 +33,21 @@ public abstract class BaseJavadoc {
 
     public List<OtherJavadoc> getOther() {
         return other;
+    }
+
+    /**
+     * Returns {@code false} if this object has content, or {@code true}
+     * if it represents absent Javadoc.
+     */
+    public boolean isEmpty() {
+        return false;
+    }
+
+    /**
+     * @deprecated use !{@link #isEmpty()} instead
+     */
+    @Deprecated
+    public boolean isPresent() {
+        return !isEmpty();
     }
 }

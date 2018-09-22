@@ -1,10 +1,5 @@
 package com.github.therapi.runtimejavadoc.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
@@ -12,6 +7,10 @@ import com.github.therapi.runtimejavadoc.ClassJavadoc;
 import com.github.therapi.runtimejavadoc.FieldJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import com.github.therapi.runtimejavadoc.internal.parser.JavadocParser;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementNameFieldName;
@@ -22,15 +21,13 @@ import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.pa
 
 public class JsonJavadocReader {
 
-    public static Optional<ClassJavadoc> readClassJavadoc(String qualifiedClassName, JsonObject json) {
+    public static ClassJavadoc readClassJavadoc(String qualifiedClassName, JsonObject json) {
         String className = qualifiedClassName.replace("$", ".");
         List<FieldJavadoc> fields = readFieldDocs(qualifiedClassName, json.get(fieldsFieldName()));
         List<FieldJavadoc> enumConstants = readFieldDocs(qualifiedClassName, json.get(enumConstantsFieldName()));
         List<MethodJavadoc> methods = readMethodDocs(qualifiedClassName, json.get(methodsFieldName()));
         String classJavadocString = json.getString(elementDocFieldName(), null);
-        ClassJavadoc classJavadoc = JavadocParser.parseClassJavadoc(className, classJavadocString, fields,
-                enumConstants, methods);
-        return Optional.of(classJavadoc);
+        return JavadocParser.parseClassJavadoc(className, classJavadocString, fields, enumConstants, methods);
     }
 
     private static List<FieldJavadoc> readFieldDocs(String owningClass, JsonValue fieldsValue) {

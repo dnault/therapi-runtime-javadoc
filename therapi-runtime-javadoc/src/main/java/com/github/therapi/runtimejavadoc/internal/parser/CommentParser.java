@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
+
 class CommentParser {
 
     private static final Pattern inlineTag = Pattern.compile("\\{@(\\w+)(?:\\s+([\\w#][^}]+)?)?}");
@@ -21,10 +23,7 @@ class CommentParser {
     private static final Pattern linkRefSplitter = Pattern.compile("#");
 
     static Comment parse(String owningClass, String commentText) {
-        if (commentText == null || commentText.trim().isEmpty()) {
-            return null;
-        }
-        return new Comment(parseElements(owningClass, commentText.trim()));
+        return isBlank(commentText) ? Comment.createEmpty() : new Comment(parseElements(owningClass, commentText.trim()));
     }
 
     private static List<CommentElement> parseElements(String owningClass, String commentText) {
