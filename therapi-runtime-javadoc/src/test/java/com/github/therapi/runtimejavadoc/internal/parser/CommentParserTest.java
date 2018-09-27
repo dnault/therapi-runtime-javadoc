@@ -1,7 +1,10 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
-import java.util.List;
-
+import com.github.therapi.runtimejavadoc.CommentElement;
+import com.github.therapi.runtimejavadoc.CommentText;
+import com.github.therapi.runtimejavadoc.InlineLink;
+import com.github.therapi.runtimejavadoc.InlineTag;
+import com.github.therapi.runtimejavadoc.Link;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.FromDataPoints;
@@ -9,16 +12,11 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
-import com.github.therapi.runtimejavadoc.CommentElement;
-import com.github.therapi.runtimejavadoc.CommentText;
-import com.github.therapi.runtimejavadoc.InlineLink;
-import com.github.therapi.runtimejavadoc.InlineTag;
-import com.github.therapi.runtimejavadoc.Link;
+import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Theories.class)
 public class CommentParserTest {
@@ -103,7 +101,7 @@ public class CommentParserTest {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link #withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
         assertEquals(1, elements.size());
         assertEquals(new InlineLink(new Link("label", "TestClass", "withRecipientsWithDefaultName",
-                new String[] {"String", "Collection", "RecipientType"})), elements.get(0));
+                asList("String", "Collection", "RecipientType"))), elements.get(0));
     }
 
     @Test

@@ -1,19 +1,21 @@
 package com.github.therapi.runtimejavadoc;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 public class Link {
     private final String label;
     private final String referencedClassName;
     private final String referencedMemberName;
-    private final String[] params;
+    private final List<String> params;
     
-    public Link(String label, String referencedClassName, String referencedMemberName, String[] params) {
+    public Link(String label, String referencedClassName, String referencedMemberName, List<String> params) {
         this.label = label;
         this.referencedClassName = referencedClassName;
         this.referencedMemberName = referencedMemberName;
-        this.params = params;
+        this.params = unmodifiableDefensiveCopy(params);
     }
 
     public String getLabel() {
@@ -28,7 +30,7 @@ public class Link {
         return referencedMemberName;
     }
     
-    public String[] getParams() {
+    public List<String> getParams() {
         return params;
     }
     
@@ -43,7 +45,7 @@ public class Link {
         Link link = (Link) o;
         return Objects.equals(label, link.label) && Objects.equals(referencedClassName, link.referencedClassName)
                 && Objects.equals(referencedMemberName, link.referencedMemberName)
-                && Arrays.equals(params, link.params);
+                && Objects.equals(params, link.params);
     }
 
     @Override
@@ -61,11 +63,11 @@ public class Link {
         if (referencedMemberName != null) {
             sb.append('#').append(referencedMemberName);
     
-            if (params != null) {
+            if (params != null && !params.isEmpty()) {
                 sb.append('(');
-                for (int i = 0; i < params.length; i++) {
-                    sb.append(params[i]);
-                    if (i < params.length - 1) {
+                for (int i = 0; i < params.size(); i++) {
+                    sb.append(params.get(i));
+                    if (i < params.size() - 1) {
                         sb.append(", ");
                     }
                 }

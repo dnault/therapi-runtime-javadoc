@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
+import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.compile;
 
 class CommentParser {
@@ -68,7 +69,7 @@ class CommentParser {
         return new InlineLink(new Link(effectiveLabel, effectiveClassName, memberRef, formatMember(params)));
     }
     
-    private static String[] formatMember(String params) {
-        return params != null ? params.split(",\\s?") : null;
+    private static List<String> formatMember(String params) {
+        return params != null ? asList(params.split(",\\s?")) : null;
     }
 }
