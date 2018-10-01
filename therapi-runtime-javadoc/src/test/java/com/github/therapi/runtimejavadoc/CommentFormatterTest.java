@@ -13,7 +13,7 @@ public class CommentFormatterTest {
     public void formatterHandlesAllCommentElements() {
         Comment c = new Comment(Arrays.asList(
                 new CommentText("before "),
-                new InlineLink(new Link("label", "className", "memberName")),
+                new InlineLink(new Link("label", "className", "memberName", null)),
                 new CommentText(" "),
                 new InlineTag("code", "List<String>"),
                 new CommentText(" "),

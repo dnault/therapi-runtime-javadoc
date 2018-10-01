@@ -24,7 +24,12 @@ public class InlineLink extends CommentElement {
         InlineLink that = (InlineLink) o;
         return Objects.equals(link, that.link);
     }
-
+    
+    @Override
+    public String toString() {
+        return "link=" + link;
+    }
+    
     @Override
     public int hashCode() {
         return Objects.hash(link);

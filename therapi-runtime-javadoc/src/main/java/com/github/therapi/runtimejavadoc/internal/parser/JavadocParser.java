@@ -26,25 +26,25 @@ public class JavadocParser {
         List<OtherJavadoc> otherDocs = new ArrayList<>();
 
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(t.value)));
+            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(className, t.value)));
         }
 
-        return new ClassJavadoc(className, CommentParser.parse(parsed.getDescription()), fields, enumConstants, methods,
+        return new ClassJavadoc(className, CommentParser.parse(className, parsed.getDescription()), fields, enumConstants, methods,
                 otherDocs, new ArrayList<SeeAlsoJavadoc>());
     }
 
-    public static FieldJavadoc parseFieldJavadoc(String fieldName, String javadoc) {
+    public static FieldJavadoc parseFieldJavadoc(String owningClass, String fieldName, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(t.value)));
+            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
         }
 
-        return new FieldJavadoc(fieldName, CommentParser.parse(parsed.getDescription()), otherDocs, new ArrayList<SeeAlsoJavadoc>());
+        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, parsed.getDescription()), otherDocs, new ArrayList<SeeAlsoJavadoc>());
     }
 
-    public static MethodJavadoc parseMethodJavadoc(String methodName, List<String> paramTypes, String javadoc) {
+    public static MethodJavadoc parseMethodJavadoc(String owningClass, String methodName, List<String> paramTypes, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -58,15 +58,15 @@ public class JavadocParser {
                 String paramName = paramNameAndComment[0];
                 String paramComment = paramNameAndComment.length == 1 ? "" :paramNameAndComment[1];
 
-                paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(paramComment)));
+                paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(owningClass, paramComment)));
             } else if (t.name.equals("return")) {
-                returns = CommentParser.parse(t.value);
+                returns = CommentParser.parse(owningClass, t.value);
             } else {
-                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(t.value)));
+                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
             }
         }
 
-        return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(parsed.getDescription()), paramDocs,
+        return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(owningClass, parsed.getDescription()), paramDocs,
                 new ArrayList<ThrowsJavadoc>(), otherDocs, returns, new ArrayList<SeeAlsoJavadoc>());
     }
 
