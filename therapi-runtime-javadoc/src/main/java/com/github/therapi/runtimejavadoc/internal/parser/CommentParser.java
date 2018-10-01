@@ -70,6 +70,9 @@ class CommentParser {
     }
     
     private static List<String> formatMember(String params) {
-        return params != null ? asList(params.split(",\\s?")) : null;
+		if (params != null && !params.isEmpty()) {
+			return asList(params.split(",\\s?"));
+		}
+		return null;
     }
 }

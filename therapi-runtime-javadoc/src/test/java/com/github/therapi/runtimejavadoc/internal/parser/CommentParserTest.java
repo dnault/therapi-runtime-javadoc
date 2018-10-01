@@ -12,6 +12,7 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -95,14 +96,36 @@ public class CommentParserTest {
         assertEquals(1, elements.size());
         assertEquals(new InlineLink(new Link("label", "TestClass", "member", null)), elements.get(0));
     }
-    
-    @Test
-    public void parse_linkOnly_labeledLinkWithMethodMemberRef_ImplicitRef() {
-        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link #withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
-        assertEquals(1, elements.size());
-        assertEquals(new InlineLink(new Link("label", "TestClass", "withRecipientsWithDefaultName",
-                asList("String", "Collection", "RecipientType"))), elements.get(0));
-    }
+
+	@Test
+	public void parse_linkOnly_labeledLinkWithMethodMemberRef_ImplicitRef() {
+		List<CommentElement> elements = CommentParser.parse("TestClass", "{@link #withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
+		assertEquals(1, elements.size());
+		assertEquals(new InlineLink(new Link("label", "TestClass", "withRecipientsWithDefaultName",
+				asList("String", "Collection", "RecipientType"))), elements.get(0));
+	}
+
+	@Test
+	public void parse_linkOnly_labeledLinkWithMethodMemberRef_WithParams() {
+		List<CommentElement> elements = CommentParser.parse("TestClass", "{@link TestClass2#withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
+		assertEquals(1, elements.size());
+		assertEquals(new InlineLink(new Link("label", "TestClass2", "withRecipientsWithDefaultName",
+				asList("String", "Collection", "RecipientType"))), elements.get(0));
+	}
+
+	@Test
+	public void parse_linkOnly_labeledLinkWithMethodMemberRef_ImplicitRef_NoParameters() {
+		List<CommentElement> elements = CommentParser.parse("TestClass", "{@link #withRecipientsWithDefaultName() label}").getElements();
+		assertEquals(1, elements.size());
+		assertEquals(new InlineLink(new Link("label", "TestClass", "withRecipientsWithDefaultName", Collections.<String>emptyList())), elements.get(0));
+	}
+
+	@Test
+	public void parse_linkOnly_labeledLinkWithMethodMemberRef_NoParameters() {
+		List<CommentElement> elements = CommentParser.parse("TestClass", "{@link TestClass2#withRecipientsWithDefaultName() label}").getElements();
+		assertEquals(1, elements.size());
+		assertEquals(new InlineLink(new Link("label", "TestClass2", "withRecipientsWithDefaultName", Collections.<String>emptyList())), elements.get(0));
+	}
 
     @Test
     public void parse_tagOnly_noWhiteSpace() {
