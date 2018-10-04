@@ -10,6 +10,7 @@ import com.github.therapi.runtimejavadoc.Link;
 import com.github.therapi.runtimejavadoc.Value;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -89,9 +90,9 @@ class CommentParser {
     }
     
     private static List<String> formatMember(String params) {
-		if (params != null && !params.isEmpty()) {
-			return asList(params.split(",\\s?"));
+		if (params != null && !params.trim().isEmpty()) {
+			return asList(params.trim().split(",\\s*"));
 		}
-		return null;
+		return Collections.emptyList();
     }
 }

@@ -8,7 +8,7 @@ public class Example {
 
     public static void printJavadoc(String fullyQualifiedClassName) throws IOException {
         ClassJavadoc classDoc = RuntimeJavadoc.getJavadoc(fullyQualifiedClassName);
-        if (!classDoc.isPresent()) { // optionally skip absent documentation
+        if (classDoc.isEmpty()) { // optionally skip absent documentation
             System.out.println("no documentation for " + fullyQualifiedClassName);
             return;
         }

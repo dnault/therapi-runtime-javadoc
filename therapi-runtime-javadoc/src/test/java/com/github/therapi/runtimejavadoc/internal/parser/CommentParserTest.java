@@ -109,7 +109,7 @@ public class CommentParserTest {
     
     @Test
     public void parse_linkOnly_labeledLinkWithMethodMemberRef_WithParams() {
-        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link TestClass2#withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
+        // irregular whitespace in method signature is intentional! Make sure it's parsed and normalized in the output.List<CommentElement> elements = CommentParser.parse("TestClass", "{@link TestClass2#withRecipientsWithDefaultName(String, Collection, RecipientType) label}").getElements();
         assertEquals(1, elements.size());
         assertEquals(new InlineLink(new Link("label", "TestClass2", "withRecipientsWithDefaultName",
                 asList("String", "Collection", "RecipientType"))), elements.get(0));
