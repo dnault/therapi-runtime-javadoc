@@ -26,7 +26,10 @@ public class CommentFormatter {
 
             } else if (e instanceof InlineLink) {
                 sb.append(renderLink((InlineLink) e));
-
+    
+            } else if (e instanceof InlineValue) {
+                sb.append(renderValue((InlineValue) e));
+    
             } else if (e instanceof InlineTag) {
                 sb.append(renderTag((InlineTag) e));
 
@@ -41,9 +44,13 @@ public class CommentFormatter {
     protected String renderText(CommentText text) {
         return text.getValue();
     }
-
+    
     protected String renderLink(InlineLink e) {
         return "{@link " + e.getLink() + "}";
+    }
+    
+    protected String renderValue(InlineValue e) {
+        return "{@value " + e.getValue() + "}";
     }
 
     protected String renderUnrecognized(CommentElement e) {
