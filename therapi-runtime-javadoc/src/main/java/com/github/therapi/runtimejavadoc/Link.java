@@ -3,6 +3,7 @@ package com.github.therapi.runtimejavadoc;
 import java.util.List;
 import java.util.Objects;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.join;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
 public class Link {
@@ -63,15 +64,8 @@ public class Link {
         if (referencedMemberName != null) {
             sb.append('#').append(referencedMemberName);
     
-            if (params != null && !params.isEmpty()) {
-                sb.append('(');
-                for (int i = 0; i < params.size(); i++) {
-                    sb.append(params.get(i));
-                    if (i < params.size() - 1) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append(")");
+            if (!params.isEmpty()) {
+                sb.append('(').append(join(", ", params)).append(")");
             }
         }
 
