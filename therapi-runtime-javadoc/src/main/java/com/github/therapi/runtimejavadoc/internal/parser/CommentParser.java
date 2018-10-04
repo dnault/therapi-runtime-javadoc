@@ -25,8 +25,8 @@ class CommentParser {
     
     // https://regex101.com/r/3DoNfK/1
     private static final Pattern linkPattern = compile("^(?<classname>[\\w.]+)?(?:#(?<member>\\w+))?(?:\\((?<params>.*)\\))?(?:\\s(?<label>\\w+(?:\\s\\w+)*))?$");
-    // https://regex101.com/r/KhEo62/3
-    private static final Pattern valuePattern = compile("^(?<classname>[\\w.]+)?(?:#(?<member>\\w+))$");
+    // https://regex101.com/r/KhEo62/4
+    private static final Pattern valuePattern = compile("^(?:(?<classname>[\\w.]+)#)?#?(?<member>\\w+)$");
 
     static Comment parse(String owningClass, String commentText) {
         return isBlank(commentText) ? Comment.createEmpty() : new Comment(parseElements(owningClass, commentText.trim()));
