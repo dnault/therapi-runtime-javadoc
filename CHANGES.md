@@ -1,5 +1,15 @@
 # Change history
 
+## 0.8.0 - October 3, 2018
+
+Thanks to Benny Bottema, method signatures in link tags are now parsed correctly.
+
+### Deprecations
+
+The `isPresent()` method on Javadoc objects is deprecated in favor of
+`!isEmpty()`.
+
+
 ## 0.7.0 - September 1, 2018
 
 Thanks to Benny Bottema, now compatible with Java 7.
