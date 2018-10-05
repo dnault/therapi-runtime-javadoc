@@ -14,8 +14,10 @@ public class CommentFormatterTest {
         Comment c = new Comment(Arrays.asList(
                 new CommentText("before "),
                 new InlineLink(new Link("label", "className", "memberName", null)),
-                new CommentText(" "),
-                new InlineValue(new Value("a.b.c.ClassName", "memberName")),
+				new CommentText(" "),
+				new InlineValue(new Value("a.b.c.ClassName", "memberName")),
+				new CommentText(" "),
+				new InlineValue(new Value(null, null)),
                 new CommentText(" "),
                 new InlineTag("code", "List<String>"),
                 new CommentText(" "),
@@ -30,7 +32,7 @@ public class CommentFormatterTest {
                 new CommentText(" after")
         ));
 
-        String expected = "before {@link className#memberName label} {@value a.b.c.ClassName#memberName} <code>List&lt;String&gt;</code> &lt;&gt;&amp;&quot;{@unrecognized foo} unexpected element after";
+        String expected = "before {@link className#memberName label} {@value a.b.c.ClassName#memberName} {@value} <code>List&lt;String&gt;</code> &lt;&gt;&amp;&quot;{@unrecognized foo} unexpected element after";
         assertEquals(expected, formatter.format(c));
     }
 }

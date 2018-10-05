@@ -50,7 +50,7 @@ public class CommentFormatter {
     }
     
     protected String renderValue(InlineValue e) {
-        return "{@value " + e.getValue() + "}";
+		return e.getValue().getReferencedMemberName() == null ? "{@value}" : "{@value " + e.getValue() + "}";
     }
 
     protected String renderUnrecognized(CommentElement e) {

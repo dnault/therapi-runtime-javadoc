@@ -150,6 +150,13 @@ public class CommentParserTest {
         assertEquals(1, elements.size());
         assertEquals(new InlineValue(new Value("TestClass", "member")), elements.get(0));
     }
+
+	@Test
+	public void parse_valueOnly_implicitSelfReference() {
+		List<CommentElement> elements = CommentParser.parse("TestClass", "{@value}").getElements();
+		assertEquals(1, elements.size());
+		assertEquals(new InlineValue(new Value(null, null)), elements.get(0));
+	}
     
     @Test
     public void parse_valueOnly_valueWithDirectMemberRef_ImplicitRef() {

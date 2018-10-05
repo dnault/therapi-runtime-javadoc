@@ -63,6 +63,10 @@ class CommentParser {
     }
     
     private static InlineValue createValueElement(String owningClass, String value) {
+		if (value == null || value.trim().isEmpty()) {
+			return new InlineValue(new Value(null, null));
+		}
+
         Matcher linkMatcher = valuePattern.matcher(value);
         if (!linkMatcher.matches()) {
             throw new AssertionError("Value didn't match regex format");
