@@ -12,6 +12,7 @@ import static java.util.regex.Pattern.compile;
 public class SeeAlsoParser {
 	
 	private static final Pattern stringLiteralPattern = compile("^\".*\"$");
+	// https://regex101.com/r/lZmCCx/1
 	private static final Pattern htmlLink = compile("(?s)<a\\s*href=['\"](?<link>.+?)['\"]\\s*>(?<text>.+)<\\/a>");
 	
 	public static SeeAlsoJavadoc parseSeeAlso(String owningClass, String value) {
