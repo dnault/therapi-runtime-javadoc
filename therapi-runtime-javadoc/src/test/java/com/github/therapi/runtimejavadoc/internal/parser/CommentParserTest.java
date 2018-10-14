@@ -79,6 +79,13 @@ public class CommentParserTest {
     }
     
     @Test
+    public void parse_linkOnly_labeledLinkFullyQualified_withWhiteSpace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link a.b.c.ClassName my label}").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("my label", "a.b.c.ClassName", null, null)), elements.get(0));
+    }
+    
+    @Test
     public void parse_linkOnly_linkWithMemberRef() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@link ClassName#member}").getElements();
         assertEquals(1, elements.size());

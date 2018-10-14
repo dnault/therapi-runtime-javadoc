@@ -22,9 +22,10 @@ import static java.util.regex.Pattern.compile;
 class CommentParser {
 
     private static final Pattern inlineTag = compile("\\{@(\\w+)(?:\\s+([\\w#][^}]+)?)?}");
+	
+	// https://regex101.com/r/3DoNfK/2
+	private static final Pattern linkPattern = compile("^(?<classname>[\\w.]+)?(?:#(?<member>\\w+))?(?:\\((?<params>.*)\\))?(?:\\s(?<label>.+))?$");
     
-    // https://regex101.com/r/3DoNfK/1
-    private static final Pattern linkPattern = compile("^(?<classname>[\\w.]+)?(?:#(?<member>\\w+))?(?:\\((?<params>.*)\\))?(?:\\s(?<label>\\w+(?:\\s\\w+)*))?$");
     // https://regex101.com/r/KhEo62/4
     private static final Pattern valuePattern = compile("^(?:(?<classname>[\\w.]+)#)?#?(?<member>\\w+)$");
 
