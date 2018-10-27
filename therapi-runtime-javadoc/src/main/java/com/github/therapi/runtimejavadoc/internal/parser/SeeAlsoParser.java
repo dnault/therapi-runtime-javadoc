@@ -11,7 +11,7 @@ import static java.util.regex.Pattern.compile;
 
 public class SeeAlsoParser {
 	
-	private static final Pattern stringLiteralPattern = compile("^\".*\"$");
+	private static final Pattern stringLiteralPattern = compile("^\"(?<string>.*)\"$");
 	// https://regex101.com/r/lZmCCx/1
 	private static final Pattern htmlLink = compile("(?s)<a\\s*href=['\"](?<link>.+?)['\"]\\s*>(?<text>.+)<\\/a>");
 	
@@ -31,7 +31,8 @@ public class SeeAlsoParser {
 	}
 	
 	private static SeeAlsoJavadoc parseAsStringLiteral(String value) {
-		return stringLiteralPattern.matcher(value).matches() ? new SeeAlsoJavadoc(value) : null;
+		Matcher stringLiteralMatcher = stringLiteralPattern.matcher(value);
+		return stringLiteralMatcher.find() ? new SeeAlsoJavadoc(stringLiteralMatcher.group("string")) : null;
 	}
 	
 	private static SeeAlsoJavadoc parseAsHtmlLink(String value) {
