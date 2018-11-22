@@ -27,6 +27,8 @@ public class DocumentedClass {
    * @throws UnsupportedOperationException if frobulation cannot be performed
    * @see com.github.therapi.runtimejavadoc.DocumentedClass Hey, that's this class!
    * @see #someOtherMethod()
+   * @see "Moomoo boy went straight to Moomoo land. Land of the moomoo's"
+   * @see <a href="http://www.moomoo.land">Moomoo land</a>
    */
   public int frobulate(String a, int b) {
     throw new UnsupportedOperationException();
@@ -41,6 +43,8 @@ public class DocumentedClass {
    * @throws UnsupportedOperationException if frobulation cannot be performed
    * @see com.github.therapi.runtimejavadoc.DocumentedClass Hey, that's this class!
    * @see #someOtherMethod()
+   * @see "Moomoo boy went straight to Moomoo land. Land of the moomoo's"
+   * @see <a href="http://www.moomoo.land">Moomoo land</a>
    */
   public int frobulate(String a, List<Integer> b) {
     throw new UnsupportedOperationException();

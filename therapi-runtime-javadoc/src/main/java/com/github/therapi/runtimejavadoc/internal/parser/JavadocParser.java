@@ -46,8 +46,9 @@ public class JavadocParser {
 
     public static MethodJavadoc parseMethodJavadoc(String owningClass, String methodName, List<String> paramTypes, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
-
+    
         List<OtherJavadoc> otherDocs = new ArrayList<>();
+        List<SeeAlsoJavadoc> seeAlsoDocs = new ArrayList<>();
         List<ParamJavadoc> paramDocs = new ArrayList<>();
 
         Comment returns = null;
@@ -61,13 +62,15 @@ public class JavadocParser {
                 paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(owningClass, paramComment)));
             } else if (t.name.equals("return")) {
                 returns = CommentParser.parse(owningClass, t.value);
+            } else if (t.name.equals("see")) {
+                seeAlsoDocs.add(SeeAlsoParser.parseSeeAlso(owningClass, t.value));
             } else {
                 otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
             }
         }
 
         return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(owningClass, parsed.getDescription()), paramDocs,
-                new ArrayList<ThrowsJavadoc>(), otherDocs, returns, new ArrayList<SeeAlsoJavadoc>());
+                new ArrayList<ThrowsJavadoc>(), otherDocs, returns, seeAlsoDocs);
     }
 
     private static ParsedJavadoc parse(String javadoc) {

@@ -15,6 +15,7 @@ import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class JavadocAnnotationProcessorTest {
@@ -194,6 +195,31 @@ public class JavadocAnnotationProcessorTest {
 
         String actualDesc = formatter.format(methodDoc.getComment());
         assertEquals(expectedDescription, actualDesc);
+        
+        assertEquals(methodDoc.getSeeAlso().size(), 4);
+	
+		SeeAlsoJavadoc seeAlso1 = methodDoc.getSeeAlso().get(0);
+		assertEquals(seeAlso1.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
+        assertEquals(seeAlso1.getLink().getReferencedClassName(), "com.github.therapi.runtimejavadoc.DocumentedClass");
+		assertNull(seeAlso1.getLink().getReferencedMemberName());
+		assertEquals(seeAlso1.getLink().getParams().size(), 0);
+        assertEquals(seeAlso1.getLink().getLabel(), "Hey, that's this class!");
+	
+		SeeAlsoJavadoc seeAlso2 = methodDoc.getSeeAlso().get(1);
+		assertEquals(seeAlso2.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
+		assertEquals(seeAlso2.getLink().getReferencedClassName(), "javasource.foo.DocumentedClass");
+		assertEquals(seeAlso2.getLink().getReferencedMemberName(), "someOtherMethod");
+		assertEquals(seeAlso2.getLink().getParams().size(), 0);
+		assertEquals(seeAlso2.getLink().getLabel(), "#someOtherMethod()");
+	
+		SeeAlsoJavadoc seeAlso3 = methodDoc.getSeeAlso().get(2);
+		assertEquals(seeAlso3.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.STRING_LITERAL);
+		assertEquals(seeAlso3.getStringLiteral(), "Moomoo boy went straight to Moomoo land. Land of the moomoo's");
+	
+		SeeAlsoJavadoc seeAlso4 = methodDoc.getSeeAlso().get(3);
+		assertEquals(seeAlso4.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.HTML_LINK);
+		assertEquals(seeAlso4.getHtmlLink().getLink(), "http://www.moomoo.land");
+		assertEquals(seeAlso4.getHtmlLink().getText(), "Moomoo land");
     }
 
     @Test

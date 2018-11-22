@@ -44,7 +44,8 @@ public class Link {
             return false;
         }
         Link link = (Link) o;
-        return Objects.equals(label, link.label) && Objects.equals(referencedClassName, link.referencedClassName)
+        return Objects.equals(label, link.label) &&
+                Objects.equals(referencedClassName, link.referencedClassName)
                 && Objects.equals(referencedMemberName, link.referencedMemberName)
                 && Objects.equals(params, link.params);
     }
