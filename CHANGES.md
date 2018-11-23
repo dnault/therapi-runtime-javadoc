@@ -1,5 +1,9 @@
 # Change history
 
+## 0.9.0 - November 22, 2018
+
+Thanks to Benny Bottema, first class support for `@value` tags, and fixes for `@see` tags.
+
 ## 0.8.0 - October 3, 2018
 
 Thanks to Benny Bottema, method signatures in link tags are now parsed correctly.
