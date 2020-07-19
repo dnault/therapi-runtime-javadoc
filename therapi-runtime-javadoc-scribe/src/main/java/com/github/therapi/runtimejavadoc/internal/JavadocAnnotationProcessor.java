@@ -127,8 +127,11 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
 
         if (!packageName.isEmpty()) {
             typeName = typeName.substring(packageName.length() + 1);
-            typeName = typeName.replace(".", "$");
         }
+
+        // for nested classes
+        typeName = typeName.replace(".", "$");
+
         return typeName;
     }
 

@@ -28,6 +28,8 @@ public class JavadocAnnotationProcessorTest {
     private static final String UNDOCUMENTED = "javasource.bar.UndocumentedClass";
     private static final String BLANK_COMMENTS = "javasource.bar.BlankDocumentation";
     private static final String METHOD_DOC_BUT_NO_CLASS_DOC = "javasource.bar.OnlyMethodDocumented";
+    private static final String DEFAULT_PACKAGE_CLASS = "DefaultPackageResident";
+
 
     private static List<JavaFileObject> sources() {
         List<JavaFileObject> files = new ArrayList<>();
@@ -40,6 +42,7 @@ public class JavadocAnnotationProcessorTest {
                 "javasource/bar/UndocumentedClass.java",
                 "javasource/bar/BlankDocumentation.java",
                 "javasource/bar/OnlyMethodDocumented.java",
+                "DefaultPackageResident.java",
         }) {
             files.add(JavaFileObjects.forResource(resource));
         }
@@ -228,6 +231,24 @@ public class JavadocAnnotationProcessorTest {
             Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$Nested");
             ClassJavadoc classJavadoc = expectJavadoc(c);
             assertEquals(DOCUMENTED_CLASS + ".Nested", classJavadoc.getName());
+        }
+    }
+
+    @Test
+    public void nestedInDefaultPackage() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DEFAULT_PACKAGE_CLASS + "$Nested");
+            ClassJavadoc classJavadoc = expectJavadoc(c);
+            assertEquals(DEFAULT_PACKAGE_CLASS + ".Nested", classJavadoc.getName());
+        }
+    }
+
+    @Test
+    public void defaultPackage() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DEFAULT_PACKAGE_CLASS);
+            ClassJavadoc classJavadoc = expectJavadoc(c);
+            assertEquals(DEFAULT_PACKAGE_CLASS, classJavadoc.getName());
         }
     }
 
