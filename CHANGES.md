@@ -1,5 +1,13 @@
 # Change history
 
+## 0.10.0 - July 19, 2020
+
+It's now possible to get the Javadoc of nested classes in the default package.
+
+Issues resolved:
+
+* [BUGFIX] #35 Can't get Javadoc for nested class in default package
+
 ## 0.9.0 - November 22, 2018
 
 Thanks to Benny Bottema, first class support for `@value` tags, and fixes for `@see` tags.
