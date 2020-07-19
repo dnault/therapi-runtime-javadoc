@@ -14,9 +14,9 @@ public class OtherJavadoc {
     }
 
     /**
-     * Returns the name of the tag (including the <tt>@</tt>)
+     * Returns the name of the tag (including the "@")
      *
-     * @return the name of the tag (including the <tt>@</tt>)
+     * @return the name of the tag (including the "@")
      */
     public String getName() {
         return name;

@@ -1,7 +1,7 @@
 package com.github.therapi.runtimejavadoc;
 
 /**
- * Represents a <tt>@see</tt> tag on a class or method.
+ * Represents a {@code @see} tag on a class or method.
  */
 public class SeeAlsoJavadoc {
 	
