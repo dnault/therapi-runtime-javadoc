@@ -1,5 +1,6 @@
 package com.github.therapi.runtimejavadoc;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +37,39 @@ public class MethodJavadoc extends BaseJavadoc {
         };
     }
 
+    public static MethodJavadoc createEmpty(Constructor<?> method) {
+        return new MethodJavadoc(method.getName(), null, null, null, null, null, null, null) {
+            @Override
+            public boolean isEmpty() {
+                return true;
+            }
+        };
+    }
+
+    public boolean isConstructor() {
+        return "<init>".equals(getName());
+    }
+
     public boolean matches(Method method) {
-        if (!method.getName().equals(getName())) {
-            return false;
-        }
+        return method.getName().equals(getName())
+            && paramsMatch(method.getParameterTypes());
+    }
+
+    public boolean matches(Constructor<?> method) {
+        return isConstructor()
+            && paramsMatch(method.getParameterTypes());
+    }
+
+    private boolean paramsMatch(Class<?>[] paramTypes) {
+        return getCanonicalNames(paramTypes).equals(this.paramTypes);
+    }
+
+    private static List<String> getCanonicalNames(Class<?>[] paramTypes) {
         List<String> methodParamsTypes = new ArrayList<>();
-        for (Class<?> aClass : method.getParameterTypes()) {
+        for (Class<?> aClass : paramTypes) {
             methodParamsTypes.add(aClass.getCanonicalName());
         }
-        return methodParamsTypes.equals(paramTypes);
+        return methodParamsTypes;
     }
 
     public List<String> getParamTypes() {

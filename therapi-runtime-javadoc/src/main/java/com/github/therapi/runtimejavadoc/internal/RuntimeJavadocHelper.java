@@ -59,6 +59,10 @@ public class RuntimeJavadocHelper {
         return "methods";
     }
 
+    public static String constructorsFieldName() {
+        return "constructors";
+    }
+
     public static String elementNameFieldName() {
         return "name";
     }

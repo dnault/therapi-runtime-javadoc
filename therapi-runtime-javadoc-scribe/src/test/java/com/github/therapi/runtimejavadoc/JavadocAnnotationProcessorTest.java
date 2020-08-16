@@ -6,6 +6,7 @@ import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
 
 import javax.tools.JavaFileObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -179,6 +180,37 @@ public class JavadocAnnotationProcessorTest {
     }
 
     @Test
+    public void canReadConstructorParameter() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
+
+            Constructor<?> m2 = c.getDeclaredConstructor(String.class);
+            MethodJavadoc ctorJavadoc = RuntimeJavadoc.getJavadoc(m2);
+            List<ParamJavadoc> params = ctorJavadoc.getParams();
+            assertEquals(1, params.size());
+            ParamJavadoc paramDoc = params.get(0);
+            assertEquals("ignore", paramDoc.getName());
+            assertEquals("I'm a parameter!", formatter.format(paramDoc.getComment()));
+        }
+    }
+
+    @Test
+    public void constructorsMatchDespiteOverload() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
+
+            Constructor<?> m1 = c.getDeclaredConstructor();
+            Constructor<?> m2 = c.getDeclaredConstructor(String.class);
+
+            assertConstructorMatches(m1, "I'm a constructor!");
+            assertConstructorMatches(m2, "I'm another constructor!");
+
+            Constructor<?> undocumented = c.getDeclaredConstructor(Integer.class);
+            assertTrue(RuntimeJavadoc.getJavadoc(undocumented).isEmpty());
+        }
+    }
+
+    @Test
     public void methodsMatchDespiteOverload() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
             Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
@@ -192,33 +224,41 @@ public class JavadocAnnotationProcessorTest {
         }
     }
 
+    private static void assertConstructorMatches(Constructor<?> method, String expectedDescription) {
+        MethodJavadoc methodDoc = expectJavadoc(method);
+        assertEquals("<init>", methodDoc.getName());
+
+        String actualDesc = formatter.format(methodDoc.getComment());
+        assertEquals(expectedDescription, actualDesc);
+    }
+
     private static void assertMethodMatches(Method method, String expectedDescription) {
         MethodJavadoc methodDoc = expectJavadoc(method);
         assertEquals(method.getName(), methodDoc.getName());
 
         String actualDesc = formatter.format(methodDoc.getComment());
         assertEquals(expectedDescription, actualDesc);
-        
+
         assertEquals(methodDoc.getSeeAlso().size(), 4);
-	
+
 		SeeAlsoJavadoc seeAlso1 = methodDoc.getSeeAlso().get(0);
 		assertEquals(seeAlso1.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
         assertEquals(seeAlso1.getLink().getReferencedClassName(), "com.github.therapi.runtimejavadoc.DocumentedClass");
 		assertNull(seeAlso1.getLink().getReferencedMemberName());
 		assertEquals(seeAlso1.getLink().getParams().size(), 0);
         assertEquals(seeAlso1.getLink().getLabel(), "Hey, that's this class!");
-	
+
 		SeeAlsoJavadoc seeAlso2 = methodDoc.getSeeAlso().get(1);
 		assertEquals(seeAlso2.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
 		assertEquals(seeAlso2.getLink().getReferencedClassName(), "javasource.foo.DocumentedClass");
 		assertEquals(seeAlso2.getLink().getReferencedMemberName(), "someOtherMethod");
 		assertEquals(seeAlso2.getLink().getParams().size(), 0);
 		assertEquals(seeAlso2.getLink().getLabel(), "#someOtherMethod()");
-	
+
 		SeeAlsoJavadoc seeAlso3 = methodDoc.getSeeAlso().get(2);
 		assertEquals(seeAlso3.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.STRING_LITERAL);
 		assertEquals(seeAlso3.getStringLiteral(), "Moomoo boy went straight to Moomoo land. Land of the moomoo's");
-	
+
 		SeeAlsoJavadoc seeAlso4 = methodDoc.getSeeAlso().get(3);
 		assertEquals(seeAlso4.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.HTML_LINK);
 		assertEquals(seeAlso4.getHtmlLink().getLink(), "http://www.moomoo.land");
@@ -272,6 +312,10 @@ public class JavadocAnnotationProcessorTest {
     }
 
     private static MethodJavadoc expectJavadoc(Method m) {
+        return assertPresent(RuntimeJavadoc.getJavadoc(m), "Missing Javadoc for " + m);
+    }
+
+    private static MethodJavadoc expectJavadoc(Constructor<?> m) {
         return assertPresent(RuntimeJavadoc.getJavadoc(m), "Missing Javadoc for " + m);
     }
 

@@ -9,17 +9,19 @@ public class ClassJavadoc extends BaseJavadoc {
     private final List<FieldJavadoc> fields;
     private final List<FieldJavadoc> enumConstants;
     private final List<MethodJavadoc> methods;
+    private final List<MethodJavadoc> constructors;
 
     public ClassJavadoc(String name, Comment comment, List<FieldJavadoc> fields, List<FieldJavadoc> enumConstants,
-            List<MethodJavadoc> methods, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
+            List<MethodJavadoc> methods, List<MethodJavadoc> constructors, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
         super(name, comment, seeAlso, other);
         this.fields = unmodifiableDefensiveCopy(fields);
         this.enumConstants = unmodifiableDefensiveCopy(enumConstants);
         this.methods = unmodifiableDefensiveCopy(methods);
+        this.constructors = unmodifiableDefensiveCopy(constructors);
     }
 
     public static ClassJavadoc createEmpty(String qualifiedClassName) {
-        return new ClassJavadoc(qualifiedClassName, null, null, null, null, null, null) {
+        return new ClassJavadoc(qualifiedClassName, null, null, null, null, null, null, null) {
             @Override
             public boolean isEmpty() {
                 return true;
@@ -39,6 +41,10 @@ public class ClassJavadoc extends BaseJavadoc {
         return methods;
     }
 
+    public List<MethodJavadoc> getConstructors() {
+        return constructors;
+    }
+
     @Override
     public String toString() {
         return "ClassJavadoc{" +
@@ -46,6 +52,7 @@ public class ClassJavadoc extends BaseJavadoc {
                 ", comment=" + getComment() +
                 ", fields=" + fields +
                 ", methods=" + methods +
+                ", constructors=" + constructors +
                 ", seeAlso=" + getSeeAlso() +
                 ", other=" + getOther() +
                 '}';

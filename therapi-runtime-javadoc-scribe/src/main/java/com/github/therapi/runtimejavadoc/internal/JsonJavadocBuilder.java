@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.constructorsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementNameFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantsFieldName;
@@ -25,6 +26,7 @@ import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.fi
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
+import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.ElementKind.ENUM_CONSTANT;
 import static javax.lang.model.element.ElementKind.FIELD;
 import static javax.lang.model.element.ElementKind.METHOD;
@@ -56,12 +58,14 @@ class JsonJavadocBuilder {
         List<Element> enclosedFields = defaultIfNull(children.get(FIELD), emptyList);
         List<Element> enclosedEnumConstants = defaultIfNull(children.get(ENUM_CONSTANT), emptyList);
         List<Element> enclosedMethods = defaultIfNull(children.get(METHOD), emptyList);
+        List<Element> encolsedConstructors = defaultIfNull(children.get(CONSTRUCTOR), emptyList);
 
         JsonArray fieldDocs = getJavadocsAsJson(enclosedFields, new FieldJavadocAsJson());
         JsonArray enumConstantDocs = getJavadocsAsJson(enclosedEnumConstants, new FieldJavadocAsJson());
         JsonArray methodDocs = getJavadocsAsJson(enclosedMethods, new MethodJavadocAsJson());
+        JsonArray constructorDocs = getJavadocsAsJson(encolsedConstructors, new MethodJavadocAsJson());
 
-        if (isBlank(classDoc) && fieldDocs.isEmpty() && enumConstantDocs.isEmpty() && methodDocs.isEmpty()) {
+        if (isBlank(classDoc) && fieldDocs.isEmpty() && enumConstantDocs.isEmpty() && methodDocs.isEmpty() && constructorDocs.isArray()) {
             return null;
         }
 
@@ -70,6 +74,7 @@ class JsonJavadocBuilder {
         json.add(fieldsFieldName(), fieldDocs);
         json.add(enumConstantsFieldName(), enumConstantDocs);
         json.add(methodsFieldName(), methodDocs);
+        json.add(constructorsFieldName(), constructorDocs);
         return json;
     }
 

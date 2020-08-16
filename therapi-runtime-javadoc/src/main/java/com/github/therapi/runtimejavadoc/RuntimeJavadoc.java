@@ -7,6 +7,7 @@ import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -122,7 +123,35 @@ public class RuntimeJavadoc {
         return findMethodJavadoc(javadoc.getMethods(), method);
     }
 
+    /**
+     * Gets the Javadoc of the given constructor.
+     * <p>
+     * The return value is always non-null. If no Javadoc is available, the returned object's
+     * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
+     * <p>
+     * Implementation note: this method first retrieves the Javadoc of the class, and then matches the method signature
+     * with the correct documentation. If the client code's purpose is to loop through all methods doc, prefer using
+     * {@link #getJavadoc(Class)} (or one of its overloads), and calling {@link ClassJavadoc#getMethods()} on the
+     * returned class doc to retrieve method docs.
+     *
+     * @param method the constructor whose Javadoc you want to retrieve
+     * @return the given constructor's Javadoc
+     */
+    public static MethodJavadoc getJavadoc(Constructor<?> method) {
+        ClassJavadoc javadoc = getJavadoc(method.getDeclaringClass());
+        return findMethodJavadoc(javadoc.getConstructors(), method);
+    }
+
     private static MethodJavadoc findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
+        for (MethodJavadoc methodJavadoc : methodDocs) {
+            if (methodJavadoc.matches(method)) {
+                return methodJavadoc;
+            }
+        }
+        return MethodJavadoc.createEmpty(method);
+    }
+
+    private static MethodJavadoc findMethodJavadoc(List<MethodJavadoc> methodDocs, Constructor<?> method) {
         for (MethodJavadoc methodJavadoc : methodDocs) {
             if (methodJavadoc.matches(method)) {
                 return methodJavadoc;

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.constructorsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementNameFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantsFieldName;
@@ -26,8 +27,9 @@ public class JsonJavadocReader {
         List<FieldJavadoc> fields = readFieldDocs(qualifiedClassName, json.get(fieldsFieldName()));
         List<FieldJavadoc> enumConstants = readFieldDocs(qualifiedClassName, json.get(enumConstantsFieldName()));
         List<MethodJavadoc> methods = readMethodDocs(qualifiedClassName, json.get(methodsFieldName()));
+        List<MethodJavadoc> constructors = readMethodDocs(qualifiedClassName, json.get(constructorsFieldName()));
         String classJavadocString = json.getString(elementDocFieldName(), null);
-        return JavadocParser.parseClassJavadoc(className, classJavadocString, fields, enumConstants, methods);
+        return JavadocParser.parseClassJavadoc(className, classJavadocString, fields, enumConstants, methods, constructors);
     }
 
     private static List<FieldJavadoc> readFieldDocs(String owningClass, JsonValue fieldsValue) {

@@ -20,7 +20,7 @@ public class JavadocParser {
     private static final Pattern whitespace = Pattern.compile("\\s");
 
     public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<FieldJavadoc> fields,
-            List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods) {
+            List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods, List<MethodJavadoc> constructors) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -30,7 +30,7 @@ public class JavadocParser {
         }
 
         return new ClassJavadoc(className, CommentParser.parse(className, parsed.getDescription()), fields, enumConstants, methods,
-                otherDocs, new ArrayList<SeeAlsoJavadoc>());
+                constructors, otherDocs, new ArrayList<SeeAlsoJavadoc>());
     }
 
     public static FieldJavadoc parseFieldJavadoc(String owningClass, String fieldName, String javadoc) {

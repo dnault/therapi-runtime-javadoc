@@ -108,7 +108,7 @@ public class Example {
             System.out.println("no documentation for " + fullyQualifiedClassName);
             return;
         }
-                                
+
         System.out.println(classDoc.getName());
         System.out.println(format(classDoc.getComment()));
         System.out.println();
@@ -123,30 +123,42 @@ public class Example {
         }
 
         System.out.println();
-        System.out.println("METHODS");
-
-        for (MethodJavadoc methodDoc : classDoc.getMethods()) {
-            System.out.println(methodDoc.getName() + methodDoc.getParamTypes());
-            System.out.println(format(methodDoc.getComment()));
-            System.out.println("  returns " + format(methodDoc.getReturns()));
-
-            for (SeeAlsoJavadoc see : methodDoc.getSeeAlso()) {
-                System.out.println("  See also: " + see.getLink());
-            }
-            for (OtherJavadoc other : methodDoc.getOther()) {
-                System.out.println("  " + other.getName() + ": "
-                    + format(other.getComment()));
-            }
-            for (ParamJavadoc paramDoc : methodDoc.getParams()) {
-                System.out.println("  param " + paramDoc.getName() + " "
-                    + format(paramDoc.getComment()));
-            }
-            for (ThrowsJavadoc throwsDoc : methodDoc.getThrows()) {
-                System.out.println("  throws " + throwsDoc.getName() + " "
-                    + format(throwsDoc.getComment()));
-            }
-            System.out.println();
+        System.out.println("CONSTRUCTORS");
+        for (MethodJavadoc methodDoc : classDoc.getConstructors()) {
+            printMethodJavadoc(methodDoc);
         }
+
+        System.out.println();
+        System.out.println("METHODS");
+        for (MethodJavadoc methodDoc : classDoc.getMethods()) {
+            printMethodJavadoc(methodDoc);
+        }
+    }
+
+    private static void printMethodJavadoc(MethodJavadoc methodDoc) {
+        System.out.println(methodDoc.getName() + methodDoc.getParamTypes());
+        System.out.println(format(methodDoc.getComment()));
+        
+        if (!methodDoc.isConstructor()) {
+            System.out.println("  returns " + format(methodDoc.getReturns()));
+        }
+
+        for (SeeAlsoJavadoc see : methodDoc.getSeeAlso()) {
+            System.out.println("  See also: " + see.getLink());
+        }
+        for (OtherJavadoc other : methodDoc.getOther()) {
+            System.out.println("  " + other.getName() + ": "
+                + format(other.getComment()));
+        }
+        for (ParamJavadoc paramDoc : methodDoc.getParams()) {
+            System.out.println("  param " + paramDoc.getName() + " "
+                + format(paramDoc.getComment()));
+        }
+        for (ThrowsJavadoc throwsDoc : methodDoc.getThrows()) {
+            System.out.println("  throws " + throwsDoc.getName() + " "
+                + format(throwsDoc.getComment()));
+        }
+        System.out.println();
     }
 
     private static String format(Comment c) {

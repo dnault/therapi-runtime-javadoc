@@ -19,6 +19,24 @@ public class DocumentedClass {
   private int myField;
 
   /**
+   * I'm a constructor!
+   */
+  public DocumentedClass() {
+  }
+
+  /**
+   * I'm another constructor!
+   *
+   * @param ignore I'm a parameter!
+   */
+  public DocumentedClass(String ignore) {
+  }
+
+  // I am undocumented!
+  public DocumentedClass(Integer ignore) {
+  }
+
+  /**
    * Frobulate {@code a} by {@code b}
    *
    * @param a blurtification factor
