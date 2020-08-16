@@ -257,6 +257,15 @@ public class CommentParserTest {
     }
 
     @Test
+    public void parse_preformatted_code() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "<pre>{@code\n    foo\n}</pre>").getElements();
+        assertEquals(3, elements.size());
+        assertEquals(new CommentText("<pre>"), elements.get(0));
+        assertEquals(new InlineTag("code", "\n    foo\n"), elements.get(1));
+        assertEquals(new CommentText("</pre>"), elements.get(2));
+    }
+
+    @Test
     public void parse_mix_praiseTheMightyThor() {
         String input = "  text}bef{}ore {@link ClassName}{@} text{after}\nand {@empty}{@value #member}\n\n";
         List<CommentElement> elements = CommentParser.parse("TestClass", input).getElements();

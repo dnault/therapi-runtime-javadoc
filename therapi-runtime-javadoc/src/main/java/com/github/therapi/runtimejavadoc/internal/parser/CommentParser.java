@@ -19,8 +19,8 @@ import static java.util.regex.Pattern.compile;
 
 class CommentParser {
 
-    private static final Pattern inlineTag = compile("\\{@(\\w+)(?:\\s+([\\w#][^}]+)?)?}");
-	
+	private static final Pattern inlineTag = compile("\\{@([^\\s}]+)[ \\t]*([^}]+)?}");
+
     // https://regex101.com/r/KhEo62/4
     private static final Pattern valuePattern = compile("^(?:(?<classname>[\\w.]+)#)?#?(?<member>\\w+)$");
 

@@ -219,8 +219,8 @@ public class JavadocAnnotationProcessorTest {
             Method m1 = c.getDeclaredMethod(methodName, String.class, int.class);
             Method m2 = c.getDeclaredMethod(methodName, String.class, List.class);
 
-            assertMethodMatches(m1, "Frobulate {@code a} by {@code b}");
-            assertMethodMatches(m2, "Frobulate {@code a} by multiple oopsifizzle constants");
+            assertMethodMatches(m1, "Frobulate <code>a</code> by <code>b</code>");
+            assertMethodMatches(m2, "Frobulate <code>a</code> by multiple oopsifizzle constants");
         }
     }
 
