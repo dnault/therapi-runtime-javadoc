@@ -1,5 +1,13 @@
 # Change history
 
+## 0.11.0 - August 16, 2020
+
+Issues resolved:
+
+* [ENHANCEMENT] #37 Support reading constructor Javadoc
+* [BUGFIX] #36 Reader throws AssertionError when parsing malformed "see" tag
+* [BUGFIX] #38 Fix @code tag parsing
+
 ## 0.10.0 - July 19, 2020
 
 It's now possible to get the Javadoc of nested classes in the default package.

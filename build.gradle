@@ -10,7 +10,7 @@ subprojects { subproject ->
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = "com.github.therapi"
-    version = "0.10.0"
+    version = "0.11.0"
 
     repositories {
         jcenter()
