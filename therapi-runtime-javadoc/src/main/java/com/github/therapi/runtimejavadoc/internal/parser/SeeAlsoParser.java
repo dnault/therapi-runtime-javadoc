@@ -14,7 +14,10 @@ public class SeeAlsoParser {
 	private static final Pattern stringLiteralPattern = compile("^\"(?<string>.*)\"$");
 	// https://regex101.com/r/lZmCCx/1
 	private static final Pattern htmlLink = compile("(?s)<a\\s*href=['\"](?<link>.+?)['\"]\\s*>(?<text>.+)<\\/a>");
-	
+
+	/**
+	 * @return null if tag is malformed
+	 */
 	public static SeeAlsoJavadoc parseSeeAlso(String owningClass, String value) {
 		SeeAlsoJavadoc seeAlsoJavadoc = parseAsStringLiteral(value);
 		if (seeAlsoJavadoc == null) {
@@ -23,10 +26,6 @@ public class SeeAlsoParser {
 		if (seeAlsoJavadoc == null) {
 			seeAlsoJavadoc = parseAsJavadocLink(owningClass, value);
 		}
-		if (seeAlsoJavadoc == null) {
-			throw new AssertionError("SeeAlso not recognized as string literal, HTML link or Javadoc link");
-		}
-		
 		return seeAlsoJavadoc;
 	}
 	

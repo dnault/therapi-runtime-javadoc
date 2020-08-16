@@ -63,7 +63,10 @@ public class JavadocParser {
             } else if (t.name.equals("return")) {
                 returns = CommentParser.parse(owningClass, t.value);
             } else if (t.name.equals("see")) {
-                seeAlsoDocs.add(SeeAlsoParser.parseSeeAlso(owningClass, t.value));
+                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso(owningClass, t.value);
+                if (seeAlso != null) {
+                    seeAlsoDocs.add(seeAlso);
+                }
             } else {
                 otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
             }

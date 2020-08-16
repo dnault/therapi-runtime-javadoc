@@ -38,7 +38,9 @@ class CommentParser {
                 elements.add(new CommentText(commentText.substring(pos, start)));
             }
             CommentElement elt = createTagElement(owningClass, matcher.group(1), matcher.group(2));
-            elements.add(elt);
+            if (elt != null) {
+                elements.add(elt);
+            }
             pos = matcher.end();
         }
 
@@ -48,6 +50,9 @@ class CommentParser {
         return elements;
     }
 
+    /**
+     * @return null if tag is malformed
+     */
     private static CommentElement createTagElement(String owningClass, String name, String value) {
         if ("link".equals(name)) {
             return createLinkElement(owningClass, value);
@@ -57,7 +62,10 @@ class CommentParser {
             return new InlineTag(name, value);
         }
     }
-    
+
+    /**
+     * @return null if tag is malformed
+     */
     private static InlineValue createValueElement(String owningClass, String value) {
 		if (value == null || value.trim().isEmpty()) {
 			return new InlineValue(new Value(null, null));
@@ -65,7 +73,8 @@ class CommentParser {
 
         Matcher linkMatcher = valuePattern.matcher(value);
         if (!linkMatcher.matches()) {
-            throw new AssertionError("Value didn't match regex format");
+            // malformed reference
+            return null;
         }
         String classRef = linkMatcher.group("classname");
         String memberRef = linkMatcher.group("member");
@@ -77,7 +86,8 @@ class CommentParser {
     private static InlineLink createLinkElement(String owningClass, String value) {
         Link javadocLink = LinkParser.createLinkElement(owningClass, value);
         if (javadocLink == null) {
-            throw new AssertionError("Link didn't match regex format");
+            // malformed link
+            return null;
         }
         return new InlineLink(javadocLink);
     }

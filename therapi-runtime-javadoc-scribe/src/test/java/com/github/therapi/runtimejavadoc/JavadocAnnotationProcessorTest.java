@@ -1,6 +1,7 @@
 package com.github.therapi.runtimejavadoc;
 
 import com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor;
+import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -304,6 +306,17 @@ public class JavadocAnnotationProcessorTest {
     public void companionGeneratedForClassWithMethodDocButNoClassDoc() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
             expectJavadoc(classLoader.loadClass(METHOD_DOC_BUT_NO_CLASS_DOC));
+        }
+    }
+
+    @Test
+    public void malformedLinksAreOmitted() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> clazz = classLoader.loadClass(DOCUMENTED_CLASS);
+            Method method = clazz.getDeclaredMethod("malformedLinks");
+            MethodJavadoc doc = RuntimeJavadoc.getJavadoc(method);
+            assertEquals(emptyList(), doc.getSeeAlso());
+            assertEquals("Foo ", formatter.format(doc.getComment()));
         }
     }
 

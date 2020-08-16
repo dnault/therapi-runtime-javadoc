@@ -73,6 +73,14 @@ public class DocumentedClass {
   }
 
   /**
+   * Foo {@link Foo#bar(String).}{@value Foo#bar(String).}
+   *
+   * @see Foo#bar(String).
+   */
+  public void malformedLinks() {
+  }
+
+  /**
    * I'm a nested class!
    */
   public static class Nested {
