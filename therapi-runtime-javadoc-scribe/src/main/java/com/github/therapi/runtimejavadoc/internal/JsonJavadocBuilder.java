@@ -65,7 +65,7 @@ class JsonJavadocBuilder {
         JsonArray methodDocs = getJavadocsAsJson(enclosedMethods, new MethodJavadocAsJson());
         JsonArray constructorDocs = getJavadocsAsJson(encolsedConstructors, new MethodJavadocAsJson());
 
-        if (isBlank(classDoc) && fieldDocs.isEmpty() && enumConstantDocs.isEmpty() && methodDocs.isEmpty() && constructorDocs.isArray()) {
+        if (isBlank(classDoc) && fieldDocs.isEmpty() && enumConstantDocs.isEmpty() && methodDocs.isEmpty() && constructorDocs.isEmpty()) {
             return null;
         }
 
