@@ -37,11 +37,20 @@ public class JavadocParser {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
+        List<SeeAlsoJavadoc> seeAlsoDocs = new ArrayList<>();
+
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
+            if (t.name.equals("see")) {
+                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso(owningClass, t.value);
+                if (seeAlso != null) {
+                    seeAlsoDocs.add(seeAlso);
+                }
+            } else {
+                otherDocs.add( new OtherJavadoc( t.name, CommentParser.parse( owningClass, t.value ) ) );
+            }
         }
 
-        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, parsed.getDescription()), otherDocs, new ArrayList<SeeAlsoJavadoc>());
+        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, parsed.getDescription()), otherDocs, seeAlsoDocs);
     }
 
     public static MethodJavadoc parseMethodJavadoc(String owningClass, String methodName, List<String> paramTypes, String javadoc) {
