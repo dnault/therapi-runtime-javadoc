@@ -25,7 +25,11 @@ public class CommentFormatterTest {
                 new InlineTag("unrecognized", "foo"),
                 new CommentText(" "),
                 new CommentElement() {
-                    @Override public String toString() {
+                    public void visit( CommentVisitor visitor ) {
+                        visitor.commentText( "unexpected element" );
+                    }
+
+                    public String toString() {
                         return "unexpected element";
                     }
                 },

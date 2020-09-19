@@ -13,6 +13,10 @@ public class InlineValue extends CommentElement {
         return value;
     }
 
+    public void visit( CommentVisitor visitor ) {
+        visitor.inlineValue( value );
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
