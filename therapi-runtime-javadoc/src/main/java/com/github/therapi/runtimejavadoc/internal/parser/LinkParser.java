@@ -1,5 +1,6 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
+import com.github.therapi.runtimejavadoc.ClassResolver;
 import com.github.therapi.runtimejavadoc.InlineLink;
 import com.github.therapi.runtimejavadoc.Link;
 
@@ -16,18 +17,20 @@ public class LinkParser {
 	// https://regex101.com/r/3DoNfK/2
 	private static final Pattern linkPattern = compile("^(?<classname>[\\w.]+)?(?:#(?<member>\\w+))?(?:\\((?<params>.*)\\))?(?:\\s(?<label>.+))?$");
 	
-	public static Link createLinkElement(String owningClass, String value) {
+	public static Link createLinkElement(String owningClass, ClassResolver classResolver, String value) {
 		Matcher linkMatcher = linkPattern.matcher(value);
 		if (!linkMatcher.matches()) {
 			return null;
 		}
+
 		String classRef = linkMatcher.group("classname");
 		String memberRef = linkMatcher.group("member");
 		String params = linkMatcher.group("params");
 		String label = linkMatcher.group("label");
-		
-		String effectiveClassName = classRef == null ? owningClass : classRef;
+
+		String effectiveClassName = classRef == null ? owningClass : classResolver.resolveRef(classRef);
 		String effectiveLabel = label != null ? label : linkMatcher.group(0);
+
 		return new Link(effectiveLabel, effectiveClassName, memberRef, formatMember(params));
 	}
 	

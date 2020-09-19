@@ -45,6 +45,16 @@ public class ClassJavadoc extends BaseJavadoc {
         return constructors;
     }
 
+    public MethodJavadoc getMethod(String methodName) {
+        for ( MethodJavadoc m : methods ) {
+            if ( m.getName().equals(methodName) ) {
+                return m;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public String toString() {
         return "ClassJavadoc{" +

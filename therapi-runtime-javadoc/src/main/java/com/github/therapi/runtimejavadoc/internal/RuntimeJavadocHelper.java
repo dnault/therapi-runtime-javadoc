@@ -70,4 +70,8 @@ public class RuntimeJavadocHelper {
     public static String elementDocFieldName() {
         return "doc";
     }
+
+    public static String importsFieldName() {
+        return "imports";
+    }
 }

@@ -1,0 +1,8 @@
+
+dependencies {
+    compile project(':therapi-runtime-javadoc')
+    compile project(':therapi-runtime-javadoc-scribe')
+
+    annotationProcessor project(':therapi-runtime-javadoc')
+    annotationProcessor project(':therapi-runtime-javadoc-scribe')
+}

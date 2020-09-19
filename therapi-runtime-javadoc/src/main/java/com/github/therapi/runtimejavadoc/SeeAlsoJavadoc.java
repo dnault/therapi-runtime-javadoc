@@ -1,5 +1,8 @@
 package com.github.therapi.runtimejavadoc;
 
+import java.util.Objects;
+
+
 /**
  * Represents a {@code @see} tag on a class or method.
  */
@@ -48,7 +51,33 @@ public class SeeAlsoJavadoc {
 	public Link getLink() {
 		return link;
 	}
-	
+
+	public boolean equals( Object o ) {
+		if ( this == o )
+			return true;
+		if ( o == null || getClass() != o.getClass() )
+			return false;
+		SeeAlsoJavadoc that = (SeeAlsoJavadoc) o;
+		return seeAlsoType == that.seeAlsoType &&
+			Objects.equals( stringLiteral, that.stringLiteral ) &&
+			Objects.equals( htmlLink, that.htmlLink ) &&
+			Objects.equals( link, that.link );
+	}
+
+	public int hashCode() {
+		return Objects.hash( seeAlsoType, stringLiteral, htmlLink, link );
+	}
+
+	@Override
+	public String toString() {
+		return "SeeAlsoJavadoc{" +
+			"seeAlsoType=" + seeAlsoType +
+			", stringLiteral='" + stringLiteral + '\'' +
+			", htmlLink=" + htmlLink +
+			", link=" + link +
+			'}';
+	}
+
 	public static class HtmlLink {
 		private final String text;
 		private final String link;
@@ -64,6 +93,22 @@ public class SeeAlsoJavadoc {
 		
 		public String getLink() {
 			return link;
+		}
+
+		@Override
+		public boolean equals( Object o ) {
+			if ( this == o )
+				return true;
+			if ( o == null || getClass() != o.getClass() )
+				return false;
+			HtmlLink htmlLink = (HtmlLink) o;
+			return Objects.equals( text, htmlLink.text ) &&
+				Objects.equals( link, htmlLink.link );
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash( text, link );
 		}
 	}
 }

@@ -17,12 +17,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.constructorsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementDocFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.elementNameFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.enumConstantsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.fieldsFieldName;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.importsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.isBlank;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.methodsFieldName;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.paramTypesFieldName;
@@ -55,11 +57,13 @@ class JsonJavadocBuilder {
         }
 
         final List<Element> emptyList = Collections.emptyList();
+        Set<String>   imports = ImportUtils.getImports( classElement, processingEnv );
         List<Element> enclosedFields = defaultIfNull(children.get(FIELD), emptyList);
         List<Element> enclosedEnumConstants = defaultIfNull(children.get(ENUM_CONSTANT), emptyList);
         List<Element> enclosedMethods = defaultIfNull(children.get(METHOD), emptyList);
         List<Element> encolsedConstructors = defaultIfNull(children.get(CONSTRUCTOR), emptyList);
 
+        JsonArray importsJson = asJsonArray(imports);
         JsonArray fieldDocs = getJavadocsAsJson(enclosedFields, new FieldJavadocAsJson());
         JsonArray enumConstantDocs = getJavadocsAsJson(enclosedEnumConstants, new FieldJavadocAsJson());
         JsonArray methodDocs = getJavadocsAsJson(enclosedMethods, new MethodJavadocAsJson());
@@ -70,12 +74,23 @@ class JsonJavadocBuilder {
         }
 
         JsonObject json = new JsonObject();
+        json.add(importsFieldName(), importsJson);
         json.add(elementDocFieldName(), classDoc);
         json.add(fieldsFieldName(), fieldDocs);
         json.add(enumConstantsFieldName(), enumConstantDocs);
         json.add(methodsFieldName(), methodDocs);
         json.add(constructorsFieldName(), constructorDocs);
         return json;
+    }
+
+    private JsonArray asJsonArray( Set<String> imports ) {
+        JsonArray jsonArray = new JsonArray();
+
+        for ( String imp : imports ) {
+            jsonArray.add(imp);
+        }
+
+        return jsonArray;
     }
 
     private static JsonArray getJavadocsAsJson(List<Element> elements, ElementToJsonFunction createDoc) {

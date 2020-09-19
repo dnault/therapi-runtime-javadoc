@@ -3,6 +3,7 @@ package com.github.therapi.runtimejavadoc;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 
@@ -38,6 +39,21 @@ public class Comment implements Iterable<CommentElement> {
     @Override
     public Iterator<CommentElement> iterator() {
         return elements.iterator();
+    }
+
+    @Override
+    public boolean equals( Object o ) {
+        if ( this == o )
+            return true;
+        if ( o == null || getClass() != o.getClass() )
+            return false;
+        Comment that = (Comment) o;
+        return Objects.equals( elements, that.elements );
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash( elements );
     }
 
     @Override

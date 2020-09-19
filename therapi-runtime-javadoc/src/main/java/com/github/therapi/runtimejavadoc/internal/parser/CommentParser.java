@@ -1,5 +1,6 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
+import com.github.therapi.runtimejavadoc.ClassResolver;
 import com.github.therapi.runtimejavadoc.Comment;
 import com.github.therapi.runtimejavadoc.CommentElement;
 import com.github.therapi.runtimejavadoc.CommentText;
@@ -24,11 +25,11 @@ class CommentParser {
     // https://regex101.com/r/KhEo62/4
     private static final Pattern valuePattern = compile("^(?:(?<classname>[\\w.]+)#)?#?(?<member>\\w+)$");
 
-    static Comment parse(String owningClass, String commentText) {
-        return isBlank(commentText) ? Comment.createEmpty() : new Comment(parseElements(owningClass, commentText.trim()));
+    static Comment parse(String owningClass, ClassResolver classResolver, String commentText) {
+        return isBlank(commentText) ? Comment.createEmpty() : new Comment(parseElements(owningClass, classResolver, commentText.trim()));
     }
 
-    private static List<CommentElement> parseElements(String owningClass, String commentText) {
+    private static List<CommentElement> parseElements(String owningClass, ClassResolver classResolver, String commentText) {
         Matcher matcher = inlineTag.matcher(commentText);
         List<CommentElement> elements = new ArrayList<>();
         int pos = 0;
@@ -37,7 +38,7 @@ class CommentParser {
             if (start > pos) {
                 elements.add(new CommentText(commentText.substring(pos, start)));
             }
-            CommentElement elt = createTagElement(owningClass, matcher.group(1), matcher.group(2));
+            CommentElement elt = createTagElement(owningClass, classResolver, matcher.group(1), matcher.group(2));
             if (elt != null) {
                 elements.add(elt);
             }
@@ -53,11 +54,11 @@ class CommentParser {
     /**
      * @return null if tag is malformed
      */
-    private static CommentElement createTagElement(String owningClass, String name, String value) {
+    private static CommentElement createTagElement(String owningClass, ClassResolver classResolver, String name, String value) {
         if ("link".equals(name)) {
-            return createLinkElement(owningClass, value);
+            return createLinkElement(owningClass, classResolver, value);
         } else if ("value".equals(name)) {
-            return createValueElement(owningClass, value);
+            return createValueElement(owningClass, classResolver, value);
         } else {
             return new InlineTag(name, value);
         }
@@ -66,7 +67,7 @@ class CommentParser {
     /**
      * @return null if tag is malformed
      */
-    private static InlineValue createValueElement(String owningClass, String value) {
+    private static InlineValue createValueElement(String owningClass, ClassResolver classResolver, String value) {
 		if (value == null || value.trim().isEmpty()) {
 			return new InlineValue(new Value(null, null));
 		}
@@ -79,12 +80,12 @@ class CommentParser {
         String classRef = linkMatcher.group("classname");
         String memberRef = linkMatcher.group("member");
         
-        String effectiveClassName = classRef == null ? owningClass : classRef;
+        String effectiveClassName = classRef == null ? owningClass : classResolver.resolveRef(classRef);
         return new InlineValue(new Value(effectiveClassName, memberRef));
     }
 
-    private static InlineLink createLinkElement(String owningClass, String value) {
-        Link javadocLink = LinkParser.createLinkElement(owningClass, value);
+    private static InlineLink createLinkElement(String owningClass, ClassResolver classResolver, String value) {
+        Link javadocLink = LinkParser.createLinkElement(owningClass, classResolver, value);
         if (javadocLink == null) {
             // malformed link
             return null;

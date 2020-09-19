@@ -1,5 +1,6 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
+import com.github.therapi.runtimejavadoc.ClassResolver;
 import com.github.therapi.runtimejavadoc.Link;
 import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc;
 import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc.HtmlLink;
@@ -18,13 +19,13 @@ public class SeeAlsoParser {
 	/**
 	 * @return null if tag is malformed
 	 */
-	public static SeeAlsoJavadoc parseSeeAlso(String owningClass, String value) {
+	public static SeeAlsoJavadoc parseSeeAlso(String owningClass, ClassResolver classResolver, String value) {
 		SeeAlsoJavadoc seeAlsoJavadoc = parseAsStringLiteral(value);
 		if (seeAlsoJavadoc == null) {
 			seeAlsoJavadoc = parseAsHtmlLink(value);
 		}
 		if (seeAlsoJavadoc == null) {
-			seeAlsoJavadoc = parseAsJavadocLink(owningClass, value);
+			seeAlsoJavadoc = parseAsJavadocLink(owningClass, classResolver, value);
 		}
 		return seeAlsoJavadoc;
 	}
@@ -42,8 +43,8 @@ public class SeeAlsoParser {
 		return null;
 	}
 	
-	private static SeeAlsoJavadoc parseAsJavadocLink(String owningClass, String value) {
-		Link javadocLink = LinkParser.createLinkElement(owningClass, value);
+	private static SeeAlsoJavadoc parseAsJavadocLink(String owningClass, ClassResolver classResolver, String value) {
+		Link javadocLink = LinkParser.createLinkElement(owningClass, classResolver, value);
 		return javadocLink == null ? null : new SeeAlsoJavadoc(javadocLink);
 	}
 }

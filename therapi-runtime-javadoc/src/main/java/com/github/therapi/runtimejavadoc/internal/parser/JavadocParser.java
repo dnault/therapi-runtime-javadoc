@@ -1,6 +1,7 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
 import com.github.therapi.runtimejavadoc.ClassJavadoc;
+import com.github.therapi.runtimejavadoc.ClassResolver;
 import com.github.therapi.runtimejavadoc.Comment;
 import com.github.therapi.runtimejavadoc.FieldJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
@@ -19,21 +20,21 @@ public class JavadocParser {
 
     private static final Pattern whitespace = Pattern.compile("\\s");
 
-    public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<FieldJavadoc> fields,
+    public static ClassJavadoc parseClassJavadoc(String className, ClassResolver classResolver, String javadoc, List<FieldJavadoc> fields,
             List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods, List<MethodJavadoc> constructors) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
 
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(className, t.value)));
+            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(className, classResolver, t.value)));
         }
 
-        return new ClassJavadoc(className, CommentParser.parse(className, parsed.getDescription()), fields, enumConstants, methods,
+        return new ClassJavadoc(className, CommentParser.parse(className, classResolver, parsed.getDescription()), fields, enumConstants, methods,
                 constructors, otherDocs, new ArrayList<SeeAlsoJavadoc>());
     }
 
-    public static FieldJavadoc parseFieldJavadoc(String owningClass, String fieldName, String javadoc) {
+    public static FieldJavadoc parseFieldJavadoc(String owningClass, ClassResolver classResolver, String fieldName, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -41,19 +42,19 @@ public class JavadocParser {
 
         for (BlockTag t : parsed.getBlockTags()) {
             if (t.name.equals("see")) {
-                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso(owningClass, t.value);
+                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso(owningClass, classResolver, t.value);
                 if (seeAlso != null) {
                     seeAlsoDocs.add(seeAlso);
                 }
             } else {
-                otherDocs.add( new OtherJavadoc( t.name, CommentParser.parse( owningClass, t.value ) ) );
+                otherDocs.add( new OtherJavadoc( t.name, CommentParser.parse( owningClass, classResolver, t.value ) ) );
             }
         }
 
-        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, parsed.getDescription()), otherDocs, seeAlsoDocs);
+        return new FieldJavadoc(fieldName, CommentParser.parse(owningClass, classResolver, parsed.getDescription()), otherDocs, seeAlsoDocs);
     }
 
-    public static MethodJavadoc parseMethodJavadoc(String owningClass, String methodName, List<String> paramTypes, String javadoc) {
+    public static MethodJavadoc parseMethodJavadoc(String owningClass, ClassResolver classResolver, String methodName, List<String> paramTypes, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
     
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -69,25 +70,25 @@ public class JavadocParser {
                 String paramName = paramNameAndComment[0];
                 String paramComment = paramNameAndComment.length == 1 ? "" :paramNameAndComment[1];
 
-                paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(owningClass, paramComment)));
+                paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(owningClass, classResolver, paramComment)));
             } else if (t.name.equals("return")) {
-                returns = CommentParser.parse(owningClass, t.value);
+                returns = CommentParser.parse(owningClass, classResolver, t.value);
             } else if (t.name.equals("see")) {
-                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso( owningClass, t.value );
+                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso( owningClass, classResolver, t.value );
                 if ( seeAlso != null ) {
                     seeAlsoDocs.add( seeAlso );
                 }
             } else if (t.name.equals("throws") || t.name.equals("exception")) {
-                ThrowsJavadoc throwsDoc = ThrowsTagParser.parseTag(owningClass, t.value);
+                ThrowsJavadoc throwsDoc = ThrowsTagParser.parseTag(owningClass, classResolver, t.value);
                 if (throwsDoc != null) {
                     throwsDocs.add( throwsDoc );
                 }
             } else {
-                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
+                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, classResolver, t.value)));
             }
         }
 
-        return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(owningClass, parsed.getDescription()), paramDocs,
+        return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(owningClass, classResolver, parsed.getDescription()), paramDocs,
             throwsDocs, otherDocs, returns, seeAlsoDocs);
     }
 

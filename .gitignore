@@ -16,7 +16,6 @@ hs_err_pid*
 *.iml
 .idea
 out
-/therapi-runtime-javadoc-scribe/build
-/therapi-runtime-javadoc/build
+build
 
 .gradle
