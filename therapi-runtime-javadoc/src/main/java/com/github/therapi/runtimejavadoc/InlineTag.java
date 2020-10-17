@@ -19,6 +19,10 @@ public class InlineTag extends CommentElement {
         return value;
     }
 
+    public void visit( CommentVisitor visitor ) {
+        visitor.inlineTag( name, value );
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

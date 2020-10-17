@@ -13,6 +13,10 @@ public class InlineLink extends CommentElement {
         return link;
     }
 
+    public void visit( CommentVisitor visitor ) {
+        visitor.inlineLink( link );
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
