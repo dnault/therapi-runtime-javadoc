@@ -20,7 +20,7 @@ public class JavadocParser {
     private static final Pattern whitespace = Pattern.compile("\\s");
 
     public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<FieldJavadoc> fields,
-            List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods, List<MethodJavadoc> constructors) {
+                                                 List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods, List<MethodJavadoc> constructors) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
@@ -46,7 +46,7 @@ public class JavadocParser {
                     seeAlsoDocs.add(seeAlso);
                 }
             } else {
-                otherDocs.add( new OtherJavadoc( t.name, CommentParser.parse( owningClass, t.value ) ) );
+                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
             }
         }
 
@@ -55,7 +55,7 @@ public class JavadocParser {
 
     public static MethodJavadoc parseMethodJavadoc(String owningClass, String methodName, List<String> paramTypes, String javadoc) {
         ParsedJavadoc parsed = parse(javadoc);
-    
+
         List<OtherJavadoc> otherDocs = new ArrayList<>();
         List<SeeAlsoJavadoc> seeAlsoDocs = new ArrayList<>();
         List<ParamJavadoc> paramDocs = new ArrayList<>();
@@ -67,20 +67,20 @@ public class JavadocParser {
             if (t.name.equals("param")) {
                 String[] paramNameAndComment = whitespace.split(t.value, 2);
                 String paramName = paramNameAndComment[0];
-                String paramComment = paramNameAndComment.length == 1 ? "" :paramNameAndComment[1];
+                String paramComment = paramNameAndComment.length == 1 ? "" : paramNameAndComment[1];
 
                 paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(owningClass, paramComment)));
             } else if (t.name.equals("return")) {
                 returns = CommentParser.parse(owningClass, t.value);
             } else if (t.name.equals("see")) {
-                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso( owningClass, t.value );
-                if ( seeAlso != null ) {
-                    seeAlsoDocs.add( seeAlso );
+                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso(owningClass, t.value);
+                if (seeAlso != null) {
+                    seeAlsoDocs.add(seeAlso);
                 }
             } else if (t.name.equals("throws") || t.name.equals("exception")) {
                 ThrowsJavadoc throwsDoc = ThrowsTagParser.parseTag(owningClass, t.value);
                 if (throwsDoc != null) {
-                    throwsDocs.add( throwsDoc );
+                    throwsDocs.add(throwsDoc);
                 }
             } else {
                 otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(owningClass, t.value)));
@@ -88,7 +88,7 @@ public class JavadocParser {
         }
 
         return new MethodJavadoc(methodName, paramTypes, CommentParser.parse(owningClass, parsed.getDescription()), paramDocs,
-            throwsDocs, otherDocs, returns, seeAlsoDocs);
+                throwsDocs, otherDocs, returns, seeAlsoDocs);
     }
 
     private static ParsedJavadoc parse(String javadoc) {

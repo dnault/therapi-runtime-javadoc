@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Value {
     private final String referencedClassName;
     private final String referencedMemberName;
-    
+
     public Value(String referencedClassName, String referencedMemberName) {
         this.referencedClassName = referencedClassName;
         this.referencedMemberName = referencedMemberName;
@@ -18,7 +18,7 @@ public class Value {
     public String getReferencedMemberName() {
         return referencedMemberName;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

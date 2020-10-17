@@ -40,9 +40,9 @@ public class Comment implements Iterable<CommentElement> {
         return elements.iterator();
     }
 
-    public void visit( CommentVisitor visitor ) {
-        for ( CommentElement e : elements ) {
-            e.visit( visitor );
+    public void visit(CommentVisitor visitor) {
+        for (CommentElement e : elements) {
+            e.visit(visitor);
         }
     }
 

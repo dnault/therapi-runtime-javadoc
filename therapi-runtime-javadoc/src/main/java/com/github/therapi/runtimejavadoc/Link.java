@@ -11,7 +11,7 @@ public class Link {
     private final String referencedClassName;
     private final String referencedMemberName;
     private final List<String> params;
-    
+
     public Link(String label, String referencedClassName, String referencedMemberName, List<String> params) {
         this.label = label;
         this.referencedClassName = referencedClassName;
@@ -30,11 +30,11 @@ public class Link {
     public String getReferencedMemberName() {
         return referencedMemberName;
     }
-    
+
     public List<String> getParams() {
         return params;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -61,10 +61,10 @@ public class Link {
         if (referencedClassName != null) {
             sb.append(referencedClassName);
         }
-    
+
         if (referencedMemberName != null) {
             sb.append('#').append(referencedMemberName);
-    
+
             if (!params.isEmpty()) {
                 sb.append('(').append(join(", ", params)).append(")");
             }

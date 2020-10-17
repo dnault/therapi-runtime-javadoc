@@ -12,7 +12,7 @@ public class ClassJavadoc extends BaseJavadoc {
     private final List<MethodJavadoc> constructors;
 
     public ClassJavadoc(String name, Comment comment, List<FieldJavadoc> fields, List<FieldJavadoc> enumConstants,
-            List<MethodJavadoc> methods, List<MethodJavadoc> constructors, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
+                        List<MethodJavadoc> methods, List<MethodJavadoc> constructors, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
         super(name, comment, seeAlso, other);
         this.fields = unmodifiableDefensiveCopy(fields);
         this.enumConstants = unmodifiableDefensiveCopy(enumConstants);

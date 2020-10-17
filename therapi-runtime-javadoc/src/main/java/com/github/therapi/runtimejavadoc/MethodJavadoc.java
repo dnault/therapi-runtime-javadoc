@@ -52,12 +52,12 @@ public class MethodJavadoc extends BaseJavadoc {
 
     public boolean matches(Method method) {
         return method.getName().equals(getName())
-            && paramsMatch(method.getParameterTypes());
+                && paramsMatch(method.getParameterTypes());
     }
 
     public boolean matches(Constructor<?> method) {
         return isConstructor()
-            && paramsMatch(method.getParameterTypes());
+                && paramsMatch(method.getParameterTypes());
     }
 
     private boolean paramsMatch(Class<?>[] paramTypes) {

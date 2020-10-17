@@ -19,7 +19,7 @@ import static java.util.regex.Pattern.compile;
 
 class CommentParser {
 
-	private static final Pattern inlineTag = compile("\\{@([^\\s}]+)[ \\t]*([^}]+)?}");
+    private static final Pattern inlineTag = compile("\\{@([^\\s}]+)[ \\t]*([^}]+)?}");
 
     // https://regex101.com/r/KhEo62/4
     private static final Pattern valuePattern = compile("^(?:(?<classname>[\\w.]+)#)?#?(?<member>\\w+)$");
@@ -67,9 +67,9 @@ class CommentParser {
      * @return null if tag is malformed
      */
     private static InlineValue createValueElement(String owningClass, String value) {
-		if (value == null || value.trim().isEmpty()) {
-			return new InlineValue(new Value(null, null));
-		}
+        if (value == null || value.trim().isEmpty()) {
+            return new InlineValue(new Value(null, null));
+        }
 
         Matcher linkMatcher = valuePattern.matcher(value);
         if (!linkMatcher.matches()) {
@@ -78,7 +78,7 @@ class CommentParser {
         }
         String classRef = linkMatcher.group("classname");
         String memberRef = linkMatcher.group("member");
-        
+
         String effectiveClassName = classRef == null ? owningClass : classRef;
         return new InlineValue(new Value(effectiveClassName, memberRef));
     }

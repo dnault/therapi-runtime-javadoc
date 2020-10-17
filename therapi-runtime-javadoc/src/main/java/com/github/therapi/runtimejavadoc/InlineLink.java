@@ -13,8 +13,8 @@ public class InlineLink extends CommentElement {
         return link;
     }
 
-    public void visit( CommentVisitor visitor ) {
-        visitor.inlineLink( link );
+    public void visit(CommentVisitor visitor) {
+        visitor.inlineLink(link);
     }
 
     @Override
@@ -28,12 +28,12 @@ public class InlineLink extends CommentElement {
         InlineLink that = (InlineLink) o;
         return Objects.equals(link, that.link);
     }
-    
+
     @Override
     public String toString() {
         return "link=" + link;
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(link);

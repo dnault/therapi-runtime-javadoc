@@ -19,8 +19,8 @@ public class InlineTag extends CommentElement {
         return value;
     }
 
-    public void visit( CommentVisitor visitor ) {
-        visitor.inlineTag( name, value );
+    public void visit(CommentVisitor visitor) {
+        visitor.inlineTag(name, value);
     }
 
     @Override

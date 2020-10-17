@@ -13,8 +13,8 @@ public class CommentText extends CommentElement {
         return value;
     }
 
-    public void visit( CommentVisitor visitor ) {
-        visitor.commentText( value );
+    public void visit(CommentVisitor visitor) {
+        visitor.commentText(value);
     }
 
     @Override

@@ -13,8 +13,8 @@ public class InlineValue extends CommentElement {
         return value;
     }
 
-    public void visit( CommentVisitor visitor ) {
-        visitor.inlineValue( value );
+    public void visit(CommentVisitor visitor) {
+        visitor.inlineValue(value);
     }
 
     @Override
@@ -28,12 +28,12 @@ public class InlineValue extends CommentElement {
         InlineValue that = (InlineValue) o;
         return Objects.equals(value, that.value);
     }
-    
+
     @Override
     public String toString() {
         return "value=" + value;
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(value);

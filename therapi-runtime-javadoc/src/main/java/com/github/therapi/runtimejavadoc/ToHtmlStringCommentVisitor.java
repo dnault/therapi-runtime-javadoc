@@ -1,24 +1,24 @@
 package com.github.therapi.runtimejavadoc;
 
 
-class ToHtmlStringCommentVisitor implements CommentVisitor {
-    public StringBuilder buf = new StringBuilder();
+public class ToHtmlStringCommentVisitor implements CommentVisitor {
+    protected StringBuilder buf = new StringBuilder();
 
-    public void commentText( String value ) {
-        buf.append( value );
+    public void commentText(String value) {
+        buf.append(value);
     }
 
-    public void inlineLink( Link link ) {
+    public void inlineLink(Link link) {
         buf.append("{@link ");
         buf.append(link);
         buf.append("}");
     }
 
-    public void inlineTag( String name, String value ) {
+    public void inlineTag(String name, String value) {
         if ("code".equals(name)) {
-            buf.append( "<code>" );
-            buf.append( escapeHtml( value ) );
-            buf.append( "</code>" );
+            buf.append("<code>");
+            buf.append(escapeHtml(value));
+            buf.append("</code>");
         } else if ("literal".equals(name)) {
             buf.append(escapeHtml(value));
         } else {
@@ -30,7 +30,7 @@ class ToHtmlStringCommentVisitor implements CommentVisitor {
         }
     }
 
-    public void inlineValue( Value value ) {
+    public void inlineValue(Value value) {
         if (value.getReferencedMemberName() == null) {
             buf.append("{@value}");
         } else {
