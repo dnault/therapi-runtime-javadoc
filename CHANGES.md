@@ -1,5 +1,17 @@
 # Change history
 
+## 0.12.0 - October 17, 2020
+
+Thanks to Chris Kirk (kirkch) for the improvements and fixes in this version.
+
+Issues resolved:
+
+* [ENHANCEMENT] Use visitor pattern for formatting comments
+* [BUGFIX] #21 @throws never parsed as ThrowsJavadoc
+* [BUGFIX] #41 Constructor javadoc is missing when there is no class level java doc
+* [BUGFIX] #43 @see on fields appears under other #43
+
+
 ## 0.11.0 - August 16, 2020
 
 Issues resolved:
