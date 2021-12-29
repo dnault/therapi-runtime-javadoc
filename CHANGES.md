@@ -6,10 +6,10 @@ Thanks to Chris Kirk (kirkch) for the improvements and fixes in this version.
 
 Issues resolved:
 
-* [ENHANCEMENT] Use visitor pattern for formatting comments
-* [BUGFIX] #21 @throws never parsed as ThrowsJavadoc
-* [BUGFIX] #41 Constructor javadoc is missing when there is no class level java doc
-* [BUGFIX] #43 @see on fields appears under other #43
+* [ENHANCEMENT] [#48](https://github.com/dnault/therapi-runtime-javadoc/issues/48) Use visitor pattern for formatting comments
+* [BUGFIX] [#21](https://github.com/dnault/therapi-runtime-javadoc/issues/21) @throws never parsed as ThrowsJavadoc
+* [BUGFIX] [#41](https://github.com/dnault/therapi-runtime-javadoc/issues/41) Constructor javadoc is missing when there is no class level java doc
+* [BUGFIX] [#43](https://github.com/dnault/therapi-runtime-javadoc/issues/43) @see on fields appears under other #43
 
 
 ## 0.11.0 - August 16, 2020
@@ -17,8 +17,8 @@ Issues resolved:
 Issues resolved:
 
 * [ENHANCEMENT] #37 Support reading constructor Javadoc
-* [BUGFIX] #36 Reader throws AssertionError when parsing malformed "see" tag
-* [BUGFIX] #38 Fix @code tag parsing
+* [BUGFIX] [#36](https://github.com/dnault/therapi-runtime-javadoc/issues/36) Reader throws AssertionError when parsing malformed "see" tag
+* [BUGFIX] [#38](https://github.com/dnault/therapi-runtime-javadoc/issues/38) Fix @code tag parsing
 
 ## 0.10.0 - July 19, 2020
 
@@ -26,7 +26,7 @@ It's now possible to get the Javadoc of nested classes in the default package.
 
 Issues resolved:
 
-* [BUGFIX] #35 Can't get Javadoc for nested class in default package
+* [BUGFIX] [#35](https://github.com/dnault/therapi-runtime-javadoc/issues/35) Can't get Javadoc for nested class in default package
 
 ## 0.9.0 - November 22, 2018
 
@@ -61,7 +61,7 @@ returns `false` for placeholders.
   
 Issues resolved:
 
-* [ENHANCEMENT] #22 Make this available in Java 7 (Benny Bottema)
+* [ENHANCEMENT] [#22](https://github.com/dnault/therapi-runtime-javadoc/issues/22) Make this available in Java 7 (Benny Bottema)
 
 
 ## 0.6.0 - May 3, 2018
@@ -71,7 +71,7 @@ and presented as `InlineTag` and `InlineLink` comment elements.
 
 Issues resolved:
 
-* [ENHANCEMENT] #17 Add links and tags elements to Comment (joffrey-bion)
+* [ENHANCEMENT] [#17](https://github.com/dnault/therapi-runtime-javadoc/issues/17) Add links and tags elements to Comment (joffrey-bion)
 
 
 ## 0.5.0 - April 28, 2018
@@ -81,8 +81,8 @@ it's now possible to read the Javadoc of fields and enum constants.
 
 Issues resolved:
 
-* [ENHANCEMENT] #15 Add field and enum constants support (joffrey-bion, skissane)
-* [BUGFIX] #12 NullPointerException in RuntimeJavadoc due to null ClassLoader
+* [ENHANCEMENT] [#15](https://github.com/dnault/therapi-runtime-javadoc/issues/15) Add field and enum constants support (joffrey-bion, skissane)
+* [BUGFIX] [#12](https://github.com/dnault/therapi-runtime-javadoc/issues/12) NullPointerException in RuntimeJavadoc due to null ClassLoader
 
 
 ## 0.4.0 - March 12, 2018
@@ -92,8 +92,8 @@ yielding smaller JAR sizes.
 
 Issues resolved:
 
-* [ENHANCEMENT] #10 Write Javadoc to class path resources instead of Java classes 
-* [ENHANCEMENT] #8 Don't generate companion class if there is no Javadoc
+* [ENHANCEMENT] [#10](https://github.com/dnault/therapi-runtime-javadoc/issues/10) Write Javadoc to class path resources instead of Java classes 
+* [ENHANCEMENT] [#8](https://github.com/dnault/therapi-runtime-javadoc/issues/8) Don't generate companion class if there is no Javadoc
 
 
 ## 0.3.0 - March 11, 2018
@@ -108,14 +108,14 @@ Breaking changes:
 
 Issues resolved:
 
-* [ENHANCEMENT] #7 Separate the annotation processor from the runtime library
-* [ENHANCEMENT] #5 Provide RuntimeJavadoc.getJavadoc(Method) (Thanks @joffrey-bion!)
-* [ENHANCEMENT] #4 Allow the use of a package whitelist instead of annotating on each class
+* [ENHANCEMENT] [#7](https://github.com/dnault/therapi-runtime-javadoc/issues/7) Separate the annotation processor from the runtime library
+* [ENHANCEMENT] [#5](https://github.com/dnault/therapi-runtime-javadoc/issues/5) Provide RuntimeJavadoc.getJavadoc(Method) (Thanks @joffrey-bion!)
+* [ENHANCEMENT] [#4](https://github.com/dnault/therapi-runtime-javadoc/issues/4) Allow the use of a package whitelist instead of annotating on each class
 
 
 ## 0.2.1 - August 26, 2017
 
-* [BUGFIX] #3 ClassJavadoc.getName() should return the class name
+* [BUGFIX] [#3](https://github.com/dnault/therapi-runtime-javadoc/issues/3) ClassJavadoc.getName() should return the class name
 
 
 ## 0.2.0 - December 4, 2016
