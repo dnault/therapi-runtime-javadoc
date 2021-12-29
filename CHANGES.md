@@ -6,7 +6,7 @@ Thanks to Chris Kirk (kirkch) for the improvements and fixes in this version.
 
 Issues resolved:
 
-* [ENHANCEMENT] Use visitor pattern for formatting comments
+* [ENHANCEMENT] [#48](https://github.com/dnault/therapi-runtime-javadoc/issues/48) Use visitor pattern for formatting comments
 * [BUGFIX] [#21](https://github.com/dnault/therapi-runtime-javadoc/issues/21) @throws never parsed as ThrowsJavadoc
 * [BUGFIX] [#41](https://github.com/dnault/therapi-runtime-javadoc/issues/41) Constructor javadoc is missing when there is no class level java doc
 * [BUGFIX] [#43](https://github.com/dnault/therapi-runtime-javadoc/issues/43) @see on fields appears under other #43
