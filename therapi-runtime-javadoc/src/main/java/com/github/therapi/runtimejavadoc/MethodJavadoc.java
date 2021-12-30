@@ -4,10 +4,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
+import static java.util.regex.Pattern.compile;
 
 public class MethodJavadoc extends BaseJavadoc {
+    
+    private static final Pattern LEGACY_PARAMETER_TYPE_PATTERN = compile("(?:.*:: )?([\\w.]+)\\)?");
+    
     private final List<String> paramTypes;
     private final List<ParamJavadoc> params;
     private final List<ThrowsJavadoc> exceptions;
@@ -61,7 +66,12 @@ public class MethodJavadoc extends BaseJavadoc {
     }
 
     private boolean paramsMatch(Class<?>[] paramTypes) {
-        return getCanonicalNames(paramTypes).equals(this.paramTypes);
+        List<String> normalizedParamtypes = new ArrayList<>();
+        for (String paramType : this.paramTypes) {
+            String legacyParamType = LEGACY_PARAMETER_TYPE_PATTERN.matcher(paramType).replaceFirst("$1");
+            normalizedParamtypes.add(legacyParamType);
+        }
+        return getCanonicalNames(paramTypes).equals(normalizedParamtypes);
     }
 
     private static List<String> getCanonicalNames(Class<?>[] paramTypes) {
