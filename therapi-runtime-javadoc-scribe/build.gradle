@@ -1,6 +1,9 @@
-
 dependencies {
     compileOnly files(System.properties['java.home'] + "/../lib/tools.jar")
+
+    // relocated version is provided by the therapi-runtime-javadoc runtime library
+    compileOnly 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+
     shadow project(':therapi-runtime-javadoc')
 
     testImplementation project(':therapi-runtime-javadoc')

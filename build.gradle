@@ -21,7 +21,6 @@ subprojects {
     }
 
     dependencies {
-        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
         testImplementation 'junit:junit:4.13.2'
     }
 
@@ -48,7 +47,7 @@ subprojects {
     shadowJar {
         archiveClassifier.set('')
         mergeServiceFiles()
-        relocate 'com.eclipsesource', 'com.github.therapi.runtimejavadoc.repack.com.eclipsesource'
+        relocate 'com.eclipsesource.json', 'com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json'
     }
 
     publishing {
