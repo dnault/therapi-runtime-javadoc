@@ -7,7 +7,7 @@ def testJavaVersion = project.findProperty("testJavaVersion") ?: compileJavaVers
 def jvmVendor = null
 logger.lifecycle("Compiling for Java ${compileJavaVersion} and later, testing against Java ${testJavaVersion}")
 
-subprojects { subproject ->
+subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
@@ -42,6 +42,8 @@ subprojects { subproject ->
             vendor = jvmVendor
         }
     }
+
+    jar.enabled = false // interferes with shadow tasks
 
     shadowJar {
         archiveClassifier.set('')
@@ -91,7 +93,7 @@ subprojects { subproject ->
         repositories {
             maven {
                 def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
                 url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
                 credentials {

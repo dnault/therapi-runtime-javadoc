@@ -1,1 +1,0 @@
-signMavenJavaPublication.dependsOn(jar)
