@@ -12,31 +12,4 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-proc:none"
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) { publication ->
-            project.shadow.component(publication)
-
-            pom.withXml {
-                asNode().appendNode('description', project.description)
-
-                asNode().children().last() + project.ext.pomConfig
-
-                // Workaround for https://github.com/johnrengelman/shadow/issues/334
-                def dep = asNode().get("dependencies")[0].appendNode("dependency")
-                dep.appendNode("groupId", project.group)
-                dep.appendNode("artifactId", "therapi-runtime-javadoc")
-                dep.appendNode("version", project.version)
-                dep.appendNode("scope", "compile")
-            }
-
-            artifact sourceJar {
-                classifier 'sources'
-            }
-
-            artifact javadocJar {
-                classifier 'javadoc'
-            }
-        }
-    }
-}
+compileJava.dependsOn(":therapi-runtime-javadoc:shadowJar")

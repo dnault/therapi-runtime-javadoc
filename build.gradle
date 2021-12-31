@@ -10,6 +10,7 @@ logger.lifecycle("Compiling for Java ${compileJavaVersion} and later, testing ag
 subprojects { subproject ->
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'signing'
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = "com.github.therapi"
@@ -25,6 +26,9 @@ subprojects { subproject ->
     }
 
     java {
+        withJavadocJar()
+        withSourcesJar()
+
         toolchain {
             languageVersion = JavaLanguageVersion.of(compileJavaVersion)
             vendor = jvmVendor
@@ -45,38 +49,67 @@ subprojects { subproject ->
         relocate 'com.eclipsesource', 'com.github.therapi.runtimejavadoc.repack.com.eclipsesource'
     }
 
-    task sourceJar(type: Jar, dependsOn: classes) {
-        from sourceSets.main.allSource
-    }
+    publishing {
+        publications {
+            mavenJava(MavenPublication) { publication ->
+                project.shadow.component(publication)
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        from javadoc.destinationDir
-    }
+                artifacts = [shadowJar, javadocJar, sourcesJar]
 
-    project.ext.gitProjectName = project.name
-    def gitUrl = "git@github.com:dnault/${project.ext.gitProjectName}.git"
-    project.ext.pomConfig = {
-        name "${group}:${project.name}"
-        url "https://github.com/dnault/${project.ext.gitProjectName}"
-        scm {
-            url "${gitUrl}"
-            connection "scm:git:${gitUrl}"
-            developerConnection "scm:git:${gitUrl}"
-        }
-        licenses {
-            license {
-                name 'Apache License 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                pom {
+                    def githubProjectName = "therapi-runtime-javadoc"
+
+                    name = "${group}:${project.name}"
+                    description = project.description // defined in gradle.properties
+                    url = "https://github.com/dnault/${githubProjectName}"
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'dnault'
+                            name = 'David Nault'
+                            email = 'dnault@mac.com'
+                            organization = 'dnault'
+                            organizationUrl = 'https://github.com/dnault'
+                        }
+                    }
+                    scm {
+                        def gitUrl = "git@github.com:dnault/${githubProjectName}.git"
+
+                        connection = "scm:git:${gitUrl}"
+                        developerConnection = "scm:git:${gitUrl}"
+                        url = "${gitUrl}"
+                    }
+                }
             }
         }
-        developers {
-            developer {
-                name 'David Nault'
-                email 'dnault@mac.com'
-                organization 'dnault'
-                organizationUrl 'https://github.com/dnault'
+
+        repositories {
+            maven {
+                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+                credentials {
+                    // defined externally in gradle.properties
+                    username = project.properties["ossrhUsername"]
+                    password = project.properties["ossrhPassword"]
+                }
             }
         }
+    }
+
+    signing {
+        // Use GPG agent
+        // https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent
+        // Requires "signing.gnupg.keyName" property defined externally in gradle.properties
+        useGpgCmd()
+
+        sign publishing.publications.mavenJava
     }
 
     task install {
