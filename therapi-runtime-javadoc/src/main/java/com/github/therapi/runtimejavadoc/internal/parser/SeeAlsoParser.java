@@ -16,6 +16,8 @@ public class SeeAlsoParser {
     private static final Pattern htmlLink = compile("(?s)<a\\s*href=['\"](?<link>.+?)['\"]\\s*>(?<text>.+)<\\/a>");
 
     /**
+     * @param owningClass fully-qualified name of the class where the "see" tag appears
+     * @param value       value of the "see" tag
      * @return null if tag is malformed
      */
     public static SeeAlsoJavadoc parseSeeAlso(String owningClass, String value) {

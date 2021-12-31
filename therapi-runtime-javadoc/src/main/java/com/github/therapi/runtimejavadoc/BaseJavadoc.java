@@ -36,14 +36,14 @@ public abstract class BaseJavadoc {
     }
 
     /**
-     * Returns {@code false} if this object has content, or {@code true}
-     * if it represents absent Javadoc.
+     * @return false if this object has content, or true if it represents absent Javadoc.
      */
     public boolean isEmpty() {
         return false;
     }
 
     /**
+     * @return true if this object has content, or false if it represents absent Javadoc.
      * @deprecated use !{@link #isEmpty()} instead
      */
     @Deprecated
