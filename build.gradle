@@ -2,6 +2,11 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
+def compileJavaVersion = "8"
+def testJavaVersion = project.findProperty("testJavaVersion") ?: compileJavaVersion
+def jvmVendor = null
+logger.lifecycle("Compiling for Java ${compileJavaVersion} and later, testing against Java ${testJavaVersion}")
+
 subprojects { subproject ->
     apply plugin: 'java'
     apply plugin: 'maven-publish'
@@ -19,8 +24,20 @@ subprojects { subproject ->
         testImplementation 'junit:junit:4.13.2'
     }
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(compileJavaVersion)
+            vendor = jvmVendor
+        }
+    }
+
+    tasks.withType(Test) {
+        testLogging.showStandardStreams = true
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(testJavaVersion)
+            vendor = jvmVendor
+        }
+    }
 
     shadowJar {
         archiveClassifier.set('')

@@ -1,6 +1,6 @@
 # therapi-runtime-javadoc
 
-![Java 1.7+](https://img.shields.io/badge/java-1.7+-lightgray.svg)
+![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
 
 
 ## Bake Javadoc comments into your code
@@ -21,7 +21,6 @@ Javadoc on demand.
 
 ```groovy
 dependencies {
-    // Annotation processor (prior to Gradle 4.6, use `compileOnly` instead)
     annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.12.0'
 
     // Runtime library
