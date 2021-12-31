@@ -3,6 +3,7 @@ package com.github.therapi.runtimejavadoc.internal;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.squareup.javapoet.TypeName;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -131,9 +132,10 @@ class JsonJavadocBuilder {
         Types typeUtils = processingEnv.getTypeUtils();
 
         final JsonArray jsonValues = new JsonArray();
-        for (VariableElement parameter : executableElement.getParameters()) {
+        for (VariableElement parameter : executableElement.getParameters()) {;
             TypeMirror erasure = typeUtils.erasure(parameter.asType());
-            jsonValues.add(Json.value(erasure.toString()));
+            String typeName = TypeName.get(erasure).withoutAnnotations().toString();
+            jsonValues.add(Json.value(typeName));
         }
         return jsonValues;
     }

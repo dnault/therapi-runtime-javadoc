@@ -4,10 +4,16 @@ dependencies {
     // relocated version is provided by the therapi-runtime-javadoc runtime library
     compileOnly 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 
+    implementation 'com.squareup:javapoet:1.13.0'
+
     shadow project(':therapi-runtime-javadoc')
 
     testImplementation project(':therapi-runtime-javadoc')
     testImplementation 'com.google.testing.compile:compile-testing:0.11'
+}
+
+shadowJar {
+    relocate 'com.squareup.javapoet', 'com.github.therapi.runtimejavadoc.scribe.repack.com.squareup.javapoet'
 }
 
 tasks.withType(JavaCompile) {
