@@ -9,7 +9,7 @@ dependencies {
     shadow project(':therapi-runtime-javadoc')
 
     testImplementation project(':therapi-runtime-javadoc')
-    testImplementation 'com.google.testing.compile:compile-testing:0.11'
+    testImplementation 'com.google.testing.compile:compile-testing:0.19'
 }
 
 shadowJar {
