@@ -82,7 +82,7 @@ from all packages.
 
 ### Reading Javadoc comments at runtime
 
-Add the runtime library as a dependecy of your project.
+Add the runtime library as a dependency of your project.
 
 Read the Javadoc by calling `RuntimeJavadoc.getJavadoc` and passing a
 class literal, a fully-qualified class name, or a `java.lang.reflect.Method`.
@@ -164,13 +164,31 @@ public class Example {
 }
 ```
 
+## License
+
+```
+Copyright 2015 David Nault and contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
 ## Notice
 
 This library includes the following third-party software,
 repackaged to avoid potential dependency conflicts:
 
 * [minimal-json](https://github.com/ralfstx/minimal-json)
-(MIT License) Copyright (c) 2013, 2014 EclipseSource
+  (MIT License) Copyright (c) 2013, 2014 EclipseSource
 
 * [JavaPoet](https://github.com/square/javapoet)
-(Apache 2.0 License) Copyright (c) 2015 Square, Inc.
+  (Apache 2.0 License) Copyright (c) 2015 Square, Inc.
