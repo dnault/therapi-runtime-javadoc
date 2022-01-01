@@ -208,6 +208,7 @@ public class JavadocAnnotationProcessorTest {
 
             Constructor<?> undocumented = c.getDeclaredConstructor(Integer.class);
             assertTrue(RuntimeJavadoc.getJavadoc(undocumented).isEmpty());
+            assertEquals("<init>", RuntimeJavadoc.getJavadoc(undocumented).getName());
         }
     }
 

@@ -54,7 +54,7 @@ public class MethodJavadoc extends BaseJavadoc {
     }
 
     public static MethodJavadoc createEmpty(Constructor<?> method) {
-        return new MethodJavadoc(method.getName(), null, null, null, null, null, null, null) {
+        return new MethodJavadoc("<init>", null, null, null, null, null, null, null) {
             @Override
             public boolean isEmpty() {
                 return true;
