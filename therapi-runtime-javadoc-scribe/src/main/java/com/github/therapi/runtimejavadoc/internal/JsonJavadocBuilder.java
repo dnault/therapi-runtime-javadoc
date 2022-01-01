@@ -132,7 +132,7 @@ class JsonJavadocBuilder {
         Types typeUtils = processingEnv.getTypeUtils();
 
         final JsonArray jsonValues = new JsonArray();
-        for (VariableElement parameter : executableElement.getParameters()) {;
+        for (VariableElement parameter : executableElement.getParameters()) {
             TypeMirror erasure = typeUtils.erasure(parameter.asType());
             String typeName = TypeName.get(erasure).withoutAnnotations().toString();
             jsonValues.add(Json.value(typeName));
