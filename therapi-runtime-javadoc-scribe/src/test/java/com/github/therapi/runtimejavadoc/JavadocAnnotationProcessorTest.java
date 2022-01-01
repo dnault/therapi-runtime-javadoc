@@ -1,7 +1,6 @@
 package com.github.therapi.runtimejavadoc;
 
-import com.github.therapi.runtimejavadoc.internal.JavadocAnnotationProcessor;
-import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
+import com.github.therapi.runtimejavadoc.scribe.JavadocAnnotationProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;

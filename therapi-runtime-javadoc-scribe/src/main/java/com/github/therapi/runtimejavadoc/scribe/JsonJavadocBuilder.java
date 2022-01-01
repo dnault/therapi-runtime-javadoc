@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.therapi.runtimejavadoc.internal;
+package com.github.therapi.runtimejavadoc.scribe;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;

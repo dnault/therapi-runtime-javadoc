@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.therapi.runtimejavadoc.internal;
+package com.github.therapi.runtimejavadoc.scribe;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
