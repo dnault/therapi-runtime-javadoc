@@ -20,3 +20,6 @@ out
 /therapi-runtime-javadoc/build
 
 .gradle
+
+# macOS filesystem metadata
+.DS_Store
