@@ -31,6 +31,9 @@
 
 :arrow_up: [#56](https://github.com/dnault/therapi-runtime-javadoc/issues/56) Java 1.8 is now the minimum required version.
 
+:truck: Moved JavadocAnnotationProcessor to avoid split package between
+annotation processor and runtime library. The new fully-qualified name
+is `com.github.therapi.runtimejavadoc.scribe.JavadocAnnotationProcessor`.
 
 ## 0.12.0 - October 17, 2020
 
