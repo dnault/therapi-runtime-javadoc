@@ -67,6 +67,9 @@ public class ClassJavadoc extends BaseJavadoc {
     /**
      * If this class is a record, returns the "@param" tags from the canonical constructor.
      * Otherwise, returns an empty list.
+     *
+     * @return a non-null (but possibly empty) list of param tags describing the record components,
+     * in the order the tags appear in the Javadoc.
      */
     public List<ParamJavadoc> getRecordComponents() {
         return recordComponents;
