@@ -1,4 +1,4 @@
-This library includes the following third-party software,
+This software includes the following libraries,
 repackaged to avoid potential dependency conflicts:
 
 * [minimal-json](https://github.com/ralfstx/minimal-json)
