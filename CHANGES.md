@@ -145,7 +145,7 @@ annotation is no longer required.
   
 Breaking changes:
 
-* The annotation processor is now a separate artifact,
+:truck: The annotation processor is now a separate artifact,
 `com.github.therapi:therapi-runtime-javadoc-scribe`.
 
 Issues resolved:
@@ -164,7 +164,7 @@ Issues resolved:
 
 ## 0.2.0 - December 4, 2016
 
-* Complete overhaul to use an annotation processor instead of a Gradle plugin.
+:tada: Complete overhaul to use an annotation processor instead of a Gradle plugin.
   The new approach is compatible with Maven projects, and works when code is run
   directly from an IDE.
 
