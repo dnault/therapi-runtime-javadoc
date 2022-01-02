@@ -26,18 +26,21 @@ public class ClassJavadoc extends BaseJavadoc {
     private final List<FieldJavadoc> enumConstants;
     private final List<MethodJavadoc> methods;
     private final List<MethodJavadoc> constructors;
+    private final List<ParamJavadoc> recordComponents;
 
     public ClassJavadoc(String name, Comment comment, List<FieldJavadoc> fields, List<FieldJavadoc> enumConstants,
-                        List<MethodJavadoc> methods, List<MethodJavadoc> constructors, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso) {
+                        List<MethodJavadoc> methods, List<MethodJavadoc> constructors, List<OtherJavadoc> other, List<SeeAlsoJavadoc> seeAlso,
+                        List<ParamJavadoc> recordComponents) {
         super(name, comment, seeAlso, other);
         this.fields = unmodifiableDefensiveCopy(fields);
         this.enumConstants = unmodifiableDefensiveCopy(enumConstants);
         this.methods = unmodifiableDefensiveCopy(methods);
         this.constructors = unmodifiableDefensiveCopy(constructors);
+        this.recordComponents = unmodifiableDefensiveCopy(recordComponents);
     }
 
     public static ClassJavadoc createEmpty(String qualifiedClassName) {
-        return new ClassJavadoc(qualifiedClassName, null, null, null, null, null, null, null) {
+        return new ClassJavadoc(qualifiedClassName, null, null, null, null, null, null, null, null) {
             @Override
             public boolean isEmpty() {
                 return true;
@@ -61,6 +64,14 @@ public class ClassJavadoc extends BaseJavadoc {
         return constructors;
     }
 
+    /**
+     * If this class is a record, returns the "@param" tags from the canonical constructor.
+     * Otherwise, returns an empty list.
+     */
+    public List<ParamJavadoc> getRecordComponents() {
+        return recordComponents;
+    }
+
     @Override
     public String toString() {
         return "ClassJavadoc{" +
@@ -69,6 +80,7 @@ public class ClassJavadoc extends BaseJavadoc {
                 ", fields=" + fields +
                 ", methods=" + methods +
                 ", constructors=" + constructors +
+                ", recordComponents=" + recordComponents +
                 ", seeAlso=" + getSeeAlso() +
                 ", other=" + getOther() +
                 '}';

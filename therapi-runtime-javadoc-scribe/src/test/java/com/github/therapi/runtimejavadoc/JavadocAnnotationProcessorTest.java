@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 public class JavadocAnnotationProcessorTest {
 
+    private static final String DOCUMENTED_RECORD = "javasource.foo.DocumentedRecord";
     private static final String DOCUMENTED_CLASS = "javasource.foo.DocumentedClass";
     private static final String DOCUMENTED_ENUM = "javasource.foo.DocumentedEnum";
     private static final String COMPLEX_ENUM = "javasource.foo.ComplexEnum";
@@ -36,6 +37,7 @@ public class JavadocAnnotationProcessorTest {
     private static List<JavaFileObject> sources() {
         List<JavaFileObject> files = new ArrayList<>();
         for (String resource : new String[]{
+                "javasource/foo/DocumentedRecord.java",
                 "javasource/foo/DocumentedClass.java",
                 "javasource/foo/DocumentedEnum.java",
                 "javasource/foo/ComplexEnum.java",
@@ -83,12 +85,14 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile(null)) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
+            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
 
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
+            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -98,6 +102,7 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=some.other.package")) {
             expectNoJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectNoJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
+            expectNoJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -107,6 +112,7 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=javasource.foo")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectNoJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
+            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -116,6 +122,7 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=javasource.foo,javasource.bar")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
+            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -125,6 +132,7 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=javasource")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
+            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -243,36 +251,59 @@ public class JavadocAnnotationProcessorTest {
 
         assertEquals(methodDoc.getSeeAlso().size(), 4);
 
-		SeeAlsoJavadoc seeAlso1 = methodDoc.getSeeAlso().get(0);
-		assertEquals(seeAlso1.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
+        SeeAlsoJavadoc seeAlso1 = methodDoc.getSeeAlso().get(0);
+        assertEquals(seeAlso1.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
         assertEquals(seeAlso1.getLink().getReferencedClassName(), "com.github.therapi.runtimejavadoc.DocumentedClass");
-		assertNull(seeAlso1.getLink().getReferencedMemberName());
-		assertEquals(seeAlso1.getLink().getParams().size(), 0);
+        assertNull(seeAlso1.getLink().getReferencedMemberName());
+        assertEquals(seeAlso1.getLink().getParams().size(), 0);
         assertEquals(seeAlso1.getLink().getLabel(), "Hey, that's this class!");
 
-		SeeAlsoJavadoc seeAlso2 = methodDoc.getSeeAlso().get(1);
-		assertEquals(seeAlso2.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
-		assertEquals(seeAlso2.getLink().getReferencedClassName(), "javasource.foo.DocumentedClass");
-		assertEquals(seeAlso2.getLink().getReferencedMemberName(), "someOtherMethod");
-		assertEquals(seeAlso2.getLink().getParams().size(), 0);
-		assertEquals(seeAlso2.getLink().getLabel(), "#someOtherMethod()");
+        SeeAlsoJavadoc seeAlso2 = methodDoc.getSeeAlso().get(1);
+        assertEquals(seeAlso2.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.JAVADOC_LINK);
+        assertEquals(seeAlso2.getLink().getReferencedClassName(), "javasource.foo.DocumentedClass");
+        assertEquals(seeAlso2.getLink().getReferencedMemberName(), "someOtherMethod");
+        assertEquals(seeAlso2.getLink().getParams().size(), 0);
+        assertEquals(seeAlso2.getLink().getLabel(), "#someOtherMethod()");
 
-		SeeAlsoJavadoc seeAlso3 = methodDoc.getSeeAlso().get(2);
-		assertEquals(seeAlso3.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.STRING_LITERAL);
-		assertEquals(seeAlso3.getStringLiteral(), "Moomoo boy went straight to Moomoo land. Land of the moomoo's");
+        SeeAlsoJavadoc seeAlso3 = methodDoc.getSeeAlso().get(2);
+        assertEquals(seeAlso3.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.STRING_LITERAL);
+        assertEquals(seeAlso3.getStringLiteral(), "Moomoo boy went straight to Moomoo land. Land of the moomoo's");
 
-		SeeAlsoJavadoc seeAlso4 = methodDoc.getSeeAlso().get(3);
-		assertEquals(seeAlso4.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.HTML_LINK);
-		assertEquals(seeAlso4.getHtmlLink().getLink(), "http://www.moomoo.land");
-		assertEquals(seeAlso4.getHtmlLink().getText(), "Moomoo land");
+        SeeAlsoJavadoc seeAlso4 = methodDoc.getSeeAlso().get(3);
+        assertEquals(seeAlso4.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.HTML_LINK);
+        assertEquals(seeAlso4.getHtmlLink().getLink(), "http://www.moomoo.land");
+        assertEquals(seeAlso4.getHtmlLink().getText(), "Moomoo land");
     }
 
     @Test
     public void nestedClassNameIsPreserved() throws Exception {
         try (CompilationClassLoader classLoader = compile(null)) {
-            Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$Nested");
+            {
+                Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$Nested");
+                ClassJavadoc classJavadoc = expectJavadoc(c);
+                assertEquals(DOCUMENTED_CLASS + ".Nested", classJavadoc.getName());
+            }
+
+            {
+                Class<?> c = classLoader.loadClass(DOCUMENTED_RECORD + "$Nested");
+                ClassJavadoc classJavadoc = expectJavadoc(c);
+                assertEquals(DOCUMENTED_RECORD + ".Nested", classJavadoc.getName());
+            }
+        }
+    }
+
+    @Test
+    public void canGetRecordComponents() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_RECORD);
             ClassJavadoc classJavadoc = expectJavadoc(c);
-            assertEquals(DOCUMENTED_CLASS + ".Nested", classJavadoc.getName());
+            List<ParamJavadoc> components = classJavadoc.getRecordComponents();
+
+            assertEquals("count", components.get(0).getName());
+            assertEquals("lucky number", components.get(0).getComment().toString());
+
+            assertEquals("color", components.get(1).getName());
+            assertEquals("favorite color", components.get(1).getComment().toString());
         }
     }
 

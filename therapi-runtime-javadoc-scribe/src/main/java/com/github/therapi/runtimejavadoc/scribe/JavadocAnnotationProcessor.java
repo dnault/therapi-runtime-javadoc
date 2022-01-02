@@ -32,8 +32,10 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
@@ -85,9 +87,33 @@ public class JavadocAnnotationProcessor extends AbstractProcessor {
                 || annotation.getAnnotation(RetainJavadoc.class) != null;
     }
 
+    private static <E extends Enum<E>> Optional<E> findValueOf(Class<E> enumClass, String valueName) {
+        try {
+            return Optional.of(Enum.valueOf(enumClass, valueName));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
+
+    // ElementKind.RECORD was added in Java 16. We want to process records, but also
+    // remain compatible with earlier Java versions.
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    static final Optional<ElementKind> RECORD = findValueOf(ElementKind.class, "RECORD");
+
+    private static final EnumSet<ElementKind> elementKindsToInspect = EnumSet.of(
+            ElementKind.CLASS,
+            ElementKind.INTERFACE,
+            ElementKind.ENUM
+            // and RECORD, but only if the Java version supports it
+    );
+
+    static {
+        RECORD.ifPresent(elementKindsToInspect::add);
+    }
+
     private void generateJavadoc(Element element, Set<Element> alreadyProcessed) {
         ElementKind kind = element.getKind();
-        if (kind == ElementKind.CLASS || kind == ElementKind.INTERFACE || kind == ElementKind.ENUM) {
+        if (elementKindsToInspect.contains(kind)) {
             try {
                 generateJavadocForClass(element, alreadyProcessed);
             } catch (Exception ex) {

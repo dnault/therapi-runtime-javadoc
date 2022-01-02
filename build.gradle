@@ -3,7 +3,7 @@ plugins {
 }
 
 def compileJavaVersion = "8"
-def testJavaVersion = project.findProperty("testJavaVersion") ?: compileJavaVersion
+def testJavaVersion = project.findProperty("testJavaVersion") ?: "16"
 def jvmVendor = null
 logger.lifecycle("Compiling for Java ${compileJavaVersion} and later, testing against Java ${testJavaVersion}")
 

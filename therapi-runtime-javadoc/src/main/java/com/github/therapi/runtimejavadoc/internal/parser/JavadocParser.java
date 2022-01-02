@@ -35,18 +35,36 @@ public class JavadocParser {
 
     private static final Pattern whitespace = Pattern.compile("\\s");
 
+    private static ParamJavadoc parseParam(BlockTag t, String owningClass) {
+        String[] paramNameAndComment = whitespace.split(t.value, 2);
+        String paramName = paramNameAndComment[0];
+        String paramComment = paramNameAndComment.length == 1 ? "" : paramNameAndComment[1];
+
+        return new ParamJavadoc(paramName, CommentParser.parse(owningClass, paramComment));
+    }
+
     public static ClassJavadoc parseClassJavadoc(String className, String javadoc, List<FieldJavadoc> fields,
                                                  List<FieldJavadoc> enumConstants, List<MethodJavadoc> methods, List<MethodJavadoc> constructors) {
         ParsedJavadoc parsed = parse(javadoc);
 
         List<OtherJavadoc> otherDocs = new ArrayList<>();
+        List<SeeAlsoJavadoc> seeAlsoDocs = new ArrayList<>();
+        List<ParamJavadoc> paramDocs = new ArrayList<>();
 
         for (BlockTag t : parsed.getBlockTags()) {
-            otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(className, t.value)));
+            if (t.name.equals("param")) {
+                paramDocs.add(parseParam(t, className));
+            } else if (t.name.equals("see")) {
+                SeeAlsoJavadoc seeAlso = SeeAlsoParser.parseSeeAlso(className, t.value);
+                if (seeAlso != null) {
+                    seeAlsoDocs.add(seeAlso);
+                }
+            } else {
+                otherDocs.add(new OtherJavadoc(t.name, CommentParser.parse(className, t.value)));
+            }
         }
-
         return new ClassJavadoc(className, CommentParser.parse(className, parsed.getDescription()), fields, enumConstants, methods,
-                constructors, otherDocs, new ArrayList<SeeAlsoJavadoc>());
+                constructors, otherDocs, seeAlsoDocs, paramDocs);
     }
 
     public static FieldJavadoc parseFieldJavadoc(String owningClass, String fieldName, String javadoc) {
@@ -81,11 +99,7 @@ public class JavadocParser {
 
         for (BlockTag t : parsed.getBlockTags()) {
             if (t.name.equals("param")) {
-                String[] paramNameAndComment = whitespace.split(t.value, 2);
-                String paramName = paramNameAndComment[0];
-                String paramComment = paramNameAndComment.length == 1 ? "" : paramNameAndComment[1];
-
-                paramDocs.add(new ParamJavadoc(paramName, CommentParser.parse(owningClass, paramComment)));
+                paramDocs.add(parseParam(t, owningClass));
             } else if (t.name.equals("return")) {
                 returns = CommentParser.parse(owningClass, t.value);
             } else if (t.name.equals("see")) {

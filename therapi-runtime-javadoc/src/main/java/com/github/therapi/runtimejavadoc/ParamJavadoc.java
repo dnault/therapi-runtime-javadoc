@@ -41,6 +41,6 @@ public class ParamJavadoc {
 
     @Override
     public String toString() {
-        return "@" + name + " " + comment;
+        return name + " " + comment;
     }
 }
