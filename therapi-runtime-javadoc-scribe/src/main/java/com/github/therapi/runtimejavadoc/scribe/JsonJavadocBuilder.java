@@ -65,22 +65,20 @@ class JsonJavadocBuilder {
 
         Map<ElementKind, List<Element>> children = new HashMap<>();
         for (Element enclosedElement : classElement.getEnclosedElements()) {
-            if (!children.containsKey(enclosedElement.getKind())) {
-                children.put(enclosedElement.getKind(), new ArrayList<Element>());
-            }
-            children.get(enclosedElement.getKind()).add(enclosedElement);
+            children.computeIfAbsent(enclosedElement.getKind(), k -> new ArrayList<>())
+                    .add(enclosedElement);
         }
 
         final List<Element> emptyList = Collections.emptyList();
         List<Element> enclosedFields = defaultIfNull(children.get(FIELD), emptyList);
         List<Element> enclosedEnumConstants = defaultIfNull(children.get(ENUM_CONSTANT), emptyList);
         List<Element> enclosedMethods = defaultIfNull(children.get(METHOD), emptyList);
-        List<Element> encolsedConstructors = defaultIfNull(children.get(CONSTRUCTOR), emptyList);
+        List<Element> enclosedConstructors = defaultIfNull(children.get(CONSTRUCTOR), emptyList);
 
         JsonArray fieldDocs = getJavadocsAsJson(enclosedFields, new FieldJavadocAsJson());
         JsonArray enumConstantDocs = getJavadocsAsJson(enclosedEnumConstants, new FieldJavadocAsJson());
         JsonArray methodDocs = getJavadocsAsJson(enclosedMethods, new MethodJavadocAsJson());
-        JsonArray constructorDocs = getJavadocsAsJson(encolsedConstructors, new MethodJavadocAsJson());
+        JsonArray constructorDocs = getJavadocsAsJson(enclosedConstructors, new MethodJavadocAsJson());
 
         if (isBlank(classDoc) && fieldDocs.isEmpty() && enumConstantDocs.isEmpty() && methodDocs.isEmpty() && constructorDocs.isEmpty()) {
             return null;
