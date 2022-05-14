@@ -19,6 +19,11 @@ public class DocumentedClass {
   private int myField;
 
   /**
+   * I'm a field my children can see.
+   */
+  protected int ourField;
+
+  /**
    * I'm a constructor!
    */
   public DocumentedClass() {
@@ -73,11 +78,22 @@ public class DocumentedClass {
   }
 
   /**
+   * I am a simple method
+   */
+  public void simpleMethod() {
+
+  }
+
+  /**
    * Foo {@link Foo#bar(String).}{@value Foo#bar(String).}
    *
    * @see Foo#bar(String).
    */
   public void malformedLinks() {
+  }
+
+  public boolean equals(Object o) {
+    return super.equals(o);
   }
 
   /**
