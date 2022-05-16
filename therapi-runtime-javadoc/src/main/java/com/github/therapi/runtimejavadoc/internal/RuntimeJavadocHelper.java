@@ -16,12 +16,17 @@
 
 package com.github.therapi.runtimejavadoc.internal;
 
+import static com.github.therapi.runtimejavadoc.MethodJavadoc.INIT;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import static java.util.Collections.unmodifiableList;
 import java.util.Iterator;
 import java.util.List;
-
-import static java.util.Collections.unmodifiableList;
+import java.util.stream.Collectors;
 
 public class RuntimeJavadocHelper {
     private RuntimeJavadocHelper() {
@@ -29,7 +34,7 @@ public class RuntimeJavadocHelper {
     }
 
     public static <T> List<T> unmodifiableDefensiveCopy(List<T> list) {
-        return list == null ? Collections.<T>emptyList() : unmodifiableList(new ArrayList<>(list));
+        return list == null ? Collections.emptyList() : unmodifiableList(new ArrayList<>(list));
     }
 
     public static <T> T requireNonNull(T object) {
@@ -42,13 +47,49 @@ public class RuntimeJavadocHelper {
     public static String join(CharSequence delimiter, Iterable<? extends CharSequence> items) {
         requireNonNull(delimiter);
         StringBuilder result = new StringBuilder();
-        for (Iterator<? extends CharSequence> i = items.iterator(); i.hasNext();) {
+        for (Iterator<? extends CharSequence> i = items.iterator(); i.hasNext(); ) {
             result.append(i.next());
             if (i.hasNext()) {
                 result.append(delimiter);
             }
         }
         return result.toString();
+    }
+
+    public static MethodJavadocKey executableToMethodJavadocKey(Executable executable) {
+        List<String> paramTypes = Arrays.stream(executable.getParameterTypes())
+                                     .map(Class::getCanonicalName)
+                                     .collect(Collectors.toList());
+        String name;
+        if (executable instanceof Method) {
+            name = executable.getName();
+        } else if (executable instanceof Constructor) {
+            name = INIT;
+        } else {
+            throw new UnsupportedOperationException("Unknown executable type");
+        }
+
+        return new MethodJavadocKey(name, paramTypes);
+    }
+
+    public static List<Class<?>> getAllTypeAncestors(Class<?> clazz) {
+        if (clazz == null) {
+            return Collections.emptyList();
+        }
+
+        List<Class<?>> typeAncestors = new ArrayList<>();
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null) {
+            typeAncestors.add(superclass);
+            typeAncestors.addAll(getAllTypeAncestors(superclass));
+        }
+
+        Class<?>[] interfaces = clazz.getInterfaces();
+        if (interfaces.length > 0) {
+            typeAncestors.addAll(Arrays.asList(interfaces));
+            Arrays.stream(interfaces).map(RuntimeJavadocHelper::getAllTypeAncestors).forEach(typeAncestors::addAll);
+        }
+        return Collections.unmodifiableList(typeAncestors);
     }
 
     public static boolean isBlank(String s) {

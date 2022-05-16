@@ -9,7 +9,7 @@ import java.util.List;
  * @custom.tag What does {@custom.inline this} mean?
  */
 
-public class DocumentedClass {
+public class DocumentedClass<T> {
 
   /**
    * I'm a useful field, maybe.
@@ -17,6 +17,11 @@ public class DocumentedClass {
    * @see #frobulate(String, int) interesting method, but nothing to do with this field
    */
   private int myField;
+
+  /**
+   * I'm a field my children can see.
+   */
+  protected int ourField;
 
   /**
    * I'm a constructor!
@@ -73,11 +78,49 @@ public class DocumentedClass {
   }
 
   /**
+   * I am a simple method
+   *
+   * @throws UnsupportedOperationException if cannot skip
+   */
+  public void skipMethod() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Foo {@link Foo#bar(String).}{@value Foo#bar(String).}
    *
    * @see Foo#bar(String).
    */
   public void malformedLinks() {
+  }
+
+  /**
+   * Generic method to do generic things
+   */
+  public T genericMethod(T generic) {
+    return generic;
+  }
+
+  /**
+   * Generic method to do run things
+   */
+  public T skipGenericMethod(T generic) {
+    return generic;
+  }
+
+  /**
+   * Generic method to do other things
+   */
+  public <U extends Comparable<U>> T separateGeneric(U otherGeneric) {
+    throw new UnsupportedOperationException();
+  }
+
+  public T blankGenericMethod() {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean equals(Object o) {
+    return super.equals(o);
   }
 
   /**
