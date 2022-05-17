@@ -99,8 +99,7 @@ public class ClassJavadoc extends BaseJavadoc {
 
     ClassJavadoc createEnhancedClassJavadoc(Class<?> clazz) {
         if (!getName().equals(clazz.getCanonicalName())) {
-            throw new IllegalArgumentException(
-                    String.format("Class `%s` does not match class doc for `%s`", clazz, getName()));
+            throw new IllegalArgumentException("Class `" + clazz.getCanonicalName() + "` does not match class doc for `" + getName() + "`");
         }
 
         if (isEmpty()) {

@@ -17,6 +17,7 @@
 package com.github.therapi.runtimejavadoc;
 
 import com.github.therapi.runtimejavadoc.internal.MethodJavadocKey;
+import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -30,8 +31,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MethodJavadoc extends BaseJavadoc {
-    public static final String INIT = "<init>";
-
     private final List<String> paramTypes;
     private final Map<String, ParamJavadoc> params;
     private final Map<String, ThrowsJavadoc> exceptions;
@@ -83,7 +82,7 @@ public class MethodJavadoc extends BaseJavadoc {
     }
 
     public static MethodJavadoc createEmpty(Executable executable) {
-        String name = executable instanceof Constructor ? INIT : executable.getName();
+        String name = executable instanceof Constructor ? RuntimeJavadocHelper.INIT : executable.getName();
         List<String> paramTypes = Arrays.stream(executable.getParameterTypes())
                                         .map(Class::getCanonicalName)
                                         .collect(Collectors.toList());
@@ -126,12 +125,12 @@ public class MethodJavadoc extends BaseJavadoc {
     }
 
     public boolean isConstructor() {
-        return INIT.equals(getName());
+        return RuntimeJavadocHelper.INIT.equals(getName());
     }
 
-    public boolean fullyDescribes(Method method) {
+    boolean fullyDescribes(Method method) {
         if (!method.getName().equals(getName()) || method.getParameterCount() != paramTypes.size()) {
-            throw new IllegalArgumentException(String.format("Method `%s` does not match javadoc `%s`", method, this));
+            throw new IllegalArgumentException("Method `" + method.getName() + "` does not match javadoc `" + getName() + "`");
         }
 
         return !getComment().getElements().isEmpty()

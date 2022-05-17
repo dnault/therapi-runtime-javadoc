@@ -112,7 +112,6 @@ public class RuntimeJavadoc {
     }
 
     private static ClassJavadoc getSkinnyClassJavadoc(String qualifiedClassName, ClassLoader loader) {
-        System.out.printf("Getting %s%n", qualifiedClassName);
         final String resourceName = getResourceName(qualifiedClassName);
         try (InputStream is = loader.getResourceAsStream("/" + resourceName)) {
             return parseJavadocResource(qualifiedClassName, is);
@@ -122,7 +121,6 @@ public class RuntimeJavadoc {
     }
 
     private static ClassJavadoc getSkinnyClassJavadoc(String qualifiedClassName, Class<?> loader) {
-        System.out.printf("Getting %s%n", qualifiedClassName);
         final String resourceName = getResourceName(qualifiedClassName);
         try (InputStream is = loader.getResourceAsStream("/" + resourceName)) {
             return parseJavadocResource(qualifiedClassName, is);

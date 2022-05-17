@@ -16,7 +16,6 @@
 
 package com.github.therapi.runtimejavadoc.internal;
 
-import static com.github.therapi.runtimejavadoc.MethodJavadoc.INIT;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -29,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RuntimeJavadocHelper {
+    public static final String INIT = "<init>";
+
     private RuntimeJavadocHelper() {
         throw new AssertionError("not instantiable");
     }
