@@ -114,7 +114,7 @@ public class MethodJavadoc extends BaseJavadoc {
         return enhancedJavadoc;
     }
 
-    MethodJavadoc copyWithInheritance(MethodJavadoc superMethodJavadoc) {
+    private MethodJavadoc copyWithInheritance(MethodJavadoc superMethodJavadoc) {
         if (superMethodJavadoc.isEmpty()) {
             return this;
         }

@@ -174,7 +174,6 @@ public class RuntimeJavadoc {
         }
 
         methodJavadoc = methodJavadoc.enhanceWithOverriddenJavadoc(method, classJavadocCache);
-
         if (methodJavadoc.fullyDescribes(method)) {
             return methodJavadoc;
         }
