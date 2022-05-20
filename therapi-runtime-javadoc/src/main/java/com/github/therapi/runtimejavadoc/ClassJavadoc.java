@@ -171,23 +171,13 @@ public class ClassJavadoc extends BaseJavadoc {
     @Override
     public String toString() {
         return "ClassJavadoc{"
-               + "name='"
-               + getName()
-               + '\''
-               + ", comment="
-               + getComment()
-               + ", fields="
-               + fields
-               + ", methods="
-               + methods
-               + ", constructors="
-               + constructors
-               + ", recordComponents="
-               + recordComponents
-               + ", seeAlso="
-               + getSeeAlso()
-               + ", other="
-               + getOther()
-               + '}';
+               + "name='" + getName() + '\''
+               + ", comment=" + getComment()
+               + ", fields=" + fields
+               + ", methods=" + methods
+               + ", constructors=" + constructors
+               + ", recordComponents=" + recordComponents
+               + ", seeAlso=" + getSeeAlso()
+               + ", other=" + getOther() + '}';
     }
 }
