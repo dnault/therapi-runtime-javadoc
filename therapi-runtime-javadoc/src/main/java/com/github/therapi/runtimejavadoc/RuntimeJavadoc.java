@@ -201,8 +201,7 @@ public class RuntimeJavadoc {
      * @return the given constructor's Javadoc
      */
     public static MethodJavadoc getJavadoc(Constructor<?> method) {
-        ClassJavadoc javadoc = getSkinnyClassJavadoc(method.getDeclaringClass());
-        return javadoc.findMatchingConstructor(method);
+        return getSkinnyClassJavadoc(method.getDeclaringClass()).findMatchingConstructor(method);
     }
 
     /**
@@ -220,8 +219,7 @@ public class RuntimeJavadoc {
      * @return the given field's Javadoc
      */
     public static FieldJavadoc getJavadoc(Field field) {
-        ClassJavadoc javadoc = getSkinnyClassJavadoc(field.getDeclaringClass());
-        return javadoc.findMatchingField(field);
+        return getSkinnyClassJavadoc(field.getDeclaringClass()).findMatchingField(field);
     }
 
     /**
@@ -239,7 +237,6 @@ public class RuntimeJavadoc {
      * @return the given enum constant's Javadoc
      */
     public static FieldJavadoc getJavadoc(Enum<?> enumValue) {
-        ClassJavadoc javadoc = getSkinnyClassJavadoc(enumValue.getDeclaringClass());
-        return javadoc.findMatchingEnumConstant(enumValue);
+        return getSkinnyClassJavadoc(enumValue.getDeclaringClass()).findMatchingEnumConstant(enumValue);
     }
 }

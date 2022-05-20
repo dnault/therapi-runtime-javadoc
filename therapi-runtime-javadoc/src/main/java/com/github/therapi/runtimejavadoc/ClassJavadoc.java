@@ -42,32 +42,32 @@ public class ClassJavadoc extends BaseJavadoc {
                         List<SeeAlsoJavadoc> seeAlso, List<ParamJavadoc> recordComponents) {
         super(name, comment, seeAlso, other);
 
-        LinkedHashMap<String, FieldJavadoc> fieldMap = new LinkedHashMap<>();
+        Map<String, FieldJavadoc> fieldMap = new LinkedHashMap<>();
         if (fields != null) {
             fields.forEach(fieldJavadoc -> fieldMap.put(fieldJavadoc.getName(), fieldJavadoc));
         }
         this.fields = Collections.unmodifiableMap(fieldMap);
 
-        LinkedHashMap<String, FieldJavadoc> enumMap = new LinkedHashMap<>();
+        Map<String, FieldJavadoc> enumMap = new LinkedHashMap<>();
         if (enumConstants != null) {
             enumConstants.forEach(fieldJavadoc -> enumMap.put(fieldJavadoc.getName(), fieldJavadoc));
         }
         this.enumConstants = Collections.unmodifiableMap(enumMap);
 
-        LinkedHashMap<MethodJavadocKey, MethodJavadoc> methodsMap = new LinkedHashMap<>();
+        Map<MethodJavadocKey, MethodJavadoc> methodsMap = new LinkedHashMap<>();
         if (methods != null) {
             methods.forEach(methodJavadoc -> methodsMap.put(methodJavadoc.toMethodJavadocKey(), methodJavadoc));
         }
         this.methods = Collections.unmodifiableMap(methodsMap);
 
-        LinkedHashMap<MethodJavadocKey, MethodJavadoc> constructorsMap = new LinkedHashMap<>();
+        Map<MethodJavadocKey, MethodJavadoc> constructorsMap = new LinkedHashMap<>();
         if (constructors != null) {
             constructors.forEach(
                     methodJavadoc -> constructorsMap.put(methodJavadoc.toMethodJavadocKey(), methodJavadoc));
         }
         this.constructors = Collections.unmodifiableMap(constructorsMap);
 
-        LinkedHashMap<String, ParamJavadoc> recordsMap = new LinkedHashMap<>();
+        Map<String, ParamJavadoc> recordsMap = new LinkedHashMap<>();
         if (recordComponents != null) {
             recordComponents.forEach(paramJavadoc -> recordsMap.put(paramJavadoc.getName(), paramJavadoc));
         }
