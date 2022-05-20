@@ -19,6 +19,7 @@ package com.github.therapi.runtimejavadoc;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
+import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +28,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -174,79 +173,18 @@ public class RuntimeJavadoc {
             return methodJavadoc;
         }
 
-        MethodJavadoc overriddenMethodJavadoc = findOverriddenMethodJavadoc(method, declaringClass, classJavadocCache);
-        methodJavadoc = methodJavadoc.copyWithInheritance(overriddenMethodJavadoc);
+        methodJavadoc = methodJavadoc.enhanceWithOverriddenJavadoc(method, classJavadocCache);
 
         if (methodJavadoc.fullyDescribes(method)) {
             return methodJavadoc;
         }
 
-        Method bridgeMethod = findBridgeMethod(method);
+        Method bridgeMethod = RuntimeJavadocHelper.findBridgeMethod(method);
         if (bridgeMethod != null && method != bridgeMethod) {
-            MethodJavadoc bridgeMethodJavadoc = findOverriddenMethodJavadoc(bridgeMethod, declaringClass, classJavadocCache);
-            methodJavadoc = methodJavadoc.copyWithInheritance(bridgeMethodJavadoc);
+            methodJavadoc = methodJavadoc.enhanceWithOverriddenJavadoc(bridgeMethod, classJavadocCache);
         }
 
         return methodJavadoc;
-    }
-
-    private static MethodJavadoc findOverriddenMethodJavadoc(Method method, Class<?> searchedClass, Map<String, ClassJavadoc> classJavadocCache) {
-        List<Class<?>> superTypes = new ArrayList<>();
-        Class<?> superClass = searchedClass.getSuperclass();
-        if (superClass != null) {
-            superTypes.add(superClass);
-        }
-
-        superTypes.addAll(Arrays.asList(searchedClass.getInterfaces()));
-
-        for (Class<?> superType : superTypes) {
-            ClassJavadoc classJavadoc = classJavadocCache.get(superType.getCanonicalName());
-            if (classJavadoc == null) {
-                classJavadoc = getSkinnyClassJavadoc(superType);
-            }
-            MethodJavadoc methodJavadoc = classJavadoc.findMatchingMethod(method);
-            if (!methodJavadoc.fullyDescribes(method)) {
-                MethodJavadoc recursiveMethodJavadoc = findOverriddenMethodJavadoc(method, superType, classJavadocCache);
-                methodJavadoc = methodJavadoc.copyWithInheritance(recursiveMethodJavadoc);
-            }
-
-            if (!methodJavadoc.isEmpty()) {
-                return methodJavadoc;
-            }
-        }
-
-        return MethodJavadoc.createEmpty(method);
-    }
-
-    private static Method findBridgeMethod(Method method) {
-        if (method.isBridge()) {
-            return method;
-        }
-
-        Class<?> declaringClass = method.getDeclaringClass();
-        for (Method bridgeMethod : declaringClass.getDeclaredMethods()) {
-            if (bridgeMethod.isBridge()
-                && method.getName().equals(bridgeMethod.getName())
-                && parametersMatchWithErasure(method.getParameterTypes(), bridgeMethod.getParameterTypes())) {
-                return bridgeMethod;
-            }
-        }
-
-        return null;
-    }
-
-    private static boolean parametersMatchWithErasure(Class<?>[] parameterTypes, Class<?>[] erasureTypes) {
-        if (parameterTypes.length != erasureTypes.length) {
-            return false;
-        }
-
-        for (int i = 0; i < parameterTypes.length; i++) {
-            if (!erasureTypes[i].isAssignableFrom(parameterTypes[i])) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**

@@ -24,7 +24,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import static java.util.Collections.unmodifiableList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RuntimeJavadocHelper {
@@ -78,19 +80,20 @@ public class RuntimeJavadocHelper {
             return Collections.emptyList();
         }
 
-        List<Class<?>> typeAncestors = new ArrayList<>();
+        Map<String, Class<?>> typeAncestors = new LinkedHashMap<>();
         Class<?> superclass = clazz.getSuperclass();
         if (superclass != null) {
-            typeAncestors.add(superclass);
-            typeAncestors.addAll(getAllTypeAncestors(superclass));
+            typeAncestors.put(superclass.getCanonicalName(), superclass);
+            getAllTypeAncestors(superclass).forEach(cls -> typeAncestors.put(cls.getCanonicalName(), cls));
         }
 
         Class<?>[] interfaces = clazz.getInterfaces();
-        if (interfaces.length > 0) {
-            typeAncestors.addAll(Arrays.asList(interfaces));
-            Arrays.stream(interfaces).map(RuntimeJavadocHelper::getAllTypeAncestors).forEach(typeAncestors::addAll);
+        for (Class<?> superType : interfaces) {
+            typeAncestors.put(superType.getCanonicalName(), superType);
+            getAllTypeAncestors(superType).forEach(cls -> typeAncestors.put(cls.getCanonicalName(), cls));
         }
-        return Collections.unmodifiableList(typeAncestors);
+
+        return Collections.unmodifiableList(new ArrayList<>(typeAncestors.values()));
     }
 
     public static boolean isBlank(String s) {
@@ -127,5 +130,36 @@ public class RuntimeJavadocHelper {
 
     public static String elementDocFieldName() {
         return "doc";
+    }
+
+    public static Method findBridgeMethod(Method method) {
+        if (method.isBridge()) {
+            return method;
+        }
+
+        Class<?> declaringClass = method.getDeclaringClass();
+        for (Method bridgeMethod : declaringClass.getDeclaredMethods()) {
+            if (bridgeMethod.isBridge()
+                && method.getName().equals(bridgeMethod.getName())
+                && parametersMatchWithErasure(method.getParameterTypes(), bridgeMethod.getParameterTypes())) {
+                return bridgeMethod;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean parametersMatchWithErasure(Class<?>[] parameterTypes, Class<?>[] erasureTypes) {
+        if (parameterTypes.length != erasureTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (!erasureTypes[i].isAssignableFrom(parameterTypes[i])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

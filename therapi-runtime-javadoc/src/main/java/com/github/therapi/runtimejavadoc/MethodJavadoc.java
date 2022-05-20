@@ -95,7 +95,26 @@ public class MethodJavadoc extends BaseJavadoc {
         };
     }
 
-    public MethodJavadoc copyWithInheritance(MethodJavadoc superMethodJavadoc) {
+    MethodJavadoc enhanceWithOverriddenJavadoc(Method method, Map<String, ClassJavadoc> classJavadocCache) {
+        MethodJavadoc enhancedJavadoc = this;
+        List<Class<?>> superTypes = RuntimeJavadocHelper.getAllTypeAncestors(method.getDeclaringClass());
+
+        for (Class<?> superType : superTypes) {
+            ClassJavadoc classJavadoc = classJavadocCache.get(superType.getCanonicalName());
+            if (classJavadoc == null) {
+                classJavadoc = RuntimeJavadoc.getSkinnyClassJavadoc(superType);
+            }
+            MethodJavadoc overriddenJavadoc = classJavadoc.findMatchingMethod(method);
+            enhancedJavadoc = enhancedJavadoc.copyWithInheritance(overriddenJavadoc);
+            if (enhancedJavadoc.fullyDescribes(method)) {
+                break;
+            }
+        }
+
+        return enhancedJavadoc;
+    }
+
+    MethodJavadoc copyWithInheritance(MethodJavadoc superMethodJavadoc) {
         if (superMethodJavadoc.isEmpty()) {
             return this;
         }
