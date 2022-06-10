@@ -59,22 +59,6 @@ public class RuntimeJavadocHelper {
         return result.toString();
     }
 
-    public static MethodJavadocKey executableToMethodJavadocKey(Executable executable) {
-        List<String> paramTypes = Arrays.stream(executable.getParameterTypes())
-                                     .map(Class::getCanonicalName)
-                                     .collect(Collectors.toList());
-        String name;
-        if (executable instanceof Method) {
-            name = executable.getName();
-        } else if (executable instanceof Constructor) {
-            name = INIT;
-        } else {
-            throw new UnsupportedOperationException("Unknown executable type");
-        }
-
-        return new MethodJavadocKey(name, paramTypes);
-    }
-
     public static List<Class<?>> getAllTypeAncestors(Class<?> clazz) {
         if (clazz == null) {
             return Collections.emptyList();

@@ -16,7 +16,7 @@
 
 package com.github.therapi.runtimejavadoc;
 
-import com.github.therapi.runtimejavadoc.internal.MethodJavadocKey;
+import com.github.therapi.runtimejavadoc.internal.MethodSignature;
 import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 import java.lang.reflect.Constructor;
@@ -189,10 +189,6 @@ public class MethodJavadoc extends BaseJavadoc {
             methodParamsTypes.add(aClass.getCanonicalName());
         }
         return methodParamsTypes;
-    }
-
-    MethodJavadocKey toMethodJavadocKey() {
-        return new MethodJavadocKey(getName(), paramTypes);
     }
 
     public List<String> getParamTypes() {

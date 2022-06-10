@@ -16,9 +16,8 @@
 
 package com.github.therapi.runtimejavadoc;
 
-import com.github.therapi.runtimejavadoc.internal.MethodJavadocKey;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.executableToMethodJavadocKey;
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.getAllTypeAncestors;
+import com.github.therapi.runtimejavadoc.internal.MethodSignature;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -30,11 +29,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.getAllTypeAncestors;
+
 public class ClassJavadoc extends BaseJavadoc {
     private final Map<String, FieldJavadoc> fields;
     private final Map<String, FieldJavadoc> enumConstants;
-    private final Map<MethodJavadocKey, MethodJavadoc> methods;
-    private final Map<MethodJavadocKey, MethodJavadoc> constructors;
+    private final Map<MethodSignature, MethodJavadoc> methods;
+    private final Map<MethodSignature, MethodJavadoc> constructors;
     private final Map<String, ParamJavadoc> recordComponents;
 
     public ClassJavadoc(String name, Comment comment, List<FieldJavadoc> fields, List<FieldJavadoc> enumConstants,
@@ -54,16 +55,16 @@ public class ClassJavadoc extends BaseJavadoc {
         }
         this.enumConstants = Collections.unmodifiableMap(enumMap);
 
-        Map<MethodJavadocKey, MethodJavadoc> methodsMap = new LinkedHashMap<>();
+        Map<MethodSignature, MethodJavadoc> methodsMap = new LinkedHashMap<>();
         if (methods != null) {
-            methods.forEach(methodJavadoc -> methodsMap.put(methodJavadoc.toMethodJavadocKey(), methodJavadoc));
+            methods.forEach(methodJavadoc -> methodsMap.put(MethodSignature.from(methodJavadoc), methodJavadoc));
         }
         this.methods = Collections.unmodifiableMap(methodsMap);
 
-        Map<MethodJavadocKey, MethodJavadoc> constructorsMap = new LinkedHashMap<>();
+        Map<MethodSignature, MethodJavadoc> constructorsMap = new LinkedHashMap<>();
         if (constructors != null) {
             constructors.forEach(
-                    methodJavadoc -> constructorsMap.put(methodJavadoc.toMethodJavadocKey(), methodJavadoc));
+                    methodJavadoc -> constructorsMap.put(MethodSignature.from(methodJavadoc), methodJavadoc));
         }
         this.constructors = Collections.unmodifiableMap(constructorsMap);
 
@@ -75,8 +76,8 @@ public class ClassJavadoc extends BaseJavadoc {
     }
 
     private ClassJavadoc(String name, Comment comment, Map<String, FieldJavadoc> fields,
-                         Map<String, FieldJavadoc> enumConstants, Map<MethodJavadocKey, MethodJavadoc> methods,
-                         Map<MethodJavadocKey, MethodJavadoc> constructors, List<OtherJavadoc> other,
+                         Map<String, FieldJavadoc> enumConstants, Map<MethodSignature, MethodJavadoc> methods,
+                         Map<MethodSignature, MethodJavadoc> constructors, List<OtherJavadoc> other,
                          List<SeeAlsoJavadoc> seeAlso, Map<String, ParamJavadoc> recordComponents) {
         super(name, comment, seeAlso, other);
         this.fields = Collections.unmodifiableMap(fields);
@@ -110,9 +111,9 @@ public class ClassJavadoc extends BaseJavadoc {
         classJavadocCache.put(clazz.getCanonicalName(), this);
         getAllTypeAncestors(clazz).forEach(cls -> classJavadocCache.put(cls.getCanonicalName(), RuntimeJavadoc.getSkinnyClassJavadoc(cls)));
 
-        Map<MethodJavadocKey, MethodJavadoc> methodJavadocs = new LinkedHashMap<>();
+        Map<MethodSignature, MethodJavadoc> methodJavadocs = new LinkedHashMap<>();
         Arrays.stream(clazz.getDeclaredMethods())
-              .forEach(method -> methodJavadocs.put(executableToMethodJavadocKey(method),
+              .forEach(method -> methodJavadocs.put(MethodSignature.from(method),
                                                     RuntimeJavadoc.getJavadoc(method, classJavadocCache)));
 
         return new ClassJavadoc(getName(), getComment(), fields, enumConstants, methodJavadocs, constructors,
@@ -155,13 +156,13 @@ public class ClassJavadoc extends BaseJavadoc {
     }
 
     MethodJavadoc findMatchingMethod(Method method) {
-        MethodJavadocKey methodJavadocKey = executableToMethodJavadocKey(method);
-        return methods.getOrDefault(methodJavadocKey, MethodJavadoc.createEmpty(method));
+        MethodSignature methodSignature = MethodSignature.from(method);
+        return methods.getOrDefault(methodSignature, MethodJavadoc.createEmpty(method));
     }
 
     MethodJavadoc findMatchingConstructor(Constructor<?> constructor) {
-        MethodJavadocKey methodJavadocKey = executableToMethodJavadocKey(constructor);
-        return constructors.getOrDefault(methodJavadocKey, MethodJavadoc.createEmpty(constructor));
+        MethodSignature methodSignature = MethodSignature.from(constructor);
+        return constructors.getOrDefault(methodSignature, MethodJavadoc.createEmpty(constructor));
     }
 
     ParamJavadoc findRecordComponent(String recordComponent) {
