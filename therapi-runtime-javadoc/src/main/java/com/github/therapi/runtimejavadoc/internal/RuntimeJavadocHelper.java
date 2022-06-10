@@ -16,20 +16,28 @@
 
 package com.github.therapi.runtimejavadoc.internal;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import static java.util.Collections.unmodifiableList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RuntimeJavadocHelper {
+    public static final String INIT = "<init>";
+
     private RuntimeJavadocHelper() {
         throw new AssertionError("not instantiable");
     }
 
     public static <T> List<T> unmodifiableDefensiveCopy(List<T> list) {
-        return list == null ? Collections.<T>emptyList() : unmodifiableList(new ArrayList<>(list));
+        return list == null ? Collections.emptyList() : unmodifiableList(new ArrayList<>(list));
     }
 
     public static <T> T requireNonNull(T object) {
@@ -42,13 +50,50 @@ public class RuntimeJavadocHelper {
     public static String join(CharSequence delimiter, Iterable<? extends CharSequence> items) {
         requireNonNull(delimiter);
         StringBuilder result = new StringBuilder();
-        for (Iterator<? extends CharSequence> i = items.iterator(); i.hasNext();) {
+        for (Iterator<? extends CharSequence> i = items.iterator(); i.hasNext(); ) {
             result.append(i.next());
             if (i.hasNext()) {
                 result.append(delimiter);
             }
         }
         return result.toString();
+    }
+
+    public static MethodJavadocKey executableToMethodJavadocKey(Executable executable) {
+        List<String> paramTypes = Arrays.stream(executable.getParameterTypes())
+                                     .map(Class::getCanonicalName)
+                                     .collect(Collectors.toList());
+        String name;
+        if (executable instanceof Method) {
+            name = executable.getName();
+        } else if (executable instanceof Constructor) {
+            name = INIT;
+        } else {
+            throw new UnsupportedOperationException("Unknown executable type");
+        }
+
+        return new MethodJavadocKey(name, paramTypes);
+    }
+
+    public static List<Class<?>> getAllTypeAncestors(Class<?> clazz) {
+        if (clazz == null) {
+            return Collections.emptyList();
+        }
+
+        Map<String, Class<?>> typeAncestors = new LinkedHashMap<>();
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null) {
+            typeAncestors.put(superclass.getCanonicalName(), superclass);
+            getAllTypeAncestors(superclass).forEach(cls -> typeAncestors.put(cls.getCanonicalName(), cls));
+        }
+
+        Class<?>[] interfaces = clazz.getInterfaces();
+        for (Class<?> superType : interfaces) {
+            typeAncestors.put(superType.getCanonicalName(), superType);
+            getAllTypeAncestors(superType).forEach(cls -> typeAncestors.put(cls.getCanonicalName(), cls));
+        }
+
+        return Collections.unmodifiableList(new ArrayList<>(typeAncestors.values()));
     }
 
     public static boolean isBlank(String s) {
@@ -85,5 +130,36 @@ public class RuntimeJavadocHelper {
 
     public static String elementDocFieldName() {
         return "doc";
+    }
+
+    public static Method findBridgeMethod(Method method) {
+        if (method.isBridge()) {
+            return method;
+        }
+
+        Class<?> declaringClass = method.getDeclaringClass();
+        for (Method bridgeMethod : declaringClass.getDeclaredMethods()) {
+            if (bridgeMethod.isBridge()
+                && method.getName().equals(bridgeMethod.getName())
+                && parametersMatchWithErasure(method.getParameterTypes(), bridgeMethod.getParameterTypes())) {
+                return bridgeMethod;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean parametersMatchWithErasure(Class<?>[] parameterTypes, Class<?>[] erasureTypes) {
+        if (parameterTypes.length != erasureTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (!erasureTypes[i].isAssignableFrom(parameterTypes[i])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

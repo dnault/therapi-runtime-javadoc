@@ -16,28 +16,67 @@
 
 package com.github.therapi.runtimejavadoc.internal.parser;
 
+import com.github.therapi.runtimejavadoc.Comment;
+import com.github.therapi.runtimejavadoc.OtherJavadoc;
+import com.github.therapi.runtimejavadoc.ParamJavadoc;
+import com.github.therapi.runtimejavadoc.SeeAlsoJavadoc;
+import com.github.therapi.runtimejavadoc.ThrowsJavadoc;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParsedJavadoc {
+class ParsedJavadoc {
 
-    String description;
+    private final Comment description;
+    private final List<OtherJavadoc> otherDocs;
+    private final List<SeeAlsoJavadoc> seeAlsoDocs;
+    private final List<ParamJavadoc> paramDocs;
+    private final List<ThrowsJavadoc> throwsDocs;
+    private final Comment returns;
 
-    List<BlockTag> blockTags = new ArrayList<>();
+    ParsedJavadoc(Comment description, List<OtherJavadoc> otherDocs, List<SeeAlsoJavadoc> seeAlsoDocs,
+                         List<ParamJavadoc> paramDocs, List<ThrowsJavadoc> throwsDocs, Comment returns) {
+        this.description = description;
+        this.otherDocs = unmodifiableDefensiveCopy(otherDocs);
+        this.seeAlsoDocs = unmodifiableDefensiveCopy(seeAlsoDocs);
+        this.paramDocs = unmodifiableDefensiveCopy(paramDocs);
+        this.throwsDocs = unmodifiableDefensiveCopy(throwsDocs);
+        this.returns = Comment.nullToEmpty(returns);
+    }
 
     @Override
     public String toString() {
         return "ParsedJavadoc{" +
                 "description='" + description + '\'' +
-                ", blockTags=" + blockTags +
+                ", otherDocs=" + otherDocs +
+                ", seeAlsoDocs=" + seeAlsoDocs +
+                ", paramDocs=" + paramDocs +
+                ", throwsDocs=" + throwsDocs +
+                ", returns=" + returns +
                 '}';
     }
 
-    String getDescription() {
+    Comment getDescription() {
         return description;
     }
 
-    List<BlockTag> getBlockTags() {
-        return blockTags;
+    List<OtherJavadoc> getOtherDocs() {
+        return otherDocs;
+    }
+
+    List<SeeAlsoJavadoc> getSeeAlsoDocs() {
+        return seeAlsoDocs;
+    }
+
+    List<ParamJavadoc> getParamDocs() {
+        return paramDocs;
+    }
+
+    List<ThrowsJavadoc> getThrowsDocs() {
+        return throwsDocs;
+    }
+
+    Comment getReturns() {
+        return returns;
     }
 }

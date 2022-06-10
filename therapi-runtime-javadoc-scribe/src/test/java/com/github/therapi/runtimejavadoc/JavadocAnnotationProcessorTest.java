@@ -3,6 +3,8 @@ package com.github.therapi.runtimejavadoc;
 import com.github.therapi.runtimejavadoc.scribe.JavadocAnnotationProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import java.util.Arrays;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import javax.tools.JavaFileObject;
@@ -26,6 +28,14 @@ public class JavadocAnnotationProcessorTest {
     private static final String DOCUMENTED_CLASS = "javasource.foo.DocumentedClass";
     private static final String DOCUMENTED_ENUM = "javasource.foo.DocumentedEnum";
     private static final String COMPLEX_ENUM = "javasource.foo.ComplexEnum";
+    private static final String OVERRIDING_CLASS_IN_ANOTHER_PACKAGE = "javasource.bar.OverridingClassInAnotherPackage";
+    private static final String OVERRIDING_CLASS = "javasource.foo.OverridingClass";
+    private static final String OVERRIDING_CLASS_2_DEGREES = "javasource.foo.OverridingClass2Degrees";
+    private static final String OTHER_INTERFACE = "javasource.foo.OtherInterface";
+    private static final String DOCUMENTED_INTERFACE = "javasource.foo.DocumentedInterface";
+    private static final String DOCUMENTED_IMPLEMENTATION = "javasource.foo.DocumentedImplementation";
+    private static final String COMPLEX_IMPLEMENTATION = "javasource.foo.ComplexImplementation";
+    private static final String VERY_COMPLEX_IMPLEMENTATION = "javasource.foo.VeryComplexImplementation";
     private static final String ANOTHER_DOCUMENTED_CLASS = "javasource.bar.AnotherDocumentedClass";
     private static final String ANNOTATED_WITH_RETAIN_JAVADOC = "javasource.bar.YetAnotherDocumentedClass";
     private static final String UNDOCUMENTED = "javasource.bar.UndocumentedClass";
@@ -41,6 +51,14 @@ public class JavadocAnnotationProcessorTest {
                 "javasource/foo/DocumentedClass.java",
                 "javasource/foo/DocumentedEnum.java",
                 "javasource/foo/ComplexEnum.java",
+                "javasource/foo/OverridingClass.java",
+                "javasource/foo/OverridingClass2Degrees.java",
+                "javasource/foo/DocumentedInterface.java",
+                "javasource/foo/DocumentedImplementation.java",
+                "javasource/foo/ComplexImplementation.java",
+                "javasource/foo/VeryComplexImplementation.java",
+                "javasource/foo/OtherInterface.java",
+                "javasource/bar/OverridingClassInAnotherPackage.java",
                 "javasource/bar/AnotherDocumentedClass.java",
                 "javasource/bar/YetAnotherDocumentedClass.java",
                 "javasource/bar/UndocumentedClass.java",
@@ -77,6 +95,17 @@ public class JavadocAnnotationProcessorTest {
             Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
             ClassJavadoc classJavadoc = expectJavadoc(c);
             assertEquals(DOCUMENTED_CLASS, classJavadoc.getName());
+        }
+    }
+
+    @Test
+    public void methodsFullyPopulatedByDefault() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(OVERRIDING_CLASS);
+            ClassJavadoc classJavadoc = expectJavadoc(c);
+
+            Method m = c.getMethod("frobulate", String.class, List.class);
+            assertFalse(classJavadoc.findMatchingMethod(m).isEmpty());
         }
     }
 
@@ -231,6 +260,228 @@ public class JavadocAnnotationProcessorTest {
 
             assertMethodMatches(m1, "Frobulate <code>a</code> by <code>b</code>");
             assertMethodMatches(m2, "Frobulate <code>a</code> by multiple oopsifizzle constants");
+
+            Method m3 = c.getDeclaredMethod("equals", Object.class);
+
+            // javadoc tools do not inherit javadoc from Object
+            expectNoJavadoc(m3);
+        }
+    }
+
+    @Test
+    public void methodsMatchDespiteExtendingFromAnotherPackage() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(OVERRIDING_CLASS_IN_ANOTHER_PACKAGE);
+
+            final String methodName = "frobulate";
+            Method m1 = c.getDeclaredMethod(methodName, String.class, int.class);
+            Method m2 = c.getDeclaredMethod(methodName, String.class, List.class);
+
+            assertMethodDescriptionMatches(m1, "Quick frobulate <code>a</code> by <code>b</code> using thin frobulation");
+            assertMethodDescriptionMatches(m2, "Frobulate <code>a</code> by multiple oopsifizzle constants");
+        }
+    }
+
+    @Test
+    public void methodsMatchWithExtendedClass() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(OVERRIDING_CLASS);
+
+            final String methodName = "frobulate";
+            Method m1 = c.getDeclaredMethod(methodName, String.class, int.class);
+
+            MethodJavadoc methodJavadoc1 = expectJavadoc(m1);
+            assertEquals(m1.getName(), methodJavadoc1.getName());
+
+            String actualDesc = formatter.format(methodJavadoc1.getComment());
+            assertEquals("Super frobulate <code>a</code> by <code>b</code> using extended frobulation", actualDesc);
+            assertEquals(2, methodJavadoc1.getParams().size());
+            assertFalse(methodJavadoc1.getReturns().getElements().isEmpty());
+            assertFalse(methodJavadoc1.getThrows().isEmpty());
+
+            Method m2 = c.getDeclaredMethod(methodName, String.class, List.class);
+            assertMethodDescriptionMatches(m2, "Frobulate <code>a</code> by multiple oopsifizzle constants");
+        }
+    }
+
+    @Test
+    public void methodsMatchWithExtendedClass2Degrees() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(OVERRIDING_CLASS_2_DEGREES);
+
+            final String methodName = "skipMethod";
+            Method m1 = c.getDeclaredMethod(methodName);
+
+            MethodJavadoc methodJavadoc1 = expectJavadoc(m1);
+            assertEquals(m1.getName(), methodJavadoc1.getName());
+
+            String actualDesc = formatter.format(methodJavadoc1.getComment());
+            assertEquals("I am also a simple method", actualDesc);
+            assertFalse(methodJavadoc1.getThrows().isEmpty());
+        }
+    }
+
+    @Test
+    public void genericMethodsMatchWithExtendedClass() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(OVERRIDING_CLASS);
+
+            final String methodName1 = "genericMethod";
+            Method m1 = c.getDeclaredMethod(methodName1, String.class);
+
+            assertMethodDescriptionMatches(m1, "Generic method to do generic things");
+
+            final String methodName2 = "separateGeneric";
+            Method m2 = c.getDeclaredMethod(methodName2, Integer.class);
+
+            expectNoJavadoc(m2);
+        }
+    }
+
+    @Test
+    public void genericMethodsMatchWithClass() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS);
+
+            final String methodName1 = "genericMethod";
+            Method m1 = c.getDeclaredMethod(methodName1, Object.class);
+
+            assertMethodDescriptionMatches(m1, "Generic method to do generic things");
+
+            final String methodName2 = "separateGeneric";
+            Method m2 = c.getDeclaredMethod(methodName2, Comparable.class);
+
+            assertMethodDescriptionMatches(m2, "Generic method to do other things");
+        }
+    }
+
+    @Test
+    public void methodsMatchWithImplementation() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_IMPLEMENTATION);
+
+            final String methodName = "hoodwink";
+            Method m1 = c.getDeclaredMethod(methodName, String.class);
+
+            MethodJavadoc methodJavadoc1 = expectJavadoc(m1);
+            assertEquals(m1.getName(), methodJavadoc1.getName());
+
+            String actualDesc = formatter.format(methodJavadoc1.getComment());
+            assertEquals("hoodwink a stranger", actualDesc);
+            assertEquals(1, methodJavadoc1.getParams().size());
+            assertFalse(methodJavadoc1.getReturns().getElements().isEmpty());
+            assertFalse(methodJavadoc1.getThrows().isEmpty());
+
+            final String methodName2 = "snaggle";
+            Method m2 = c.getDeclaredMethod(methodName2, String.class);
+            assertMethodDescriptionMatches(m2, "Snaggle a kerfluffin");
+        }
+    }
+
+    @Test
+    public void genericMethodsMatchWithImplementation() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_IMPLEMENTATION);
+
+            final String methodName1 = "fling";
+
+            Method m1 = c.getDeclaredMethod(methodName1, Integer.class);
+
+            MethodJavadoc methodJavadoc1 = expectJavadoc(m1);
+            assertEquals(m1.getName(), methodJavadoc1.getName());
+            String actualDesc = formatter.format(methodJavadoc1.getComment());
+            assertEquals("Fling the tea", actualDesc);
+            assertEquals(1, methodJavadoc1.getParams().size());
+            assertFalse(methodJavadoc1.getReturns().getElements().isEmpty());
+            assertFalse(methodJavadoc1.getThrows().isEmpty());
+            assertEquals(methodJavadoc1.getParamTypes(), Arrays.asList("java.lang.Integer"));
+            assertEquals("the tea weight", formatter.format(methodJavadoc1.getParams().get(0).getComment()));
+
+            Method m2 = c.getDeclaredMethod(methodName1, Object.class);
+            expectNoJavadoc(m2);
+        }
+    }
+
+    @Test
+    public void methodsMatchOnInterface() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c1 = classLoader.loadClass(DOCUMENTED_INTERFACE);
+            Class<?> c2 = classLoader.loadClass(OTHER_INTERFACE);
+
+            final String methodName1 = "hoodwink";
+            Method m1 = c1.getDeclaredMethod(methodName1, String.class);
+            Method m2 = c2.getDeclaredMethod(methodName1, String.class);
+
+            assertMethodDescriptionMatches(m1, "Hoodwink a kerfluffin");
+            assertMethodDescriptionMatches(m2, "Hoodwink a schmadragon");
+
+            final String methodName2 = "snaggle";
+            Method m3 = c1.getDeclaredMethod(methodName2, String.class);
+            assertMethodDescriptionMatches(m3, "Snaggle a kerfluffin");
+        }
+    }
+
+    @Test
+    public void genericMethodsMatchOnInterface() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c1 = classLoader.loadClass(DOCUMENTED_INTERFACE);
+            Class<?> c2 = classLoader.loadClass(OTHER_INTERFACE);
+
+            final String methodName3 = "fling";
+            Method m4 = c1.getDeclaredMethod(methodName3, Number.class);
+            Method m5 = c2.getDeclaredMethod(methodName3, Number.class);
+            assertMethodDescriptionMatches(m4, "Fling the tea");
+            assertMethodDescriptionMatches(m5, "Fling the vorrdin");
+        }
+    }
+
+    @Test
+    public void methodsMatchOnMultipleImplementedInterface() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c1 = classLoader.loadClass(COMPLEX_IMPLEMENTATION);
+
+            final String methodName1 = "hoodwink";
+            Method m1 = c1.getDeclaredMethod(methodName1, String.class);
+
+            assertMethodDescriptionMatches(m1, "Hoodwink a kerfluffin");
+
+            final String methodName2 = "snaggle";
+            Method m2 = c1.getDeclaredMethod(methodName2, String.class);
+            assertMethodDescriptionMatches(m2, "Snaggle a kerfluffin");
+        }
+    }
+
+    @Test
+    public void genericMethodsMatchOnMultipleImplementedInterface() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c1 = classLoader.loadClass(COMPLEX_IMPLEMENTATION);
+
+            final String methodName3 = "fling";
+            Method m3 = c1.getDeclaredMethod(methodName3, Integer.class);
+            assertMethodDescriptionMatches(m3, "Fling the tea");
+        }
+    }
+
+    @Test
+    public void methodsMatchOnExtendedClassAndImplementedInterface() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c1 = classLoader.loadClass(VERY_COMPLEX_IMPLEMENTATION);
+
+            final String methodName1 = "hoodwink";
+            Method m1 = c1.getDeclaredMethod(methodName1, String.class);
+
+            assertMethodDescriptionMatches(m1, "hoodwink a stranger");
+        }
+    }
+
+    @Test
+    public void genericMethodsMatchOnExtendedClassAndImplementedInterface() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c1 = classLoader.loadClass(VERY_COMPLEX_IMPLEMENTATION);
+
+            final String methodName3 = "fling";
+            Method m2 = c1.getDeclaredMethod(methodName3, Integer.class);
+            assertMethodDescriptionMatches(m2, "Fling the tea");
         }
     }
 
@@ -273,6 +524,14 @@ public class JavadocAnnotationProcessorTest {
         assertEquals(seeAlso4.getSeeAlsoType(), SeeAlsoJavadoc.SeeAlsoType.HTML_LINK);
         assertEquals(seeAlso4.getHtmlLink().getLink(), "http://www.moomoo.land");
         assertEquals(seeAlso4.getHtmlLink().getText(), "Moomoo land");
+    }
+
+    private static void assertMethodDescriptionMatches(Method method, String expectedDescription) {
+        MethodJavadoc methodDoc = expectJavadoc(method);
+        assertEquals(method.getName(), methodDoc.getName());
+
+        String actualDesc = formatter.format(methodDoc.getComment());
+        assertEquals(expectedDescription, actualDesc);
     }
 
     @Test
@@ -372,6 +631,13 @@ public class JavadocAnnotationProcessorTest {
         assertNotNull(doc);
         assertTrue(doc.isEmpty());
         assertEquals(c.getName(), doc.getName());
+    }
+
+    private static void expectNoJavadoc(Method m) {
+        MethodJavadoc doc = RuntimeJavadoc.getJavadoc(m);
+        assertNotNull(doc);
+        assertTrue(doc.isEmpty());
+        assertEquals(m.getName(), doc.getName());
     }
 
     private static <T extends BaseJavadoc> T assertPresent(T value, String msg) {

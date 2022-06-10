@@ -16,17 +16,24 @@
 
 package com.github.therapi.runtimejavadoc;
 
+import com.github.therapi.runtimejavadoc.internal.MethodJavadocKey;
+import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.unmodifiableDefensiveCopy;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MethodJavadoc extends BaseJavadoc {
     private final List<String> paramTypes;
-    private final List<ParamJavadoc> params;
-    private final List<ThrowsJavadoc> exceptions;
+    private final Map<String, ParamJavadoc> params;
+    private final Map<String, ThrowsJavadoc> exceptions;
     private final Comment returns;
 
     public MethodJavadoc(String name,
@@ -38,14 +45,49 @@ public class MethodJavadoc extends BaseJavadoc {
                          Comment returns,
                          List<SeeAlsoJavadoc> seeAlso) {
         super(name, comment, seeAlso, other);
+
         this.paramTypes = unmodifiableDefensiveCopy(paramTypes);
-        this.params = unmodifiableDefensiveCopy(params);
-        this.exceptions = unmodifiableDefensiveCopy(exceptions);
         this.returns = Comment.nullToEmpty(returns);
+
+        Map<String, ParamJavadoc> paramJavadocMap = new LinkedHashMap<>();
+
+        if (params != null) {
+            params.forEach(paramJavadoc -> paramJavadocMap.put(paramJavadoc.getName(), paramJavadoc));
+        }
+
+        this.params = Collections.unmodifiableMap(paramJavadocMap);
+
+        Map<String, ThrowsJavadoc> throwsJavadocMap = new LinkedHashMap<>();
+
+        if (params != null) {
+            exceptions.forEach(throwsJavadoc -> throwsJavadocMap.put(throwsJavadoc.getName(), throwsJavadoc));
+        }
+
+        this.exceptions = Collections.unmodifiableMap(throwsJavadocMap);
     }
 
-    public static MethodJavadoc createEmpty(Method method) {
-        return new MethodJavadoc(method.getName(), null, null, null, null, null, null, null) {
+    private MethodJavadoc(String name,
+                          List<String> paramTypes,
+                          Comment comment,
+                          Map<String, ParamJavadoc> params,
+                          Map<String, ThrowsJavadoc> exceptions,
+                          List<OtherJavadoc> other,
+                          Comment returns,
+                          List<SeeAlsoJavadoc> seeAlso) {
+        super(name, comment, seeAlso, other);
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
+        this.params = Collections.unmodifiableMap(params);
+        this.exceptions = Collections.unmodifiableMap(exceptions);
+        this.returns = returns;
+    }
+
+    public static MethodJavadoc createEmpty(Executable executable) {
+        String name = executable instanceof Constructor ? RuntimeJavadocHelper.INIT : executable.getName();
+        List<String> paramTypes = Arrays.stream(executable.getParameterTypes())
+                                        .map(Class::getCanonicalName)
+                                        .collect(Collectors.toList());
+
+        return new MethodJavadoc(name, paramTypes, null, (List<ParamJavadoc>) null, null, null, null, null) {
             @Override
             public boolean isEmpty() {
                 return true;
@@ -53,17 +95,78 @@ public class MethodJavadoc extends BaseJavadoc {
         };
     }
 
-    public static MethodJavadoc createEmpty(Constructor<?> method) {
-        return new MethodJavadoc("<init>", null, null, null, null, null, null, null) {
-            @Override
-            public boolean isEmpty() {
-                return true;
+    MethodJavadoc enhanceWithOverriddenJavadoc(Method method, Map<String, ClassJavadoc> classJavadocCache) {
+        MethodJavadoc enhancedJavadoc = this;
+        List<Class<?>> superTypes = RuntimeJavadocHelper.getAllTypeAncestors(method.getDeclaringClass());
+
+        for (Class<?> superType : superTypes) {
+            ClassJavadoc classJavadoc = classJavadocCache.get(superType.getCanonicalName());
+            if (classJavadoc == null) {
+                classJavadoc = RuntimeJavadoc.getSkinnyClassJavadoc(superType);
             }
-        };
+            MethodJavadoc overriddenJavadoc = classJavadoc.findMatchingMethod(method);
+            enhancedJavadoc = enhancedJavadoc.copyWithInheritance(overriddenJavadoc);
+            if (enhancedJavadoc.fullyDescribes(method)) {
+                break;
+            }
+        }
+
+        return enhancedJavadoc;
+    }
+
+    private MethodJavadoc copyWithInheritance(MethodJavadoc superMethodJavadoc) {
+        if (superMethodJavadoc.isEmpty()) {
+            return this;
+        }
+
+        List<String> paramTypes = new ArrayList<>(this.paramTypes);
+        if (paramTypes.isEmpty()) {
+            paramTypes = superMethodJavadoc.paramTypes;
+        }
+
+        Comment comment = getComment();
+        if (comment.getElements().isEmpty()) {
+            comment = superMethodJavadoc.getComment();
+        }
+
+        Map<String, ParamJavadoc> params = new LinkedHashMap<>(this.params);
+        superMethodJavadoc.params.forEach(params::putIfAbsent);
+
+        Map<String, ThrowsJavadoc> exceptions = new LinkedHashMap<>(this.exceptions);
+        superMethodJavadoc.exceptions.forEach(exceptions::putIfAbsent);
+
+        Comment returns = this.returns;
+        if (returns.getElements().isEmpty()) {
+            returns = superMethodJavadoc.returns;
+        }
+
+        return new MethodJavadoc(getName(), paramTypes, comment, params, exceptions, getOther(), returns, getSeeAlso());
     }
 
     public boolean isConstructor() {
-        return "<init>".equals(getName());
+        return RuntimeJavadocHelper.INIT.equals(getName());
+    }
+
+    boolean fullyDescribes(Method method) {
+        if (!method.getName().equals(getName()) || method.getParameterCount() != paramTypes.size()) {
+            throw new IllegalArgumentException("Method `" + method.getName() + "` does not match javadoc `" + getName() + "`");
+        }
+
+        return !getComment().getElements().isEmpty()
+               && !returns.getElements().isEmpty()
+               && method.getParameterCount() == params.size()
+               && Arrays.stream(method.getExceptionTypes())
+                        .allMatch(exception -> exceptions.containsKey(exception.getSimpleName()));
+    }
+
+    public boolean matches(Executable executable) {
+        if (executable instanceof Method) {
+            return matches((Method) executable);
+        } else if (executable instanceof Constructor) {
+            return matches((Constructor<?>) executable);
+        } else {
+            throw new UnsupportedOperationException("Unknown executable type");
+        }
     }
 
     public boolean matches(Method method) {
@@ -88,16 +191,20 @@ public class MethodJavadoc extends BaseJavadoc {
         return methodParamsTypes;
     }
 
+    MethodJavadocKey toMethodJavadocKey() {
+        return new MethodJavadocKey(getName(), paramTypes);
+    }
+
     public List<String> getParamTypes() {
         return paramTypes;
     }
 
     public List<ParamJavadoc> getParams() {
-        return params;
+        return Collections.unmodifiableList(new ArrayList<>(params.values()));
     }
 
     public List<ThrowsJavadoc> getThrows() {
-        return exceptions;
+        return Collections.unmodifiableList(new ArrayList<>(exceptions.values()));
     }
 
     public Comment getReturns() {

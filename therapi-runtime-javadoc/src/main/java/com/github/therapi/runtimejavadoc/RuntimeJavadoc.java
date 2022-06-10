@@ -19,17 +19,18 @@ package com.github.therapi.runtimejavadoc;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
-
+import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
-
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Allows access to Javadoc elements at runtime for code that was compiled using the
@@ -50,8 +51,8 @@ public class RuntimeJavadoc {
      * @param clazz the class whose Javadoc you want to retrieve
      * @return the Javadoc of the given class
      */
-    public static ClassJavadoc getJavadoc(Class clazz) {
-        return getJavadoc(clazz.getName(), clazz);
+    public static ClassJavadoc getJavadoc(Class<?> clazz) {
+        return getSkinnyClassJavadoc(clazz.getName(), clazz).createEnhancedClassJavadoc(clazz);
     }
 
     /**
@@ -74,14 +75,14 @@ public class RuntimeJavadoc {
      * {@link BaseJavadoc#isEmpty isEmpty()} method will return {@code true}.
      *
      * @param qualifiedClassName the fully qualified name of the class whose Javadoc you want to retrieve
-     * @param classLoader        the class loader to use to find the Javadoc resource file
+     * @param loader        the class loader to use to find the Javadoc resource file
      * @return the Javadoc of the given class
      */
-    public static ClassJavadoc getJavadoc(String qualifiedClassName, ClassLoader classLoader) {
-        final String resourceName = getResourceName(qualifiedClassName);
-        try (InputStream is = classLoader.getResourceAsStream(resourceName)) {
-            return parseJavadocResource(qualifiedClassName, is);
-        } catch (IOException e) {
+    public static ClassJavadoc getJavadoc(String qualifiedClassName, ClassLoader loader) {
+        try {
+            return getSkinnyClassJavadoc(qualifiedClassName, loader)
+                    .createEnhancedClassJavadoc(loader.loadClass(qualifiedClassName));
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -96,7 +97,29 @@ public class RuntimeJavadoc {
      * @param loader             the class object to use to find the Javadoc resource file
      * @return the Javadoc of the given class
      */
-    public static ClassJavadoc getJavadoc(String qualifiedClassName, Class loader) {
+    public static ClassJavadoc getJavadoc(String qualifiedClassName, Class<?> loader) {
+        try {
+            return getSkinnyClassJavadoc(qualifiedClassName, loader)
+                    .createEnhancedClassJavadoc(loader.getClassLoader().loadClass(qualifiedClassName));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static ClassJavadoc getSkinnyClassJavadoc(Class<?> clazz) {
+        return getSkinnyClassJavadoc(clazz.getName(), clazz);
+    }
+
+    private static ClassJavadoc getSkinnyClassJavadoc(String qualifiedClassName, ClassLoader loader) {
+        final String resourceName = getResourceName(qualifiedClassName);
+        try (InputStream is = loader.getResourceAsStream("/" + resourceName)) {
+            return parseJavadocResource(qualifiedClassName, is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ClassJavadoc getSkinnyClassJavadoc(String qualifiedClassName, Class<?> loader) {
         final String resourceName = getResourceName(qualifiedClassName);
         try (InputStream is = loader.getResourceAsStream("/" + resourceName)) {
             return parseJavadocResource(qualifiedClassName, is);
@@ -135,8 +158,32 @@ public class RuntimeJavadoc {
      * @return the given method's Javadoc
      */
     public static MethodJavadoc getJavadoc(Method method) {
-        ClassJavadoc javadoc = getJavadoc(method.getDeclaringClass());
-        return findMethodJavadoc(javadoc.getMethods(), method);
+        return getJavadoc(method, Collections.emptyMap());
+    }
+
+    static MethodJavadoc getJavadoc(Method method, Map<String, ClassJavadoc> classJavadocCache) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        ClassJavadoc classJavadoc = classJavadocCache.get(declaringClass.getCanonicalName());
+        if (classJavadoc == null) {
+            classJavadoc = getSkinnyClassJavadoc(declaringClass);
+        }
+
+        MethodJavadoc methodJavadoc = classJavadoc.findMatchingMethod(method);
+        if (methodJavadoc.fullyDescribes(method)) {
+            return methodJavadoc;
+        }
+
+        methodJavadoc = methodJavadoc.enhanceWithOverriddenJavadoc(method, classJavadocCache);
+        if (methodJavadoc.fullyDescribes(method)) {
+            return methodJavadoc;
+        }
+
+        Method bridgeMethod = RuntimeJavadocHelper.findBridgeMethod(method);
+        if (bridgeMethod != null && method != bridgeMethod) {
+            methodJavadoc = methodJavadoc.enhanceWithOverriddenJavadoc(bridgeMethod, classJavadocCache);
+        }
+
+        return methodJavadoc;
     }
 
     /**
@@ -154,26 +201,7 @@ public class RuntimeJavadoc {
      * @return the given constructor's Javadoc
      */
     public static MethodJavadoc getJavadoc(Constructor<?> method) {
-        ClassJavadoc javadoc = getJavadoc(method.getDeclaringClass());
-        return findMethodJavadoc(javadoc.getConstructors(), method);
-    }
-
-    private static MethodJavadoc findMethodJavadoc(List<MethodJavadoc> methodDocs, Method method) {
-        for (MethodJavadoc methodJavadoc : methodDocs) {
-            if (methodJavadoc.matches(method)) {
-                return methodJavadoc;
-            }
-        }
-        return MethodJavadoc.createEmpty(method);
-    }
-
-    private static MethodJavadoc findMethodJavadoc(List<MethodJavadoc> methodDocs, Constructor<?> method) {
-        for (MethodJavadoc methodJavadoc : methodDocs) {
-            if (methodJavadoc.matches(method)) {
-                return methodJavadoc;
-            }
-        }
-        return MethodJavadoc.createEmpty(method);
+        return getSkinnyClassJavadoc(method.getDeclaringClass()).findMatchingConstructor(method);
     }
 
     /**
@@ -191,8 +219,7 @@ public class RuntimeJavadoc {
      * @return the given field's Javadoc
      */
     public static FieldJavadoc getJavadoc(Field field) {
-        ClassJavadoc javadoc = getJavadoc(field.getDeclaringClass());
-        return findFieldJavadoc(javadoc.getFields(), field.getName());
+        return getSkinnyClassJavadoc(field.getDeclaringClass()).findMatchingField(field);
     }
 
     /**
@@ -210,16 +237,6 @@ public class RuntimeJavadoc {
      * @return the given enum constant's Javadoc
      */
     public static FieldJavadoc getJavadoc(Enum<?> enumValue) {
-        ClassJavadoc javadoc = getJavadoc(enumValue.getDeclaringClass());
-        return findFieldJavadoc(javadoc.getEnumConstants(), enumValue.name());
-    }
-
-    private static FieldJavadoc findFieldJavadoc(List<FieldJavadoc> fieldDocs, String fieldName) {
-        for (FieldJavadoc fDoc : fieldDocs) {
-            if (fDoc.getName().equals(fieldName)) {
-                return fDoc;
-            }
-        }
-        return FieldJavadoc.createEmpty(fieldName);
+        return getSkinnyClassJavadoc(enumValue.getDeclaringClass()).findMatchingEnumConstant(enumValue);
     }
 }

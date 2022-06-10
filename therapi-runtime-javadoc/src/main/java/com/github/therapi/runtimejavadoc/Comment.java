@@ -26,7 +26,7 @@ import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.un
  * Comment text that may contain inline tags.
  */
 public class Comment implements Iterable<CommentElement> {
-    private static final Comment EMPTY = new Comment(Collections.<CommentElement>emptyList());
+    private static final Comment EMPTY = new Comment(Collections.emptyList());
 
     public static Comment createEmpty() {
         return EMPTY;
