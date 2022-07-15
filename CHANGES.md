@@ -1,5 +1,10 @@
 # Change history
 
+## 0.14.0 - July 15, 2022
+
+:sparkles: [#61](https://github.com/dnault/therapi-runtime-javadoc/issues/61)
+Thanks to Sheikah45, methods without documentation now inherit documentation from superclass or implemented interface.
+
 ## 0.13.0 - January 1, 2022
 
 :sparkles: [#52](https://github.com/dnault/therapi-runtime-javadoc/issues/52) 
