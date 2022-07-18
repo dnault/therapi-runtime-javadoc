@@ -16,7 +16,7 @@
 
 package com.github.therapi.runtimejavadoc;
 
-import com.github.therapi.runtimejavadoc.internal.MethodSignature;
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.getAllTypeAncestors;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.getAllTypeAncestors;
+import com.github.therapi.runtimejavadoc.internal.MethodSignature;
 
 public class ClassJavadoc extends BaseJavadoc {
     private final Map<String, FieldJavadoc> fields;
@@ -98,12 +98,12 @@ public class ClassJavadoc extends BaseJavadoc {
     }
 
     ClassJavadoc createEnhancedClassJavadoc(Class<?> clazz) {
-        if (!getName().equals(clazz.getCanonicalName())) {
-            throw new IllegalArgumentException("Class `" + clazz.getCanonicalName() + "` does not match class doc for `" + getName() + "`");
+        if(isEmpty()) {
+            return this;
         }
 
-        if (isEmpty()) {
-            return this;
+        if (!getName().equals(clazz.getCanonicalName())) {
+            throw new IllegalArgumentException("Class `" + clazz.getCanonicalName() + "` does not match class doc for `" + getName() + "`");
         }
 
         Map<String, ClassJavadoc> classJavadocCache = new HashMap<>();
