@@ -548,6 +548,31 @@ public class JavadocAnnotationProcessorTest {
                 ClassJavadoc classJavadoc = expectJavadoc(c);
                 assertEquals(DOCUMENTED_RECORD + ".Nested", classJavadoc.getName());
             }
+
+            {
+                Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$NestedWithoutJavadoc");
+                expectNoJavadoc(c);
+            }
+
+            {
+                Class<?> c = classLoader.loadClass(DOCUMENTED_RECORD + "$NestedWithoutJavadoc");
+                expectNoJavadoc(c);
+            }
+        }
+    }
+
+    @Test
+    public void emptyNestedClassInheritsJavadoc() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$NestedSubclassWithoutJavadoc");
+            ClassJavadoc classJavadoc = expectJavadoc(c);
+
+            final String methodName = "frobulate";
+            Method m1 = c.getMethod(methodName, String.class, int.class);
+            Method m2 = c.getMethod(methodName, String.class, List.class);
+
+            assertMethodDescriptionMatches(m1, "Frobulate <code>a</code> by <code>b</code>");
+            assertMethodDescriptionMatches(m2, "Frobulate <code>a</code> by multiple oopsifizzle constants");
         }
     }
 
@@ -589,6 +614,7 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile(null)) {
             expectNoJavadoc(classLoader.loadClass(UNDOCUMENTED));
             expectNoJavadoc(classLoader.loadClass(BLANK_COMMENTS));
+            expectNoJavadoc(classLoader.loadClass(BLANK_COMMENTS + "$NestedBlankBlankSubclass"));
         }
     }
 

@@ -128,4 +128,11 @@ public class DocumentedClass<T> {
    */
   public static class Nested {
   }
+
+  public static class NestedWithoutJavadoc {
+  }
+
+  public static class NestedSubclassWithoutJavadoc extends DocumentedClass<Object> {
+  }
+
 }

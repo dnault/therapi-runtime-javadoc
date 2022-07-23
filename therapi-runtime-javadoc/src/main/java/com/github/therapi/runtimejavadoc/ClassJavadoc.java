@@ -88,8 +88,7 @@ public class ClassJavadoc extends BaseJavadoc {
     }
 
     public static ClassJavadoc createEmpty(String qualifiedClassName) {
-        return new ClassJavadoc(qualifiedClassName, null, (List<FieldJavadoc>) null, null, null, null, null, null,
-                                null) {
+        return new ClassJavadoc(qualifiedClassName, null, (List<FieldJavadoc>) null, null, null, null, null, null, null) {
             @Override
             public boolean isEmpty() {
                 return true;
@@ -98,13 +97,8 @@ public class ClassJavadoc extends BaseJavadoc {
     }
 
     ClassJavadoc createEnhancedClassJavadoc(Class<?> clazz) {
-        if (!getName().equals(clazz.getCanonicalName())) {
-            throw new IllegalArgumentException("Class `" + clazz.getCanonicalName() + "` does not match class doc for `" + getName() + "`");
-        }
-
-        if (isEmpty()) {
-            return this;
-        }
+        assert getName().replace("$", ".").equals(clazz.getCanonicalName())
+                : "Class `" + clazz.getName() + "` does not match class doc for `" + getName() + "`";
 
         Map<String, ClassJavadoc> classJavadocCache = new HashMap<>();
 
@@ -112,12 +106,20 @@ public class ClassJavadoc extends BaseJavadoc {
         getAllTypeAncestors(clazz).forEach(cls -> classJavadocCache.put(cls.getCanonicalName(), RuntimeJavadoc.getSkinnyClassJavadoc(cls)));
 
         Map<MethodSignature, MethodJavadoc> methodJavadocs = new LinkedHashMap<>();
-        Arrays.stream(clazz.getDeclaredMethods())
-              .forEach(method -> methodJavadocs.put(MethodSignature.from(method),
-                                                    RuntimeJavadoc.getJavadoc(method, classJavadocCache)));
+        Arrays.stream(clazz.getMethods())
+                .forEach(method -> {
+                    MethodJavadoc methodJavadoc = RuntimeJavadoc.getJavadoc(method, classJavadocCache);
+                    if (!methodJavadoc.isEmpty()) {
+                        methodJavadocs.put(MethodSignature.from(method), methodJavadoc);
+                    }
+                });
+
+        if (methodJavadocs.isEmpty()) {
+            return this; // didn't inherit anything.
+        }
 
         return new ClassJavadoc(getName(), getComment(), fields, enumConstants, methodJavadocs, constructors,
-                                getOther(), getSeeAlso(), recordComponents);
+                getOther(), getSeeAlso(), recordComponents);
     }
 
     public List<FieldJavadoc> getFields() {
@@ -172,13 +174,13 @@ public class ClassJavadoc extends BaseJavadoc {
     @Override
     public String toString() {
         return "ClassJavadoc{"
-               + "name='" + getName() + '\''
-               + ", comment=" + getComment()
-               + ", fields=" + fields
-               + ", methods=" + methods
-               + ", constructors=" + constructors
-               + ", recordComponents=" + recordComponents
-               + ", seeAlso=" + getSeeAlso()
-               + ", other=" + getOther() + '}';
+                + "name='" + getName() + '\''
+                + ", comment=" + getComment()
+                + ", fields=" + fields
+                + ", methods=" + methods
+                + ", constructors=" + constructors
+                + ", recordComponents=" + recordComponents
+                + ", seeAlso=" + getSeeAlso()
+                + ", other=" + getOther() + '}';
     }
 }

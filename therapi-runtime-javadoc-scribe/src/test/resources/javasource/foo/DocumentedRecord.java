@@ -32,4 +32,7 @@ public record DocumentedRecord(int count, String color) {
      */
     public static class Nested {
     }
+
+    public static class NestedWithoutJavadoc {
+    }
 }
