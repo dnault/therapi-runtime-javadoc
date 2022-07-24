@@ -3,7 +3,7 @@
 ## 0.15.0 - July 23, 2022
 
 :bug: [#69](https://github.com/dnault/therapi-runtime-javadoc/issues/69)
-Fixed a regression in 0.14.0 where attemping to get Javadoc for a nested class would throw IllegalArgumentException.
+Fixed a regression in 0.14.0 where attempting to get Javadoc for a nested class would throw IllegalArgumentException.
 Thank you to yanxiyue for investigating the issue.
 
 :bug: [#70](https://github.com/dnault/therapi-runtime-javadoc/issues/70)
