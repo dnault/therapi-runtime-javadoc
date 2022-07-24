@@ -1,5 +1,15 @@
 # Change history
 
+## 0.15.0 - July 23, 2022
+
+:bug: [#69](https://github.com/dnault/therapi-runtime-javadoc/issues/69)
+Fixed a regression in 0.14.0 where attemping to get Javadoc for a nested class would throw IllegalArgumentException.
+Thank you to yanxiyue for investigating the issue.
+
+:bug: [#70](https://github.com/dnault/therapi-runtime-javadoc/issues/70)
+Fixed a problem where classes with absolutely no Javadoc would not inherit
+method documentation.
+
 ## 0.14.0 - July 15, 2022
 
 :sparkles: [#61](https://github.com/dnault/therapi-runtime-javadoc/issues/61)
