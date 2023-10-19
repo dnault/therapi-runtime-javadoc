@@ -70,6 +70,9 @@ class CommentParser {
      * @return null if tag is malformed
      */
     private static CommentElement createTagElement(String owningClass, String name, String value) {
+        if (value == null) {
+            return null;
+        }
         if ("link".equals(name)) {
             return createLinkElement(owningClass, value);
         } else if ("value".equals(name)) {
