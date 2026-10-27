@@ -28,7 +28,7 @@ public class RecordJavadocTest {
     public static void requireRecordSupport() {
         // compile-testing uses the compiler of the JVM running the tests.
         // Compare ordinals, because SourceVersion.RELEASE_16 doesn't exist in Java 8.
-        assumeTrue("Records require Java 16 or later", SourceVersion.latestSupported().ordinal() >= SourceVersion.RELEASE_16.ordinal());
+        assumeTrue("Records require Java 16 or later", SourceVersion.latestSupported().ordinal() >= 16);
     }
 
     private static CompilationClassLoader compile(String options) {
