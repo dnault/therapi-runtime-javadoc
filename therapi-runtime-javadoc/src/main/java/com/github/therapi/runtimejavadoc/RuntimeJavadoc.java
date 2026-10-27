@@ -16,10 +16,10 @@
 
 package com.github.therapi.runtimejavadoc;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
 import com.github.therapi.runtimejavadoc.internal.JsonJavadocReader;
 import com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.Json;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonObject;
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.javadocResourceSuffix;
 import java.io.IOException;
 import java.io.InputStream;

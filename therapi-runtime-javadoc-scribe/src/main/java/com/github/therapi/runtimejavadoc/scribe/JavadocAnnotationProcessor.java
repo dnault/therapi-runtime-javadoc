@@ -16,8 +16,8 @@
 
 package com.github.therapi.runtimejavadoc.scribe;
 
-import com.eclipsesource.json.JsonObject;
 import com.github.therapi.runtimejavadoc.RetainJavadoc;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonObject;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;

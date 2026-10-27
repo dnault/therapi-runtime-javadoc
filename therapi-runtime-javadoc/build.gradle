@@ -1,3 +1,4 @@
-dependencies {
-    implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+javadoc {
+    // copy of minimal-json 0.9.5, for internal use only
+    exclude 'com/github/therapi/runtimejavadoc/repack/**'
 }

@@ -184,11 +184,8 @@ limitations under the License.
 
 ## Notice
 
-This software includes the following libraries,
-repackaged to avoid potential dependency conflicts:
+This software includes source code from the following library,
+copied into the `com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json` package:
 
-* [minimal-json](https://github.com/ralfstx/minimal-json)
-  (MIT License) Copyright (c) 2013, 2014 EclipseSource
-
-* [JavaPoet](https://github.com/square/javapoet)
-  (Apache 2.0 License) Copyright (c) 2015 Square, Inc.
+* [minimal-json](https://github.com/ralfstx/minimal-json) 0.9.5
+  (MIT License) Copyright (c) 2013-2017 EclipseSource

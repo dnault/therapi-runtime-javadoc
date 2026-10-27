@@ -16,10 +16,9 @@
 
 package com.github.therapi.runtimejavadoc.scribe;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonArray;
-import com.eclipsesource.json.JsonObject;
-import com.squareup.javapoet.TypeName;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.Json;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonArray;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonObject;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -27,12 +26,16 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.constructorsFieldName;
@@ -148,10 +151,31 @@ class JsonJavadocBuilder {
         final JsonArray jsonValues = new JsonArray();
         for (VariableElement parameter : executableElement.getParameters()) {
             TypeMirror erasure = typeUtils.erasure(parameter.asType());
-            String typeName = TypeName.get(erasure).withoutAnnotations().toString();
-            jsonValues.add(Json.value(typeName));
+            jsonValues.add(Json.value(canonicalName(erasure)));
         }
         return jsonValues;
+    }
+
+    /**
+     * Returns the name of an erased type in the same form as {@link Class#getCanonicalName()},
+     * which is how parameter types are identified at runtime.
+     * <p>
+     * Avoids {@link TypeMirror#toString()}, whose output varies by JDK and includes type annotations.
+     */
+    private static String canonicalName(TypeMirror erasedType) {
+        TypeKind kind = erasedType.getKind();
+        if (kind.isPrimitive()) {
+            return kind.name().toLowerCase(Locale.ROOT);
+        }
+        switch (kind) {
+            case ARRAY:
+                return canonicalName(((ArrayType) erasedType).getComponentType()) + "[]";
+            case DECLARED:
+            case ERROR:
+                return ((TypeElement) ((DeclaredType) erasedType).asElement()).getQualifiedName().toString();
+            default:
+                throw new IllegalArgumentException("Unexpected parameter type: " + erasedType);
+        }
     }
 
     private static <T> T defaultIfNull(T actualValue, T defaultValue) {

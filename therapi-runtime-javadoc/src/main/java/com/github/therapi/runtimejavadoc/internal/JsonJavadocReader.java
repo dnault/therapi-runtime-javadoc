@@ -16,13 +16,13 @@
 
 package com.github.therapi.runtimejavadoc.internal;
 
-import com.eclipsesource.json.JsonArray;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 import com.github.therapi.runtimejavadoc.ClassJavadoc;
 import com.github.therapi.runtimejavadoc.FieldJavadoc;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import com.github.therapi.runtimejavadoc.internal.parser.JavadocParser;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonArray;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonObject;
+import com.github.therapi.runtimejavadoc.repack.com.eclipsesource.json.JsonValue;
 
 import java.util.ArrayList;
 import java.util.Collections;

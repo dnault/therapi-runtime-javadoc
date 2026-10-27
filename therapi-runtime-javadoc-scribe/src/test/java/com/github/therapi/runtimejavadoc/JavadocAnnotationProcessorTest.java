@@ -42,6 +42,7 @@ public class JavadocAnnotationProcessorTest {
     private static final String BLANK_COMMENTS = "javasource.bar.BlankDocumentation";
     private static final String METHOD_DOC_BUT_NO_CLASS_DOC = "javasource.bar.OnlyMethodDocumented";
     private static final String DEFAULT_PACKAGE_CLASS = "DefaultPackageResident";
+    private static final String PARAMETER_TYPES = "javasource.foo.ParameterTypes";
 
 
     private static List<JavaFileObject> sources() {
@@ -58,6 +59,7 @@ public class JavadocAnnotationProcessorTest {
                 "javasource/foo/ComplexImplementation.java",
                 "javasource/foo/VeryComplexImplementation.java",
                 "javasource/foo/OtherInterface.java",
+                "javasource/foo/ParameterTypes.java",
                 "javasource/bar/OverridingClassInAnotherPackage.java",
                 "javasource/bar/AnotherDocumentedClass.java",
                 "javasource/bar/YetAnotherDocumentedClass.java",
@@ -247,6 +249,54 @@ public class JavadocAnnotationProcessorTest {
             assertTrue(RuntimeJavadoc.getJavadoc(undocumented).isEmpty());
             assertEquals("<init>", RuntimeJavadoc.getJavadoc(undocumented).getName());
         }
+    }
+
+    @Test
+    public void parameterTypesMatchCanonicalNames() throws Exception {
+        try (CompilationClassLoader classLoader = compile(null)) {
+            Class<?> c = classLoader.loadClass(PARAMETER_TYPES);
+
+            // Javadoc is found only if the recorded parameter types match Class.getCanonicalName()
+            for (Method m : c.getDeclaredMethods()) {
+                assertEquals(canonicalNames(m.getParameterTypes()), expectJavadoc(m).getParamTypes());
+            }
+            for (Constructor<?> ctor : c.getDeclaredConstructors()) {
+                assertEquals(canonicalNames(ctor.getParameterTypes()), expectJavadoc(ctor).getParamTypes());
+            }
+
+            assertEquals(Arrays.asList("int[]", "java.lang.String[][]", "javasource.foo.ParameterTypes.Nested.Inner[]", "java.util.List[]", "long[][][]"),
+                    expectJavadoc(declaredMethod(c, "arrays")).getParamTypes());
+            assertEquals(Arrays.asList("java.lang.Comparable", "java.lang.Comparable[]"),
+                    expectJavadoc(declaredMethod(c, "bounded")).getParamTypes());
+            assertEquals(Arrays.asList("java.lang.String", "java.util.List", "int", "java.lang.String[]", "java.lang.String[]", "javasource.foo.ParameterTypes.Nested.Inner", "java.lang.Number"),
+                    expectJavadoc(declaredMethod(c, "annotated")).getParamTypes());
+            assertEquals(Arrays.asList("javasource.foo.ParameterTypes.Nested", "javasource.foo.ParameterTypes.Nested.Inner", "java.util.Map.Entry", "javasource.foo.ParameterTypes.InnerOfGeneric"),
+                    expectJavadoc(declaredMethod(c, "nested")).getParamTypes());
+
+            assertEquals("Overload taking an int array.", formatter.format(expectJavadoc(c.getDeclaredMethod("overloaded", int[].class)).getComment()));
+            assertEquals("Overload taking an object array.", formatter.format(expectJavadoc(c.getDeclaredMethod("overloaded", Object[].class)).getComment()));
+            assertEquals("Overload taking an object.", formatter.format(expectJavadoc(c.getDeclaredMethod("overloaded", Object.class)).getComment()));
+        }
+    }
+
+    private static List<String> canonicalNames(Class<?>[] types) {
+        List<String> names = new ArrayList<>();
+        for (Class<?> type : types) {
+            names.add(type.getCanonicalName());
+        }
+        return names;
+    }
+
+    private static Method declaredMethod(Class<?> c, String name) {
+        Method result = null;
+        for (Method m : c.getDeclaredMethods()) {
+            if (m.getName().equals(name)) {
+                assertNull("More than one method named " + name, result);
+                result = m;
+            }
+        }
+        assertNotNull("No method named " + name, result);
+        return result;
     }
 
     @Test
