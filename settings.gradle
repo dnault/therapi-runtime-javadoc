@@ -1,4 +1,0 @@
-rootProject.name = 'therapi-runtime-javadoc'
-
-include 'therapi-runtime-javadoc'
-include 'therapi-runtime-javadoc-scribe'

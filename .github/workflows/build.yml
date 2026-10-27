@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Test on Java ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ 8, 17, 21, 25 ]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # The last version listed becomes JAVA_HOME, which runs Maven and compiles.
+      # Each one is also exported as JAVA_HOME_<version>_X64, which is used to run the tests.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: |
+            ${{ matrix.java }}
+            25
+          cache: maven
+
+      - name: Build and test
+        run: ./mvnw -B -ntp verify "-Djvm=${JAVA_HOME_${{ matrix.java }}_X64}/bin/java"
