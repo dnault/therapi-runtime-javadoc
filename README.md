@@ -1,6 +1,6 @@
 # therapi-runtime-javadoc
 
-[![Maven Central](https://maven-badges.sml.io/sonatype-central/com.couchbase.client/couchbase-client-bom/badge.svg?subject=Maven%20Central&color=blue)](https://central.sonatype.com/artifact/com.github.therapi/therapi-runtime-javadoc) ![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
+[![Maven Central](https://maven-badges.sml.io/sonatype-central/com.github.therapi/therapi-runtime-javadoc/badge.svg?subject=Maven%20Central&color=blue)](https://central.sonatype.com/artifact/com.github.therapi/therapi-runtime-javadoc) ![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
 
 ## Bake Javadoc comments into your code
 
