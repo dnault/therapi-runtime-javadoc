@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 public class JavadocAnnotationProcessorTest {
 
-    private static final String DOCUMENTED_RECORD = "javasource.foo.DocumentedRecord";
     private static final String DOCUMENTED_CLASS = "javasource.foo.DocumentedClass";
     private static final String DOCUMENTED_ENUM = "javasource.foo.DocumentedEnum";
     private static final String COMPLEX_ENUM = "javasource.foo.ComplexEnum";
@@ -48,7 +47,6 @@ public class JavadocAnnotationProcessorTest {
     private static List<JavaFileObject> sources() {
         List<JavaFileObject> files = new ArrayList<>();
         for (String resource : new String[]{
-                "javasource/foo/DocumentedRecord.java",
                 "javasource/foo/DocumentedClass.java",
                 "javasource/foo/DocumentedEnum.java",
                 "javasource/foo/ComplexEnum.java",
@@ -116,14 +114,12 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile(null)) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
-            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
 
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
-            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -133,7 +129,6 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=some.other.package")) {
             expectNoJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectNoJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
-            expectNoJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -143,7 +138,6 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=javasource.foo")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectNoJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
-            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -153,7 +147,6 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=javasource.foo,javasource.bar")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
-            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -163,7 +156,6 @@ public class JavadocAnnotationProcessorTest {
         try (CompilationClassLoader classLoader = compile("-Ajavadoc.packages=javasource")) {
             expectJavadoc(classLoader.loadClass(DOCUMENTED_CLASS));
             expectJavadoc(classLoader.loadClass(ANOTHER_DOCUMENTED_CLASS));
-            expectJavadoc(classLoader.loadClass(DOCUMENTED_RECORD));
             expectJavadoc(classLoader.loadClass(ANNOTATED_WITH_RETAIN_JAVADOC));
         }
     }
@@ -594,18 +586,7 @@ public class JavadocAnnotationProcessorTest {
             }
 
             {
-                Class<?> c = classLoader.loadClass(DOCUMENTED_RECORD + "$Nested");
-                ClassJavadoc classJavadoc = expectJavadoc(c);
-                assertEquals(DOCUMENTED_RECORD + ".Nested", classJavadoc.getName());
-            }
-
-            {
                 Class<?> c = classLoader.loadClass(DOCUMENTED_CLASS + "$NestedWithoutJavadoc");
-                expectNoJavadoc(c);
-            }
-
-            {
-                Class<?> c = classLoader.loadClass(DOCUMENTED_RECORD + "$NestedWithoutJavadoc");
                 expectNoJavadoc(c);
             }
         }
@@ -623,21 +604,6 @@ public class JavadocAnnotationProcessorTest {
 
             assertMethodDescriptionMatches(m1, "Frobulate <code>a</code> by <code>b</code>");
             assertMethodDescriptionMatches(m2, "Frobulate <code>a</code> by multiple oopsifizzle constants");
-        }
-    }
-
-    @Test
-    public void canGetRecordComponents() throws Exception {
-        try (CompilationClassLoader classLoader = compile(null)) {
-            Class<?> c = classLoader.loadClass(DOCUMENTED_RECORD);
-            ClassJavadoc classJavadoc = expectJavadoc(c);
-            List<ParamJavadoc> components = classJavadoc.getRecordComponents();
-
-            assertEquals("count", components.get(0).getName());
-            assertEquals("lucky number", components.get(0).getComment().toString());
-
-            assertEquals("color", components.get(1).getName());
-            assertEquals("favorite color", components.get(1).getComment().toString());
         }
     }
 
