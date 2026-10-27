@@ -4,8 +4,8 @@ import com.github.therapi.runtimejavadoc.scribe.JavadocAnnotationProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import java.util.Arrays;
-import static org.junit.Assert.assertFalse;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaFileObject;
 import java.lang.reflect.Constructor;
@@ -17,10 +17,10 @@ import java.util.List;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JavadocAnnotationProcessorTest {
 
@@ -283,11 +283,11 @@ public class JavadocAnnotationProcessorTest {
         Method result = null;
         for (Method m : c.getDeclaredMethods()) {
             if (m.getName().equals(name)) {
-                assertNull("More than one method named " + name, result);
+                assertNull(result, "More than one method named " + name);
                 result = m;
             }
         }
-        assertNotNull("No method named " + name, result);
+        assertNotNull(result, "No method named " + name);
         return result;
     }
 

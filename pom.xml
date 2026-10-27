@@ -54,8 +54,9 @@
              To run the tests on a different JVM, pass -Djvm=/path/to/bin/java -->
         <maven.compiler.release>8</maven.compiler.release>
 
-        <junit.version>4.13.2</junit.version>
-        <compile-testing.version>0.19</compile-testing.version>
+        <!-- JUnit 6 requires Java 17, and the tests also run on Java 8 -->
+        <junit.version>5.14.4</junit.version>
+        <compile-testing.version>0.24.0</compile-testing.version>
     </properties>
 
     <dependencyManagement>
@@ -66,9 +67,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.google.testing.compile</groupId>

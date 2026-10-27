@@ -21,14 +21,23 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.testing.compile</groupId>
             <artifactId>compile-testing</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <!-- compile-testing only needs JUnit 4 for CompilationRule, which these tests don't use.
+                     Excluding it means tests must use JUnit 5: JUnit 4 imports don't compile.
+                     (Recent versions of Truth fall back to its own AssertionError when JUnit 4 is absent; Truth 1.1 and earlier did not.) -->
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

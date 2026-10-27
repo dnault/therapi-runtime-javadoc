@@ -3,18 +3,18 @@ package com.github.therapi.runtimejavadoc;
 import com.github.therapi.runtimejavadoc.scribe.JavadocAnnotationProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.lang.model.SourceVersion;
 import java.util.List;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Tests for record classes, which require Java 16 or later to compile.
@@ -24,11 +24,11 @@ public class RecordJavadocTest {
 
     private static final String DOCUMENTED_RECORD = "javasource.foo.DocumentedRecord";
 
-    @BeforeClass
+    @BeforeAll
     public static void requireRecordSupport() {
         // compile-testing uses the compiler of the JVM running the tests.
         // Compare ordinals, because SourceVersion.RELEASE_16 doesn't exist in Java 8.
-        assumeTrue("Records require Java 16 or later", SourceVersion.latestSupported().ordinal() >= 16);
+        assumeTrue(SourceVersion.latestSupported().ordinal() >= 16, "Records require Java 16 or later");
     }
 
     private static CompilationClassLoader compile(String options) {

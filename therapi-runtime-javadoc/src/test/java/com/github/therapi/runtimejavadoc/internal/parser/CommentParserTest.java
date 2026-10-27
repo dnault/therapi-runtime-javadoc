@@ -7,44 +7,40 @@ import com.github.therapi.runtimejavadoc.InlineTag;
 import com.github.therapi.runtimejavadoc.InlineValue;
 import com.github.therapi.runtimejavadoc.Link;
 import com.github.therapi.runtimejavadoc.Value;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.FromDataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Theories.class)
 public class CommentParserTest {
 
-    @DataPoints("null/blank")
     public static String[] nullOrBlank() {
         return new String[] {
                 null, "", " ", "   ", "\t\n", "  \n  "
         };
     }
 
-    @DataPoints("non-blank")
     public static String[] nonBlankTextOnly() {
         return new String[] {
                 "abcdef", "abc def\nxyz", "abc}def", "{abc}def"
         };
     }
 
-    @Theory
-    public void parse_absentCommment_shouldBeEmpty(@FromDataPoints("null/blank") String input) {
+    @ParameterizedTest
+    @MethodSource("nullOrBlank")
+    public void parse_absentCommment_shouldBeEmpty(String input) {
         assertEquals(emptyList(), CommentParser.parse("TestClass", input).getElements());
     }
 
-    @Theory
-    public void parse_textOnly_shouldBeSingleTextNode(@FromDataPoints("non-blank") String input) {
+    @ParameterizedTest
+    @MethodSource("nonBlankTextOnly")
+    public void parse_textOnly_shouldBeSingleTextNode(String input) {
         List<CommentElement> elements = CommentParser.parse("TestClass", input).getElements();
         assertEquals(1, elements.size());
         assertEquals(new CommentText(input), elements.get(0));
