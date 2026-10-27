@@ -1,7 +1,6 @@
 # therapi-runtime-javadoc
 
-![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
-
+[![Maven Central](https://maven-badges.sml.io/sonatype-central/com.couchbase.client/couchbase-client-bom/badge.svg?subject=Maven%20Central&color=blue)](https://central.sonatype.com/artifact/com.github.therapi/therapi-runtime-javadoc) ![Java 1.8+](https://img.shields.io/badge/java-1.8+-lightgray.svg)
 
 ## Bake Javadoc comments into your code
 
@@ -21,10 +20,10 @@ Javadoc on demand.
 
 ```groovy
 dependencies {
-    annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.13.0'
+    annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:${runtime-javadoc-version}'
 
     // Runtime library
-    implementation 'com.github.therapi:therapi-runtime-javadoc:0.13.0'
+    implementation 'com.github.therapi:therapi-runtime-javadoc:${runtime-javadoc-version}'
 }
 ```
 
@@ -35,7 +34,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-    <version>0.13.0</version>
+    <version>${runtime-javadoc-version}</version>
     <scope>provided</scope>
 </dependency>
     
@@ -43,7 +42,7 @@ dependencies {
 <dependency>
     <groupId>com.github.therapi</groupId>
     <artifactId>therapi-runtime-javadoc</artifactId>
-    <version>0.13.0</version>
+    <version>${runtime-javadoc-version}</version>
 </dependency>
 ```
 
@@ -53,10 +52,10 @@ dependencies {
 ### Building a JAR with embedded Javadoc
 
 Include the annotation processor JAR in your class path when compiling
-the code whose Javadoc you want to read later at runtime. 
+the code whose Javadoc you want to read later at runtime.
 
 When building in an IDE you may have to explicitly enable annotation processing.
-In IntelliJ this is done by going to 
+In IntelliJ this is done by going to
 `Preferences > Build, Execution, Deployment > Compiler > Annotation Processors`
 and checking the box labeled "Enable annotation processing".
 
@@ -67,7 +66,7 @@ If you only want to retain the Javadoc from certain packages, use the
 `-A` javac argument to pass the `javadoc.packages` option to the annotation
 processor. The value is a comma-delimited list of packages whose Javadoc
 you want to keep. (Subpackages are included, recursively.)
-    
+
 For Gradle that might look like this:
 
 ```groovy
