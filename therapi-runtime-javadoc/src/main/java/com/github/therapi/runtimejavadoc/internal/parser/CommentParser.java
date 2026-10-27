@@ -37,7 +37,16 @@ class CommentParser {
 
     private static final Pattern inlineTag = compile("\\{@([^\\s}]+)[ \\t]*([^}]+)?}");
 
-    // https://regex101.com/r/KhEo62/4
+    // Matches the reference in a {@value ...} tag, in any of these forms:
+    //   "com.example.ClassName#member" -> classname = "com.example.ClassName", member = "member"
+    //   "#member"                      -> classname = null (owning class),     member = "member"
+    //   "member"                       -> classname = null (owning class),     member = "member"
+    //
+    // ^(?:(?<classname>[\w.]+)#)?   optional class name (letters, digits, '_', '.'), then a '#'
+    // #?                            optional '#' (the "#member" form, when there is no class name)
+    // (?<member>\w+)$               the member name, which must end the input
+    //
+    // Quirk: Because both '#'s are optional and independent, "ClassName##member" also matches.
     private static final Pattern valuePattern = compile("^(?:(?<classname>[\\w.]+)#)?#?(?<member>\\w+)$");
 
     static Comment parse(String owningClass, String commentText) {
