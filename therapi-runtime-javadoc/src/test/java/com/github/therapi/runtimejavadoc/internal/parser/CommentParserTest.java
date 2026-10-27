@@ -136,6 +136,34 @@ public class CommentParserTest {
         assertEquals(1, elements.size());
         assertEquals(new InlineLink(new Link("label", "TestClass2", "withRecipientsWithDefaultName", Collections.<String>emptyList())), elements.get(0));
     }
+
+    @Test
+    public void parse_linkOnly_trailingWhitespace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link Foo }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("Foo", "Foo", null, null)), elements.get(0));
+    }
+
+    @Test
+    public void parse_linkOnly_multipleTrailingWhitespace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link Foo  }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("Foo", "Foo", null, null)), elements.get(0));
+    }
+
+    @Test
+    public void parse_linkOnly_methodMemberRef_trailingWhitespace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link Foo#bar(int) }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("Foo#bar(int)", "Foo", "bar", asList("int"))), elements.get(0));
+    }
+
+    @Test
+    public void parse_linkOnly_labeledLink_trailingWhitespace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@link Foo label }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineLink(new Link("label", "Foo", null, null)), elements.get(0));
+    }
     
     @Test
     public void parse_valueOnly_valueWithMemberRef() {
@@ -166,6 +194,20 @@ public class CommentParserTest {
 	}
     
     @Test
+    public void parse_valueOnly_implicitSelfReference_trailingWhitespace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@value }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineValue(new Value(null, null)), elements.get(0));
+    }
+
+    @Test
+    public void parse_valueOnly_valueWithMemberRef_trailingWhitespace() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "{@value #member }").getElements();
+        assertEquals(1, elements.size());
+        assertEquals(new InlineValue(new Value("TestClass", "member")), elements.get(0));
+    }
+
+    @Test
     public void parse_valueOnly_valueWithDirectMemberRef_ImplicitRef() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@value member}").getElements();
         assertEquals(1, elements.size());
@@ -184,6 +226,14 @@ public class CommentParserTest {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@sometag some value}").getElements();
         assertEquals(1, elements.size());
         assertEquals(new InlineTag("sometag", "some value"), elements.get(0));
+    }
+
+    @Test
+    public void parse_linkOnly_emptyLink() {
+        List<CommentElement> elements = CommentParser.parse("TestClass", "text before {@link} text after").getElements();
+        assertEquals(2, elements.size());
+        assertEquals(new CommentText("text before "), elements.get(0));
+        assertEquals(new CommentText(" text after"), elements.get(1));
     }
 
     @Test

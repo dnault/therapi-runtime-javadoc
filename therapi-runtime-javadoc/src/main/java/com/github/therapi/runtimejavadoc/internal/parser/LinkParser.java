@@ -32,7 +32,11 @@ public class LinkParser {
     private static final Pattern linkPattern = compile("^(?<classname>[\\w.]+)?(?:#(?<member>\\w+))?(?:\\((?<params>.*)\\))?(?:\\s(?<label>.+))?$");
 
     public static Link createLinkElement(String owningClass, String value) {
-        Matcher linkMatcher = linkPattern.matcher(value);
+        if (value == null) {
+            return null;
+        }
+        // The inlineTag pattern in CommentParser strips leading whitespace from the value, but not trailing whitespace
+        Matcher linkMatcher = linkPattern.matcher(value.trim());
         if (!linkMatcher.matches()) {
             return null;
         }

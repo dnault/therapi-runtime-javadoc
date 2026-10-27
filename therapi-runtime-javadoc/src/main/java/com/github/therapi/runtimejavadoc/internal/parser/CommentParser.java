@@ -79,9 +79,6 @@ class CommentParser {
      * @return null if tag is malformed
      */
     private static CommentElement createTagElement(String owningClass, String name, String value) {
-        if (value == null) {
-            return null;
-        }
         if ("link".equals(name)) {
             return createLinkElement(owningClass, value);
         } else if ("value".equals(name)) {
@@ -99,7 +96,8 @@ class CommentParser {
             return new InlineValue(new Value(null, null));
         }
 
-        Matcher linkMatcher = valuePattern.matcher(value);
+        // The inlineTag pattern strips leading whitespace from the value, but not trailing whitespace
+        Matcher linkMatcher = valuePattern.matcher(value.trim());
         if (!linkMatcher.matches()) {
             // malformed reference
             return null;
