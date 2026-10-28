@@ -1,5 +1,50 @@
 # Change history
 
+## 0.16.0 - October 27, 2026
+
+:sparkles: [#83](https://github.com/dnault/therapi-runtime-javadoc/pull/83)
+  The annotation processor is now declared as "isolating", so Gradle can
+  process annotations incrementally instead of recompiling everything.
+
+:bug: [#73](https://github.com/dnault/therapi-runtime-javadoc/issues/73)
+  An empty `{@link}` tag, like in `@return {@link }`, no longer causes
+  a NullPointerException.
+
+:bug: [#75](https://github.com/dnault/therapi-runtime-javadoc/issues/75)
+  Block tags aligned by a code formatter, like `@param  name  description`,
+  are now parsed correctly. Previously, such `@param` tags lost their names
+  (so all but one were discarded), and `@see` tags with a string or HTML link
+  were ignored.
+
+:bug: [#79](https://github.com/dnault/therapi-runtime-javadoc/issues/79)
+  Formatting a comment with an empty `{@code}` or `{@literal}` tag no longer
+  throws NullPointerException. This also affected `Comment.toString()`.
+  Other tags without content, like `{@inheritDoc}`, are no longer rendered
+  as `{@inheritDoc null}`.
+
+:bug: `{@link}` and `{@value}` tags with whitespace before the closing brace,
+  like `{@link Foo }`, are no longer silently dropped.
+
+:fire: The annotation processor JAR no longer bundles a repackaged copy of
+  JavaPoet. The runtime library now includes minimal-json as source code
+  instead of a repackaged JAR. Its package name is unchanged, so the
+  annotation processor and runtime library from different versions still
+  work together.
+
+### Breaking changes
+
+:warning: [#79](https://github.com/dnault/therapi-runtime-javadoc/issues/79)
+  `InlineTag.getValue()` now returns an empty string instead of null when
+  the tag has no content, and the `InlineTag` constructor throws
+  NullPointerException if the tag name is null.
+
+### Build changes
+
+:wrench: The project is now built with Maven instead of Gradle. The published
+  POMs are self-contained, without a parent POM. The annotation processor's
+  POM now declares its dependency on the runtime library with `compile`
+  scope instead of `runtime` scope.
+
 ## 0.15.0 - July 23, 2022
 
 :bug: [#69](https://github.com/dnault/therapi-runtime-javadoc/issues/69)
