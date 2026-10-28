@@ -40,8 +40,10 @@ public class ToHtmlStringCommentVisitor implements CommentVisitor {
         } else {
             buf.append("{@");
             buf.append(name);
-            buf.append(" ");
-            buf.append(value);
+            if (!value.isEmpty()) {
+                buf.append(" ");
+                buf.append(value);
+            }
             buf.append("}");
         }
     }

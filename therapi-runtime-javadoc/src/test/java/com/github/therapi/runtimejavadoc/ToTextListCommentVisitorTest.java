@@ -49,6 +49,18 @@ public class ToTextListCommentVisitorTest {
     }
 
     @Test
+    public void inlineTagWithoutContent() {
+        new Comment(Arrays.asList(
+                new InlineTag("inheritDoc", null),
+                new CommentText("after")
+        )).visit(visitor);
+
+        List<String> expected = Arrays.asList( "after" );
+
+        assertEquals(expected, visitor.build());
+    }
+
+    @Test
     public void inlineValue() {
         visitor.inlineValue(new Value("java.lang.String","toString"));
 

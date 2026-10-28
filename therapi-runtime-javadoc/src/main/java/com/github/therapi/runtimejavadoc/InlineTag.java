@@ -18,19 +18,29 @@ package com.github.therapi.runtimejavadoc;
 
 import java.util.Objects;
 
+import static com.github.therapi.runtimejavadoc.internal.RuntimeJavadocHelper.requireNonNull;
+
 public class InlineTag extends CommentElement {
     private final String name;
     private final String value;
 
+    /**
+     * @param name the tag name, without the {@code @}
+     * @param value the tag's content, or null if the tag has no content
+     */
     public InlineTag(String name, String value) {
-        this.name = name;
-        this.value = value;
+        this.name = requireNonNull(name);
+        this.value = value == null ? "" : value;
     }
 
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the tag's content, or an empty string if the tag has none (like <code>{&#64;inheritDoc}</code>).
+     * Never null.
+     */
     public String getValue() {
         return value;
     }
