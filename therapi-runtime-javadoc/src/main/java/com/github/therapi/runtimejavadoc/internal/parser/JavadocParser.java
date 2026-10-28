@@ -32,7 +32,8 @@ public class JavadocParser {
 
     private static final Pattern blockSeparator = Pattern.compile("^\\s*@(?=\\S)", Pattern.MULTILINE);
 
-    private static final Pattern whitespace = Pattern.compile("\\s");
+    // A run of whitespace, so tags aligned by a formatter (like "@param  name  comment") split correctly
+    private static final Pattern whitespace = Pattern.compile("\\s+");
 
     private static ParamJavadoc parseParam(BlockTag t, String owningClass) {
         String[] paramNameAndComment = whitespace.split(t.value, 2);
