@@ -47,7 +47,7 @@ public class ToTextListCommentVisitor implements CommentVisitor {
     }
 
     private void appendInlineText(String txt) {
-        if (txt == null) {
+        if (txt == null || txt.isEmpty()) {
         } else if (lines.isEmpty()) {
             lines.add(txt);
         } else {

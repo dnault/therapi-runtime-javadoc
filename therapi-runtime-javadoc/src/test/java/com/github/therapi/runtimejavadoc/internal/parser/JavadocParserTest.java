@@ -1,5 +1,6 @@
 package com.github.therapi.runtimejavadoc.internal.parser;
 
+import com.github.therapi.runtimejavadoc.CommentFormatter;
 import com.github.therapi.runtimejavadoc.CommentText;
 import com.github.therapi.runtimejavadoc.MethodJavadoc;
 import org.junit.jupiter.api.Test;
@@ -21,5 +22,15 @@ public class JavadocParserTest {
 
         assertEquals(Collections.singletonList(new CommentText("list")), doc.getComment().getElements());
         assertEquals(Collections.emptyList(), doc.getReturns().getElements());
+    }
+
+    // https://github.com/dnault/therapi-runtime-javadoc/issues/79
+    @Test
+    public void givenEmptyCodeTag_expectEmptyCodeElement() {
+        MethodJavadoc doc = JavadocParser.parseMethodJavadoc(
+            "com.example.Example", "list", Collections.emptyList(), " Returns {@code} or {@literal}.\n");
+
+        assertEquals("Returns <code></code> or .", new CommentFormatter().format(doc.getComment()));
+        assertEquals("Returns <code></code> or .", doc.getComment().toString());
     }
 }

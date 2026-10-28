@@ -236,14 +236,14 @@ public class CommentParserTest {
     public void parse_tagOnly_emptyTag() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@sometag}").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineTag("sometag", null), elements.get(0));
+        assertEquals(new InlineTag("sometag", ""), elements.get(0));
     }
 
     @Test
     public void parse_tagOnly_whitespaceTag() {
         List<CommentElement> elements = CommentParser.parse("TestClass", "{@sometag  \t }").getElements();
         assertEquals(1, elements.size());
-        assertEquals(new InlineTag("sometag", null), elements.get(0));
+        assertEquals(new InlineTag("sometag", ""), elements.get(0));
     }
 
     @Test
@@ -319,7 +319,7 @@ public class CommentParserTest {
         assertEquals(new CommentText("text}bef{}ore "), elements.get(0));
         assertEquals(new InlineLink(new Link("ClassName", "ClassName", null, null)), elements.get(1));
         assertEquals(new CommentText("{@} text{after}\nand "), elements.get(2));
-        assertEquals(new InlineTag("empty", null), elements.get(3));
+        assertEquals(new InlineTag("empty", ""), elements.get(3));
         assertEquals(new InlineValue(new Value("TestClass", "member")), elements.get(4));
     }
 }

@@ -39,4 +39,18 @@ public class CommentFormatterTest {
         String expected = "before {@link className#memberName label} {@value a.b.c.ClassName#memberName} {@value} <code>List&lt;String&gt;</code> &lt;&gt;&amp;&quot;{@unrecognized foo} unexpected element after";
         assertEquals(expected, formatter.format(c));
     }
+
+    @Test
+    public void formatterHandlesTagsWithoutContent() {
+        Comment c = new Comment(Arrays.asList(
+                new CommentText("code: "),
+                new InlineTag("code", null),
+                new CommentText(", literal: "),
+                new InlineTag("literal", null),
+                new CommentText(", other: "),
+                new InlineTag("inheritDoc", null)
+        ));
+
+        assertEquals("code: <code></code>, literal: , other: {@inheritDoc}", formatter.format(c));
+    }
 }
