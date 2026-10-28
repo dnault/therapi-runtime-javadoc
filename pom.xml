@@ -46,7 +46,7 @@
 
     <properties>
         <!-- The version of every module -->
-        <revision>0.16.0</revision>
+        <revision>0.17.0-SNAPSHOT</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
